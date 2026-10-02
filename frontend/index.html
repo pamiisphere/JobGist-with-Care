@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JobGist with Care</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Noto+Serif+Thai:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F8F6FC; --surface:#FFFFFF; --ink:#1E1533; --body:#463F58; --muted:#5C5670;
+  --line:#E4E0EE; --line-2:#CFC8DE;
+  --p:#5E35B1; --p-d:#4527A0; --p-soft:#ECE6FA;
+  --f:#9C2F73; --f-d:#86255F; --f-soft:#F8E4F0; --f-ink:#5E1843;
+  --lilac:#C9B6FF; --err:#B42318;
+  --serif:'Noto Serif Thai', Georgia, serif;
+  --sans:'Noto Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --shadow:0 18px 44px rgba(30,21,51,.12);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);line-height:1.4;margin:0;font-weight:700}
+p{margin:0}
+a{color:var(--p)}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--lilac);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.muted{color:var(--muted)} .small{font-size:14px}
+svg{flex-shrink:0}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;background:none;border:0;padding:4px;cursor:pointer;text-align:left;border-radius:12px}
+.brand-mark{width:38px;height:38px;border-radius:11px;background:var(--p);display:grid;place-items:center;color:#fff}
+.brand b{display:block;font-size:18px;line-height:1.15}
+.brand small{display:block;font-size:12px;color:var(--muted);line-height:1.15}
+.topnav{display:flex;gap:4px}
+.topnav button{min-height:44px;padding:0 16px;border:0;background:none;border-radius:999px;font-weight:600;cursor:pointer;color:var(--body)}
+.topnav button:hover{background:var(--p-soft);color:var(--p-d)}
+.topnav button[aria-current="page"]{background:var(--p-soft);color:var(--p-d)}
+@media (max-width:600px){.topnav{display:none}}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:999px;border:1.5px solid transparent;font-weight:600;cursor:pointer;text-decoration:none;transition:background-color .15s,border-color .15s;white-space:nowrap}
+.btn-lg{min-height:56px;padding:0 28px;font-size:17px}
+.btn-p{background:var(--p);color:#fff}.btn-p:hover{background:var(--p-d)}
+.btn-f{background:var(--f);color:#fff}.btn-f:hover{background:var(--f-d)}
+.btn-o{background:#fff;border-color:var(--line-2);color:var(--ink)}.btn-o:hover{border-color:var(--ink)}
+.btn-dark{background:#fff;border-color:var(--ink);color:var(--ink)}.btn-dark:hover{background:var(--ink);color:#fff}
+.linkbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 4px;border:0;background:none;color:var(--p);font-weight:600;cursor:pointer}
+.linkbtn:hover{color:var(--p-d);text-decoration:underline}
+
+.screen{display:none}
+.screen.on{display:block}
+
+/* home */
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:56px;align-items:center;padding-top:72px;padding-bottom:88px}
+.pill{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:var(--p-soft);color:var(--p-d);font-size:14px;font-weight:600}
+.hero-copy{display:flex;flex-direction:column;gap:28px}
+.hero h1{font-size:clamp(40px,5.4vw,64px);line-height:1.28}
+.hero-lead{font-size:clamp(17px,1.6vw,20px);line-height:1.75;color:var(--body);max-width:34em}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap}
+.assure{display:flex;gap:20px;flex-wrap:wrap;font-size:15px;color:var(--body)}
+.assure span{display:inline-flex;gap:6px;align-items:center}
+.hero-art{position:relative;min-height:560px}
+.hero-art .blob{position:absolute;inset:0 0 0 70px;border-radius:40px;background:var(--p-soft)}
+.hero-art .dot{position:absolute;top:36px;right:110px;width:24px;height:24px;border-radius:50%;background:var(--lilac)}
+.card-pf{position:absolute;top:44px;left:0;width:440px;background:#fff;border-radius:24px;padding:28px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:18px}
+.card-fit{position:absolute;bottom:28px;right:28px;width:350px;background:var(--ink);color:#fff;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 56px rgba(30,21,51,.24)}
+.card-fit .lbl{font-size:14px;color:#D9CFF5}
+.card-fit .num{font-size:34px;font-weight:700}
+.track-d{height:8px;border-radius:999px;background:rgba(255,255,255,.18)}
+.track-d span{display:block;height:100%;border-radius:inherit;background:var(--lilac)}
+@media (max-width:960px){
+  .hero .wrap{grid-template-columns:1fr;padding-top:48px;gap:40px}
+  .hero-art{min-height:0;display:flex;flex-direction:column;gap:16px;padding:20px;border-radius:32px;background:var(--p-soft)}
+  .hero-art .blob,.hero-art .dot{display:none}
+  .card-pf,.card-fit{position:static;width:auto}
+}
+.sec{padding:16px 0 88px}
+.sec-head{display:flex;flex-direction:column;gap:10px;max-width:760px;margin-bottom:36px}
+.sec-head .kick{font-size:15px;font-weight:700;color:var(--f)}
+.sec-head h2{font-size:clamp(28px,3.2vw,40px)}
+.sides{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
+.side{border-radius:28px;padding:40px;display:flex;flex-direction:column;gap:22px}
+.side.cg{background:var(--p-soft)} .side.fm{background:var(--f-soft)}
+.side .ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;color:#fff}
+.side.cg .ic{background:var(--p)} .side.fm .ic{background:var(--f)}
+.side h3{font-family:var(--sans);font-size:26px}
+.side ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:17px}
+.side li{display:flex;gap:12px;align-items:flex-start}
+.side li svg{margin-top:4px}
+.side .go{align-self:flex-start}
+@media (max-width:860px){.sides{grid-template-columns:1fr}.side{padding:28px}}
+.how{background:#fff;border-radius:32px;padding:56px;display:flex;flex-direction:column;gap:40px;border:1px solid var(--line)}
+.how h2{font-size:clamp(26px,3vw,36px)}
+.how ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px}
+.how li{display:flex;flex-direction:column;gap:10px}
+.how .n{width:44px;height:44px;border-radius:50%;color:#fff;font-weight:700;font-size:18px;display:grid;place-items:center}
+.how b{font-size:19px}
+.how p{font-size:15px;line-height:1.7;color:var(--muted)}
+@media (max-width:960px){.how{padding:32px}.how ol{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.how ol{grid-template-columns:1fr}}
+footer.site{margin-top:88px;border-top:1px solid var(--line);background:#fff}
+footer.site .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-top:28px;padding-bottom:28px;font-size:14px;color:var(--muted)}
+
+/* shared bits */
+.tags{display:flex;gap:8px;flex-wrap:wrap}
+.tag{padding:5px 12px;border-radius:999px;background:var(--p-soft);color:var(--p-d);font-size:13px;font-weight:500;line-height:1.5}
+.tag.f{background:var(--f-soft);color:var(--f-ink)}
+.tag.n{background:#F0EDF6;color:var(--body)}
+.av{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:20px;background:var(--f-soft);color:var(--f-d);flex-shrink:0}
+.av.b{background:var(--p-soft);color:var(--p-d)} .av.c{background:#F0EDF6;color:var(--body)}
+.person{display:flex;gap:16px;align-items:center}
+.person .nm{font-family:var(--sans);font-size:20px;font-weight:700;line-height:1.35}
+
+/* flow (forms) */
+.flow{max-width:640px;margin:0 auto;padding:28px 20px 40px}
+.flow-top{display:flex;flex-direction:column;gap:12px;margin-bottom:28px}
+.flow-top .row{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;color:var(--muted)}
+.prog{height:6px;background:var(--line);border-radius:999px;overflow:hidden}
+.prog span{display:block;height:100%;background:var(--p);border-radius:inherit;transition:width .3s}
+.step-h{font-size:clamp(24px,4vw,30px);outline:none}
+.step-sub{color:var(--muted);margin-top:6px}
+.fs{border:0;padding:0;margin:0;min-width:0}
+.fs legend{padding:0}
+.h2{font-size:21px;outline:none}
+.field{display:flex;flex-direction:column;gap:8px;margin-top:22px}
+.field label,.lbl{font-size:15px;font-weight:600}
+.text,textarea.text{width:100%;min-height:52px;padding:0 16px;border-radius:14px;border:1.5px solid var(--line-2);background:#fff;font-size:16px;transition:border-color .15s}
+textarea.text{padding:14px 16px;line-height:1.7;resize:vertical;min-height:150px}
+.text:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px var(--p-soft)}
+.text[aria-invalid="true"]{border-color:var(--err)}
+.err{color:var(--err);font-size:14px;font-weight:500;margin-top:8px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.chip{min-height:44px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;border:1.5px solid var(--line-2);background:#fff;cursor:pointer;font-weight:500;font-size:15px;transition:background-color .12s,border-color .12s}
+.chip:hover{border-color:var(--p)}
+.chip .ck{display:none}
+.chip[aria-pressed="true"]{background:var(--p);border-color:var(--p);color:#fff}
+.chip[aria-pressed="true"] .ck{display:inline}
+.chip.fam:hover{border-color:var(--f)}
+.chip.fam[aria-pressed="true"]{background:var(--f);border-color:var(--f)}
+.opts{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.opts.row{flex-direction:row;flex-wrap:wrap}
+.opt{display:flex;gap:14px;align-items:center;padding:14px 16px;border:2px solid var(--line);border-radius:16px;background:#fff;cursor:pointer;transition:border-color .12s,background-color .12s}
+.opt:hover{border-color:var(--line-2)}
+.opt input{width:20px;height:20px;accent-color:var(--p);margin:0;flex-shrink:0}
+.opt b{display:block;font-size:16px}
+.opt small{display:block;font-size:14px;color:var(--muted)}
+.opt:has(input:checked){border-color:var(--p);background:var(--p-soft)}
+.opts.fam .opt input{accent-color:var(--f)}
+.opts.fam .opt:has(input:checked){border-color:var(--f);background:var(--f-soft)}
+.opts.row .opt{padding:10px 16px}
+.stepper{display:inline-flex;align-items:center;border:1.5px solid var(--line-2);border-radius:999px;background:#fff;align-self:flex-start}
+.sbtn{width:52px;height:52px;border:0;background:none;font-size:24px;cursor:pointer;border-radius:999px;color:var(--p)}
+.sbtn:hover{background:var(--p-soft)}
+.stepper output{min-width:130px;text-align:center;font-weight:700;font-size:18px}
+.drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:32px 20px;margin-top:22px;border:2px dashed var(--line-2);border-radius:20px;background:#fff;cursor:pointer;text-align:center;color:var(--body)}
+.drop:hover{border-color:var(--p);background:#FBFAFE}
+.drop:focus-within{outline:3px solid var(--lilac);outline-offset:2px}
+.drop svg{color:var(--p)}
+.thumbs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}
+.thumbs:empty{display:none}
+.thumb{position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#fff}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .rm{position:absolute;top:6px;right:6px;width:32px;height:32px;border-radius:50%;border:0;background:rgba(30,21,51,.75);color:#fff;font-size:18px;cursor:pointer;display:grid;place-items:center}
+.check{display:flex;gap:10px;align-items:center;margin-top:18px;min-height:44px;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--p)}
+.review{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 20px}
+.rv{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.rv:last-child{border-bottom:0}
+.rv .k{font-size:14px;color:var(--muted)}
+.rv .v{font-weight:600}
+.hint{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:16px;background:var(--f-soft);color:var(--f-ink);font-size:14px;line-height:1.6;margin-top:28px}
+.flow-foot{position:sticky;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid var(--line);z-index:5}
+.flow-foot .in{max-width:640px;margin:0 auto;padding:14px 20px 18px;display:flex;gap:12px}
+.flow-foot .btn{flex:1}
+.flow-foot .btn.grow{flex:2}
+
+/* generating */
+.gen{position:fixed;inset:0;background:rgba(248,246,252,.97);display:none;place-items:center;z-index:60;padding:24px}
+.gen.on{display:grid}
+.gen .box{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;max-width:360px}
+.spin{width:60px;height:60px;border-radius:50%;border:5px solid var(--p-soft);border-top-color:var(--p);animation:sp .9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.gen h2{font-size:22px}
+
+/* profile */
+.pf-band{background:var(--p);color:#fff}
+.pf-band .in{max-width:640px;margin:0 auto;padding:32px 20px 76px;display:flex;flex-direction:column;gap:10px}
+.pf-band .pill-l{align-self:flex-start;display:inline-flex;gap:6px;align-items:center;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.16);font-size:13px;font-weight:600}
+.pf-band h1{font-size:clamp(26px,4vw,32px)}
+.pf-band p{color:#E6DDFA}
+.pf-wrap{max-width:640px;margin:-52px auto 0;padding:0 16px 32px}
+.pf-card{background:#fff;border-radius:24px;padding:24px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:22px}
+.pf-card h3{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--p);margin-bottom:8px}
+.sec-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.sec-row h3{margin:0}
+.about{color:var(--body);line-height:1.8;font-size:16px}
+.note{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:14px;color:var(--muted);padding:0 4px}
+.done{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px;padding:14px 16px;border-radius:16px;background:var(--p-soft);color:var(--p-d);font-weight:600}
+
+/* applicants */
+.ap{padding:32px 0 120px}
+.ap-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.ap-head .crumb{font-size:14px;color:var(--muted);max-width:52em}
+.ap-head h1{font-size:clamp(28px,3.4vw,34px)}
+.ap-tools{display:flex;gap:10px;flex-wrap:wrap}
+.search{display:flex;align-items:center;gap:8px;width:280px;max-width:100%;min-height:48px;padding:0 16px;border-radius:999px;background:#fff;border:1.5px solid var(--line-2)}
+.search:focus-within{border-color:var(--p);box-shadow:0 0 0 3px var(--p-soft)}
+.search input{flex:1;border:0;background:none;outline:none;min-width:0}
+.select{min-height:48px;padding:0 16px;border-radius:999px;background:#fff;border:1.5px solid var(--line-2);cursor:pointer}
+.needs-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:20px 0 24px}
+.needs-row .k{font-size:14px;color:var(--muted);margin-right:4px}
+.ap-grid{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:24px;align-items:start}
+@media (max-width:1000px){.ap-grid{grid-template-columns:1fr}}
+.ap-list{display:flex;flex-direction:column;gap:14px}
+.app{background:#fff;border-radius:22px;border:2px solid var(--line);overflow:hidden;transition:border-color .12s}
+.app.sel{border-color:var(--p)}
+.app-main{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 16px;align-items:center;width:100%;padding:20px 20px 12px;border:0;background:none;text-align:left;cursor:pointer}
+.app-main:hover .app-id b{color:var(--p-d)}
+.app-id b{display:block;font-size:18px}
+.app-id small{display:block;font-size:14px;color:var(--muted)}
+.app-score{display:flex;flex-direction:column;align-items:flex-end;gap:6px;width:120px}
+.app-score b{font-size:24px;line-height:1;color:var(--p)}
+.bar{display:block;width:120px;height:6px;border-radius:999px;background:var(--line)}
+.bar span{display:block;height:100%;border-radius:inherit;background:var(--p)}
+.app-sum{grid-column:1/-1;margin-top:8px;color:var(--body);font-size:15px;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.app-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 20px 14px;flex-wrap:wrap}
+.cmp{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:14px;font-weight:600;cursor:pointer;color:var(--body)}
+.cmp input{width:18px;height:18px;accent-color:var(--p)}
+@media (max-width:520px){.app-main{grid-template-columns:auto minmax(0,1fr)}.app-score{grid-column:1/-1;flex-direction:row;align-items:center;width:auto;justify-content:flex-start}.app-score b{font-size:20px}}
+.det{position:sticky;top:88px;background:#fff;border-radius:26px;padding:28px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:22px;scroll-margin-top:84px}
+@media (max-width:1000px){.det{position:static}}
+.det-top{display:flex;gap:20px;align-items:center}
+.ring{position:relative;width:104px;height:104px;flex-shrink:0}
+.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .c b{font-size:26px;line-height:1}
+.ring .c small{font-size:12px;color:var(--muted)}
+.det h2{font-family:var(--sans);font-size:22px}
+.det h3{font-family:var(--sans);font-size:16px;margin-bottom:10px}
+.okline{display:inline-flex;gap:6px;align-items:center;font-size:14px;color:var(--p-d);font-weight:600;margin-top:4px}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.checks li{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.6}
+.checks li svg{margin-top:3px;color:var(--p)}
+.warn{display:flex;gap:10px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:var(--f-soft);color:var(--f-ink);font-size:14px;line-height:1.6}
+.warn ul{margin:4px 0 0;padding-left:18px}
+.det-actions{display:flex;gap:10px;flex-wrap:wrap}
+.det-actions .btn{flex:1}
+.fine{font-size:13px;color:var(--muted);line-height:1.6}
+.empty{padding:40px 24px;text-align:center;background:#fff;border:1.5px dashed var(--line-2);border-radius:22px;color:var(--muted)}
+.cmpbar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:30;display:none;align-items:center;gap:14px;padding:10px 10px 10px 22px;border-radius:999px;background:var(--ink);color:#fff;box-shadow:0 18px 44px rgba(30,21,51,.3)}
+.cmpbar.on{display:flex}
+.cmpbar .btn{min-height:44px;background:var(--lilac);color:var(--ink)}
+.cmpbar .btn:hover{background:#fff}
+
+/* dialogs */
+dialog{border:0;border-radius:24px;padding:0;width:min(920px,94vw);max-height:90vh;color:var(--ink);box-shadow:0 30px 80px rgba(30,21,51,.3)}
+dialog.sm{width:min(520px,94vw)}
+dialog::backdrop{background:rgba(30,21,51,.5)}
+.dlg-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--line)}
+.dlg-h h2{font-size:22px}
+.xbtn{width:44px;height:44px;border-radius:50%;border:0;background:#F0EDF6;cursor:pointer;display:grid;place-items:center}
+.xbtn:hover{background:var(--p-soft)}
+.dlg-b{padding:20px 24px 24px;overflow:auto}
+.ctable{width:100%;border-collapse:collapse;min-width:560px}
+.ctable th,.ctable td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);font-size:15px}
+.ctable thead th{font-size:17px;border-bottom:2px solid var(--line)}
+.ctable tbody th{font-weight:600;color:var(--muted);width:170px;font-size:14px}
+.ctable .big{font-size:22px;color:var(--p)}
+.tscroll{overflow-x:auto}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:80;background:var(--ink);color:#fff;padding:12px 20px;border-radius:14px;font-weight:500;transition:opacity .2s,transform .2s;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <button type="button" class="brand" data-go="home" aria-label="JobGist with Care หน้าแรก">
+      <span class="brand-mark"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
+      <span><b>JobGist</b><small>with Care</small></span>
+    </button>
+    <nav class="topnav" aria-label="เมนูหลัก">
+      <button type="button" data-go="caregiver" data-nav="caregiver profile">สำหรับผู้ดูแล</button>
+      <button type="button" data-go="family" data-nav="family applicants">สำหรับครอบครัว</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- ============ HOME ============ -->
+<section class="screen" id="s-home">
+  <div class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>หางานดูแลผู้สูงอายุและผู้ป่วย เป็นภาษาไทย</span>
+        <h1>งานดูแลที่ใช่<br>เจอกันได้โดยตรง</h1>
+        <p class="hero-lead">ผู้ดูแลไม่ต้องเขียนเรซูเม่ แค่ตอบคำถามทีละขั้น ระบบจะเรียบเรียงเป็นโปรไฟล์พร้อมสมัครงานให้ ส่วนครอบครัวได้อ่านสรุปผู้สมัครแบบเข้าใจง่าย พร้อมเหตุผลว่าทำไมถึงเหมาะ</p>
+        <div class="cta-row">
+          <button type="button" class="btn btn-p btn-lg" data-go="caregiver">ฉันเป็นผู้ดูแล สร้างโปรไฟล์</button>
+          <button type="button" class="btn btn-dark btn-lg" data-go="family">ฉันกำลังหาผู้ดูแล</button>
+        </div>
+        <div class="assure">
+          <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ไม่ต้องมีเรซูเม่</span>
+          <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>จ้างตรง ไม่ผ่านเอเจนซี่</span>
+          <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ใช้งานเป็นภาษาไทยทั้งหมด</span>
+        </div>
+      </div>
+      <div class="hero-art" aria-label="ตัวอย่างโปรไฟล์และคะแนนความเหมาะสม">
+        <div class="blob"></div><div class="dot"></div>
+        <div class="card-pf">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <span style="display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:600;color:var(--p)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>โปรไฟล์ที่ระบบสร้างให้</span>
+            <span class="muted" style="font-size:12px">ตัวอย่าง</span>
+          </div>
+          <div class="person"><span class="av">สจ</span><div><div class="nm">คุณสมศรี ใจดี</div><div class="muted" style="font-size:15px">ผู้ช่วยเหลือคนไข้ (NA), ประสบการณ์ 6 ปี</div></div></div>
+          <p style="font-size:15px;line-height:1.75;color:var(--body)">ผู้ช่วยเหลือคนไข้ที่มีประสบการณ์ 6 ปี สามารถดูแลผู้ป่วยติดเตียง ให้อาหารทางสายยาง และดูแลผู้มีภาวะสมองเสื่อมได้อย่างมั่นใจ สะดวกทำงานแบบอยู่ประจำ</p>
+          <div class="tags"><span class="tag">ผู้ป่วยติดเตียง</span><span class="tag">ให้อาหารทางสายยาง</span><span class="tag">ภาวะสมองเสื่อม</span></div>
+        </div>
+        <div class="card-fit">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="lbl">ความเหมาะสมกับงานของคุณ</span><span class="num">92%</span></div>
+          <div class="track-d"><span style="width:92%"></span></div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.6">
+            <span style="display:flex;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9B6FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-top:4px"><path d="M20 6 9 17l-5-5"/></svg>ดูแลผู้ป่วยติดเตียงได้ ตรงกับที่ต้องการ</span>
+            <span style="display:flex;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9B6FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-top:4px"><path d="M20 6 9 17l-5-5"/></svg>สะดวกทำงานแบบอยู่ประจำ ตรงกับรูปแบบงานนี้</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec"><div class="wrap">
+    <div class="sec-head"><span class="kick">สองฝั่ง หนึ่งแพลตฟอร์ม</span><h2>ออกแบบให้ทั้งผู้ดูแลและครอบครัวใช้ได้ง่าย</h2></div>
+    <div class="sides">
+      <div class="side cg">
+        <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
+        <div><h3>สำหรับผู้ดูแล</h3><p class="muted" style="margin-top:4px">ผู้ดูแล, ผู้ช่วยเหลือคนไข้ (NA), ผู้ช่วยพยาบาล (PN) และผู้ดูแลที่บ้าน</p></div>
+        <ul>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>แบบฟอร์มภาษาไทยทีละขั้น ไม่ต้องพิมพ์ยาว</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ถ่ายรูปใบรับรองแนบเป็นหลักฐานได้ทันที</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ได้โปรไฟล์พร้อมสมัครงาน แก้ไขเองได้ทุกเมื่อ</li>
+        </ul>
+        <button type="button" class="btn btn-p go" data-go="caregiver">เริ่มสร้างโปรไฟล์</button>
+      </div>
+      <div class="side fm">
+        <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span>
+        <div><h3>สำหรับครอบครัว</h3><p class="muted" style="margin-top:4px">ครอบครัวและผู้ว่าจ้างที่ต้องการจ้างผู้ดูแลโดยตรง</p></div>
+        <ul>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C2F73" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>เล่าอาการผู้ป่วยเป็นภาษาที่พูดปกติ</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C2F73" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>อ่านสรุปผู้สมัครและคะแนนความเหมาะสมพร้อมเหตุผล</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C2F73" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>เปรียบเทียบและเลือกเอง ไม่ต้องผ่านเอเจนซี่</li>
+        </ul>
+        <button type="button" class="btn btn-f go" data-go="family">โพสต์หาผู้ดูแล</button>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="wrap">
+    <div class="how">
+      <h2>ใช้งานอย่างไร</h2>
+      <ol>
+        <li><span class="n" style="background:var(--p)">1</span><b>ตอบคำถามทีละขั้น</b><p>ผู้ดูแลแตะเลือกบทบาท ประสบการณ์ และกรณีที่มั่นใจดูแล</p></li>
+        <li><span class="n" style="background:var(--p)">2</span><b>ได้โปรไฟล์ภาษาไทย</b><p>ตรวจและแก้ไขข้อความได้ก่อนเผยแพร่</p></li>
+        <li><span class="n" style="background:var(--f)">3</span><b>ครอบครัวโพสต์ความต้องการ</b><p>เล่าอาการและสิ่งที่อยากให้ช่วย ระบบจับประเด็นให้</p></li>
+        <li><span class="n" style="background:var(--f)">4</span><b>เปรียบเทียบและเลือกเอง</b><p>ดูคะแนน เหตุผล และติดต่อผู้ดูแลได้โดยตรง</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAREGIVER FORM ============ -->
+<section class="screen" id="s-caregiver">
+  <div class="flow">
+    <div class="flow-top">
+      <div class="row"><span>สร้างโปรไฟล์ของคุณ</span><span id="stepNum"></span></div>
+      <div class="prog" role="progressbar" aria-label="ความคืบหน้า" aria-valuemin="1" aria-valuemax="5" id="progWrap"><span id="prog"></span></div>
+    </div>
+    <div id="formBody"></div>
+  </div>
+  <div class="flow-foot"><div class="in">
+    <button type="button" class="btn btn-o" id="fBack">ย้อนกลับ</button>
+    <button type="button" class="btn btn-p grow" id="fNext">ถัดไป</button>
+  </div></div>
+</section>
+
+<!-- ============ PROFILE ============ -->
+<section class="screen" id="s-profile">
+  <div id="pfBody"></div>
+  <div class="flow-foot"><div class="in">
+    <button type="button" class="btn btn-o" id="pfRedo">แก้ไขคำตอบ</button>
+    <button type="button" class="btn btn-p grow" id="pfPub">เผยแพร่โปรไฟล์</button>
+  </div></div>
+</section>
+
+<!-- ============ FAMILY POST ============ -->
+<section class="screen" id="s-family">
+  <div class="flow">
+    <h1 class="step-h" tabindex="-1">เล่าให้เราฟังว่าต้องการให้ช่วยอะไร</h1>
+    <p class="step-sub">เขียนแบบที่พูดปกติได้เลย ไม่ต้องใช้ศัพท์ทางการ</p>
+    <div class="field">
+      <label for="j-text">อาการและสิ่งที่ต้องการ</label>
+      <textarea id="j-text" class="text" rows="6" placeholder="เช่น คุณแม่อายุ 78 ปี ติดเตียง ต้องให้อาหารทางสายยาง อยากได้คนดูแลอยู่ประจำ" aria-describedby="e-text"></textarea>
+      <p class="err" id="e-text" hidden>เล่าอาการหรือสิ่งที่ต้องการสั้นๆ อย่างน้อย 1 ประโยค</p>
+      <button type="button" class="linkbtn" id="j-example" style="align-self:flex-start">ใส่ข้อความตัวอย่าง</button>
+    </div>
+    <div class="review" style="padding:20px">
+      <p style="display:inline-flex;gap:6px;align-items:center;font-weight:700;color:var(--f-d)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>สิ่งที่ระบบเข้าใจจากข้อความ</p>
+      <p class="muted small">ระบบเลือกให้อัตโนมัติจากสิ่งที่คุณเขียน แตะเพื่อเพิ่มหรือเอาออกได้</p>
+      <div class="chips" id="j-needs" role="group" aria-label="ความต้องการในการดูแล"></div>
+      <p class="err" id="e-needs" hidden>เลือกอย่างน้อย 1 ข้อ เพื่อให้ระบบหาผู้ดูแลที่ตรงกับงาน</p>
+      <fieldset class="fs" style="margin-top:20px"><legend class="lbl">รูปแบบงาน</legend><div class="opts row fam" id="j-work"></div></fieldset>
+    </div>
+    <div class="field"><label for="j-area">พื้นที่</label><input id="j-area" class="text" placeholder="เช่น บางกะปิ กรุงเทพฯ" autocomplete="address-level2"></div>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+      <div class="field"><label for="j-budget">งบต่อเดือน (บาท)</label><input id="j-budget" class="text" inputmode="numeric" placeholder="ไม่บังคับ"></div>
+      <div class="field"><label for="j-start">วันที่เริ่มงาน</label><input id="j-start" class="text" type="date"></div>
+    </div>
+  </div>
+  <div class="flow-foot"><div class="in">
+    <button type="button" class="btn btn-o" data-go="home">ยกเลิก</button>
+    <button type="button" class="btn btn-f grow" id="j-submit">โพสต์และดูผู้สมัคร</button>
+  </div></div>
+</section>
+
+<!-- ============ APPLICANTS ============ -->
+<section class="screen" id="s-applicants">
+  <div class="wrap ap">
+    <div class="ap-head">
+      <div>
+        <p class="crumb">งานที่โพสต์: <span id="apJob"></span> <button type="button" class="linkbtn" data-go="family" style="min-height:32px">แก้ไขงาน</button></p>
+        <h1 id="apCount" tabindex="-1">ผู้สมัคร</h1>
+      </div>
+      <div class="ap-tools">
+        <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C5670" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="sr">ค้นหาผู้สมัคร</span><input id="apSearch" type="search" placeholder="ค้นหาชื่อ ทักษะ หรือพื้นที่"></label>
+        <label><span class="sr">เรียงลำดับ</span><select id="apSort" class="select"><option value="score">เรียงตาม: ความเหมาะสม</option><option value="years">เรียงตาม: ประสบการณ์</option></select></label>
+      </div>
+    </div>
+    <div class="needs-row" id="apNeeds"></div>
+    <div class="ap-grid">
+      <div class="ap-list" id="apList"></div>
+      <aside class="det" id="apDetail" aria-live="polite"></aside>
+    </div>
+  </div>
+  <div class="cmpbar" id="cmpBar"><span id="cmpText"></span><button type="button" class="btn" id="cmpOpen">เปรียบเทียบ</button></div>
+</section>
+</main>
+
+<footer class="site"><div class="wrap">
+  <span>JobGist with Care</span>
+  <button type="button" class="linkbtn" id="resetDemo">ล้างข้อมูลทดลอง</button>
+</div></footer>
+
+<div class="gen" id="gen" role="status" aria-live="polite">
+  <div class="box"><div class="spin" aria-hidden="true"></div><h2>กำลังสร้างโปรไฟล์ของคุณ</h2><p class="muted">ระบบกำลังเรียบเรียงคำตอบเป็นโปรไฟล์ภาษาไทย</p></div>
+</div>
+
+<dialog id="dlgCompare" aria-labelledby="cmpTitle">
+  <div class="dlg-h"><h2 id="cmpTitle">เปรียบเทียบผู้สมัคร</h2><button type="button" class="xbtn" data-close aria-label="ปิด"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="dlg-b"><div class="tscroll" id="cmpBody"></div></div>
+</dialog>
+
+<dialog id="dlgMsg" class="sm" aria-labelledby="msgTitle">
+  <div class="dlg-h"><h2 id="msgTitle">ส่งข้อความ</h2><button type="button" class="xbtn" data-close aria-label="ปิด"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="dlg-b">
+    <label for="msgText" class="lbl">ข้อความ</label>
+    <textarea id="msgText" class="text" rows="5" style="margin-top:8px"></textarea>
+    <p class="fine" style="margin-top:10px">โหมดทดลอง: ข้อความจะถูกบันทึกไว้ในเบราว์เซอร์นี้เท่านั้น</p>
+    <div class="det-actions" style="margin-top:16px"><button type="button" class="btn btn-o" data-close>ยกเลิก</button><button type="button" class="btn btn-p" id="msgSend">ส่งข้อความ</button></div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ======================================================================
+   CONFIG
+   ใส่ URL ของ FastAPI backend เพื่อใช้ LLM จริง เช่น "http://localhost:8000"
+   เว้นว่าง = โหมดทดลอง สร้างข้อความจาก template ในเบราว์เซอร์
+   Endpoint ที่คาดหวัง:
+     POST {API_BASE}/api/profiles/generate
+       body: { name, area, role, years, cases[], work, has_certificate }
+       resp: { profile_text: "..." }
+   ====================================================================== */
+const CONFIG = { API_BASE: "" };
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { toast('บันทึกข้อมูลในเบราว์เซอร์ไม่ได้ ลองลดจำนวนรูปที่แนบ'); } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+
+const ICON = {
+  check: '<svg class="ck" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
+  tick: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
+  spark: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>',
+  arrow: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>',
+  upload: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>',
+  pin: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+  pen: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
+  info: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+  shield: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>',
+  msg: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>'
+};
+
+/* ---------- domain data ---------- */
+const ROLES = {
+  cg:   { label: 'ผู้ดูแล (Caregiver)',   full: 'ผู้ดูแลผู้สูงอายุและผู้ป่วย', desc: 'ดูแลกิจวัตรประจำวันของผู้สูงอายุหรือผู้ป่วย' },
+  na:   { label: 'ผู้ช่วยเหลือคนไข้ (NA)', full: 'ผู้ช่วยเหลือคนไข้',        desc: 'ผ่านการอบรมหลักสูตรผู้ช่วยเหลือคนไข้' },
+  pn:   { label: 'ผู้ช่วยพยาบาล (PN)',    full: 'ผู้ช่วยพยาบาล',           desc: 'ผ่านการอบรมหลักสูตรผู้ช่วยพยาบาล' },
+  home: { label: 'ผู้ดูแลที่บ้าน',         full: 'ผู้ดูแลที่บ้าน',            desc: 'มีประสบการณ์ดูแลคนในครอบครัวหรือคนรู้จัก' }
+};
+const CASES = {
+  bed:      { label: 'ผู้ป่วยติดเตียง',        verb: 'ดูแลผู้ป่วยติดเตียง',        kw: ['ติดเตียง', 'ลุกไม่ได้', 'นอนอย่างเดียว'] },
+  tube:     { label: 'ให้อาหารทางสายยาง',     verb: 'ให้อาหารทางสายยาง',         kw: ['สายยาง', 'ทางสาย', 'ฟีดอาหาร', 'ฟีดนม'] },
+  dementia: { label: 'ภาวะสมองเสื่อม',        verb: 'ดูแลผู้มีภาวะสมองเสื่อม',    kw: ['สมองเสื่อม', 'อัลไซเมอร์', 'หลงลืม', 'ความจำ'] },
+  stroke:   { label: 'ผู้ป่วยหลอดเลือดสมอง',  verb: 'ดูแลผู้ป่วยหลอดเลือดสมอง', kw: ['เส้นเลือดในสมอง', 'หลอดเลือดสมอง', 'สโตรก', 'stroke', 'อัมพาต', 'อัมพฤกษ์'] },
+  surgery:  { label: 'ดูแลหลังผ่าตัด',        verb: 'ดูแลผู้ป่วยหลังผ่าตัด',      kw: ['ผ่าตัด'] },
+  wound:    { label: 'ทำแผลกดทับ',           verb: 'ทำแผลกดทับ',               kw: ['แผลกดทับ', 'ทำแผล'] },
+  doctor:   { label: 'พาไปพบแพทย์',          verb: 'พาผู้ป่วยไปพบแพทย์',        kw: ['หาหมอ', 'พบแพทย์', 'พบหมอ', 'โรงพยาบาล', 'นัดหมอ'] },
+  elder:    { label: 'ผู้สูงอายุทั่วไป',       verb: 'ดูแลผู้สูงอายุทั่วไป',       kw: ['ผู้สูงอายุ', 'สูงวัย', 'คนแก่'] }
+};
+const WORK = {
+  live: { label: 'อยู่ประจำ',  desc: 'พักอาศัยที่บ้านผู้ป่วย',            kw: ['อยู่ประจำ', 'ค้างคืน', 'พักที่บ้าน', '24 ชั่วโมง', '24 ชม'] },
+  day:  { label: 'ไป-กลับ',   desc: 'ทำงานเป็นกะรายวัน',               kw: ['ไปกลับ', 'ไป-กลับ', 'ไป กลับ', 'รายวัน', 'เช้าไปเย็นกลับ'] },
+  hour: { label: 'รายชั่วโมง', desc: 'ช่วยเฉพาะช่วงเวลาที่ครอบครัวต้องการ', kw: ['รายชั่วโมง', 'เป็นชั่วโมง', 'บางช่วงเวลา'] }
+};
+const SAMPLE_JOB = 'คุณแม่อายุ 78 ปี ติดเตียงหลังเป็นเส้นเลือดในสมอง ต้องให้อาหารทางสายยาง อยากได้คนดูแลอยู่ประจำ ช่วยพลิกตัว เช็ดตัว และพาไปหาหมอเดือนละครั้ง';
+
+/* ข้อมูลตัวอย่างผู้ดูแล (ไม่ใช่บุคคลจริง) */
+const SEED = [
+  { id: 's1', name: 'สมศรี ใจดี',     role: 'na',   years: 6, area: 'บางกะปิ กรุงเทพฯ', cases: ['bed', 'tube', 'dementia', 'wound'], work: 'live', cert: true,  sample: true },
+  { id: 's2', name: 'วิไล ทองดี',     role: 'pn',   years: 9, area: 'ลาดพร้าว กรุงเทพฯ', cases: ['surgery', 'tube', 'wound', 'doctor'], work: 'day', cert: true, sample: true },
+  { id: 's3', name: 'ประยูร แก้วมณี', role: 'home', years: 3, area: 'บึงกุ่ม กรุงเทพฯ',  cases: ['bed', 'elder', 'doctor'], work: 'live', cert: false, sample: true },
+  { id: 's4', name: 'อรุณี ศรีสุข',   role: 'cg',   years: 4, area: 'บางกะปิ กรุงเทพฯ', cases: ['stroke', 'bed', 'doctor', 'elder'], work: 'live', cert: true, sample: true }
+];
+
+/* ---------- helpers ---------- */
+const yearsText = y => y === 0 ? 'น้อยกว่า 1 ปี' : `${y} ปี`;
+const thaiJoin = xs => xs.length <= 1 ? (xs[0] || '') : xs.slice(0, -1).join(' ') + ' และ' + xs[xs.length - 1];
+const hasCert = c => (c.certs && c.certs.length > 0) || !!c.cert;
+function initials(name) {
+  const first = w => { const m = w.replace(/^[เแโใไ]+/, ''); return m.charAt(0) || w.charAt(0); };
+  return name.trim().split(/\s+/).slice(0, 2).map(first).join('') || '?';
+}
+function areaMatch(a, b) {
+  if (!a || !b) return false;
+  return a.trim().split(/\s+/).filter(t => t.length >= 2).some(t => b.includes(t));
+}
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2800); }
+
+/* ---------- "AI" layer: API if configured, template fallback ---------- */
+function mockProfile(d) {
+  const parts = [`${ROLES[d.role].full}ที่มีประสบการณ์${d.years === 0 ? 'น้อยกว่า 1 ปี' : ' ' + d.years + ' ปี'}`];
+  if (d.cases.length) parts.push(`สามารถ${thaiJoin(d.cases.map(c => CASES[c].verb))}ได้อย่างมั่นใจ`);
+  parts.push(`สะดวกทำงานแบบ${WORK[d.work].label}${d.area ? ' ในพื้นที่' + d.area : ''}`);
+  if (hasCert(d)) parts.push('มีใบรับรองการอบรมแนบไว้เป็นหลักฐาน');
+  return parts.join(' ');
+}
+async function callAPI(path, body) {
+  if (!CONFIG.API_BASE) return null;
+  try {
+    const r = await fetch(CONFIG.API_BASE + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error(r.status);
+    return await r.json();
+  } catch (e) {
+    toast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ จึงใช้โหมดทดลองแทน');
+    return null;
+  }
+}
+
+/* ---------- fit score ---------- */
+function scoreFor(c, job) {
+  const need = job.needs || [];
+  const matched = need.filter(n => c.cases.includes(n));
+  const missing = need.filter(n => !c.cases.includes(n));
+  const workOk = !job.work || c.work === job.work;
+  const areaOk = areaMatch(job.area, c.area);
+  let s = need.length ? 60 * matched.length / need.length : 40;
+  s += workOk ? 20 : 6;
+  s += job.area ? (areaOk ? 10 : 3) : 7;
+  s += hasCert(c) ? 5 : 0;
+  s += Math.min(c.years, 10) / 10 * 5;
+  s = Math.round(Math.min(s, 99));
+  const pros = [], cons = [];
+  if (matched.length) pros.push(`สามารถ${thaiJoin(matched.map(n => CASES[n].verb))}ได้ ตรงกับที่ต้องการ`);
+  if (job.work && workOk) pros.push(`สะดวกทำงานแบบ${WORK[c.work].label} ตรงกับรูปแบบงานนี้`);
+  if (job.area && areaOk) pros.push(`อยู่ในพื้นที่ใกล้เคียง (${c.area})`);
+  if (c.years >= 3) pros.push(`มีประสบการณ์ดูแล ${c.years} ปี`);
+  if (hasCert(c)) pros.push('มีใบรับรองการอบรมแนบไว้');
+  if (missing.length) cons.push(`ยังไม่ได้ระบุว่า${thaiJoin(missing.map(n => CASES[n].verb))}ได้`);
+  if (!workOk) cons.push(`สะดวกทำงานแบบ${WORK[c.work].label} มากกว่า${WORK[job.work].label}`);
+  if (!hasCert(c)) cons.push('ยังไม่มีใบรับรองอย่างเป็นทางการ');
+  return { score: s, matched, missing, workOk, pros, cons };
+}
+
+/* ======================================================================
+   CAREGIVER FORM
+   ====================================================================== */
+const TOTAL = 5;
+let step = 1;
+let cg = Object.assign({ name: '', phone: '', area: '', role: 'na', years: 1, cases: [], work: 'live', certs: [], noCert: false }, store.get('jg_cg_draft', {}));
+const saveDraft = () => store.set('jg_cg_draft', cg);
+
+const chipHTML = (sel, cls = '') => Object.entries(CASES).map(([k, c]) =>
+  `<button type="button" class="chip ${cls}" data-case="${k}" aria-pressed="${sel.includes(k)}">${ICON.check}${c.label}</button>`).join('');
+const thumbsHTML = () => cg.certs.map((src, i) =>
+  `<div class="thumb"><img src="${src}" alt="ใบรับรองรูปที่ ${i + 1}"><button type="button" class="rm" data-rm="${i}" aria-label="ลบรูปที่ ${i + 1}">×</button></div>`).join('');
+const rv = (k, v, s) => `<div class="rv"><div><div class="k">${k}</div><div class="v">${v}</div></div><button type="button" class="linkbtn" data-goto="${s}" aria-label="แก้ไข${k}">แก้ไข</button></div>`;
+
+const STEPS = {
+  1: () => `<h1 class="step-h" tabindex="-1">เริ่มจากข้อมูลพื้นฐาน</h1>
+    <p class="step-sub">ใช้สำหรับให้ครอบครัวติดต่อคุณเมื่อสนใจ</p>
+    <div class="field"><label for="f-name">ชื่อ-นามสกุล</label><input id="f-name" class="text" autocomplete="name" placeholder="เช่น สมศรี ใจดี" value="${esc(cg.name)}" aria-describedby="e-name"><p class="err" id="e-name" hidden>กรอกชื่อ-นามสกุลก่อนไปขั้นถัดไป</p></div>
+    <div class="field"><label for="f-phone">เบอร์โทรศัพท์</label><input id="f-phone" class="text" type="tel" inputmode="tel" autocomplete="tel" placeholder="08X-XXX-XXXX" value="${esc(cg.phone)}"></div>
+    <div class="field"><label for="f-area">พื้นที่ที่สะดวกทำงาน</label><input id="f-area" class="text" placeholder="เช่น บางกะปิ กรุงเทพฯ" value="${esc(cg.area)}"></div>`,
+  2: () => `<fieldset class="fs"><legend><h1 class="step-h" tabindex="-1">คุณทำงานดูแลในบทบาทไหน</h1></legend>
+    <p class="step-sub">เลือกที่ตรงกับคุณที่สุด</p>
+    <div class="opts">${Object.entries(ROLES).map(([k, r]) => `<label class="opt"><input type="radio" name="role" value="${k}" ${cg.role === k ? 'checked' : ''}><span><b>${r.label}</b><small>${r.desc}</small></span></label>`).join('')}</div></fieldset>
+    <div class="field" style="margin-top:30px"><span class="lbl" id="yrs-l">ทำงานดูแลมาแล้วกี่ปี</span>
+    <div class="stepper" role="group" aria-labelledby="yrs-l"><button type="button" class="sbtn" data-yr="-1" aria-label="ลดจำนวนปี">−</button><output id="yrs" aria-live="polite">${yearsText(cg.years)}</output><button type="button" class="sbtn" data-yr="1" aria-label="เพิ่มจำนวนปี">+</button></div></div>`,
+  3: () => `<h1 class="step-h" tabindex="-1">คุณมั่นใจดูแลกรณีไหนบ้าง</h1>
+    <p class="step-sub">แตะเลือกได้หลายข้อ (เลือกแล้ว <b id="caseCount">${cg.cases.length}</b> ข้อ)</p>
+    <div class="chips" role="group" aria-label="กรณีที่ดูแลได้">${chipHTML(cg.cases)}</div>
+    <p class="err" id="e-cases" hidden>เลือกอย่างน้อย 1 ข้อ เพื่อให้ครอบครัวรู้ว่าคุณดูแลกรณีไหนได้</p>
+    <fieldset class="fs" style="margin-top:34px"><legend class="h2">รูปแบบงานที่ต้องการ</legend>
+    <div class="opts">${Object.entries(WORK).map(([k, w]) => `<label class="opt"><input type="radio" name="work" value="${k}" ${cg.work === k ? 'checked' : ''}><span><b>${w.label}</b><small>${w.desc}</small></span></label>`).join('')}</div></fieldset>`,
+  4: () => `<h1 class="step-h" tabindex="-1">แนบรูปใบรับรอง</h1>
+    <p class="step-sub">ถ่ายรูปใบประกาศหรือเอกสารการอบรม ช่วยให้ครอบครัวมั่นใจมากขึ้น (ไม่บังคับ)</p>
+    <label class="drop"><input type="file" id="f-cert" accept="image/*" multiple class="sr">${ICON.upload}<b>แตะเพื่อถ่ายรูปหรือเลือกรูป</b><small class="muted">แนบได้สูงสุด 3 รูป</small></label>
+    <div class="thumbs" id="thumbs">${thumbsHTML()}</div>
+    <label class="check"><input type="checkbox" id="f-nocert" ${cg.noCert ? 'checked' : ''}> ฉันยังไม่มีใบรับรอง</label>
+    <div class="hint">${ICON.info}<span>ไม่มีใบรับรองก็สมัครงานได้ ครอบครัวจะเห็นประสบการณ์และกรณีที่คุณดูแลได้เป็นหลัก</span></div>`,
+  5: () => `<h1 class="step-h" tabindex="-1">ตรวจสอบก่อนสร้างโปรไฟล์</h1>
+    <p class="step-sub">ถ้าข้อมูลถูกต้องแล้ว กดสร้างโปรไฟล์ได้เลย</p>
+    <div class="review">
+      ${rv('ชื่อ-นามสกุล', esc(cg.name), 1)}
+      ${rv('เบอร์โทรศัพท์', esc(cg.phone) || 'ไม่ระบุ', 1)}
+      ${rv('พื้นที่', esc(cg.area) || 'ไม่ระบุ', 1)}
+      ${rv('บทบาท', `${ROLES[cg.role].label}, ${yearsText(cg.years)}`, 2)}
+      ${rv('กรณีที่ดูแลได้', cg.cases.map(c => CASES[c].label).join(', '), 3)}
+      ${rv('รูปแบบงาน', WORK[cg.work].label, 3)}
+      ${rv('ใบรับรอง', cg.certs.length ? `แนบแล้ว ${cg.certs.length} รูป` : (cg.noCert ? 'ยังไม่มี' : 'ไม่ได้แนบ'), 4)}
+    </div>
+    <div class="hint">${ICON.spark}<span>ไม่ต้องกังวลเรื่องการเขียน ระบบจะเรียบเรียงคำตอบเป็นโปรไฟล์ภาษาไทยให้ และคุณแก้ไขได้ก่อนเผยแพร่</span></div>`
+};
+
+function renderStep(focus = true) {
+  $('#stepNum').textContent = `ขั้นที่ ${step} จาก ${TOTAL}`;
+  $('#prog').style.width = (step / TOTAL * 100) + '%';
+  $('#progWrap').setAttribute('aria-valuenow', step);
+  $('#formBody').innerHTML = STEPS[step]();
+  $('#fBack').textContent = step === 1 ? 'ยกเลิก' : 'ย้อนกลับ';
+  $('#fNext').innerHTML = step === TOTAL ? `${ICON.spark} สร้างโปรไฟล์` : `ถัดไป ${ICON.arrow}`;
+  window.scrollTo(0, 0);
+  if (focus) { const h = $('#formBody .step-h'); if (h) h.focus({ preventScroll: true }); }
+}
+
+$('#formBody').addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'f-name') { cg.name = t.value; if (t.value.trim()) { $('#e-name').hidden = true; t.removeAttribute('aria-invalid'); } }
+  if (t.id === 'f-phone') cg.phone = t.value;
+  if (t.id === 'f-area') cg.area = t.value;
+  saveDraft();
+});
+$('#formBody').addEventListener('change', e => {
+  const t = e.target;
+  if (t.name === 'role') cg.role = t.value;
+  if (t.name === 'work') cg.work = t.value;
+  if (t.id === 'f-nocert') cg.noCert = t.checked;
+  if (t.id === 'f-cert') { addCerts([...t.files]); t.value = ''; }
+  saveDraft();
+});
+$('#formBody').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.case) {
+    const k = b.dataset.case;
+    cg.cases = cg.cases.includes(k) ? cg.cases.filter(x => x !== k) : [...cg.cases, k];
+    b.setAttribute('aria-pressed', cg.cases.includes(k));
+    $('#caseCount').textContent = cg.cases.length;
+    if (cg.cases.length) $('#e-cases').hidden = true;
+    saveDraft();
+  }
+  if (b.dataset.yr) { cg.years = Math.max(0, Math.min(40, cg.years + Number(b.dataset.yr))); $('#yrs').textContent = yearsText(cg.years); saveDraft(); }
+  if ('rm' in b.dataset) { cg.certs.splice(Number(b.dataset.rm), 1); $('#thumbs').innerHTML = thumbsHTML(); saveDraft(); }
+  if (b.dataset.goto) { step = Number(b.dataset.goto); renderStep(); }
+});
+
+function shrink(file) {
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const s = Math.min(1, 520 / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL('image/jpeg', 0.72));
+      };
+      img.onerror = rej; img.src = fr.result;
+    };
+    fr.onerror = rej; fr.readAsDataURL(file);
+  });
+}
+async function addCerts(files) {
+  const room = 3 - cg.certs.length;
+  if (room <= 0) { toast('แนบได้สูงสุด 3 รูป ลบรูปเดิมก่อนเพิ่มใหม่'); return; }
+  if (files.length > room) toast(`แนบเพิ่มได้อีก ${room} รูป ระบบเลือก ${room} รูปแรกให้`);
+  for (const f of files.slice(0, room)) {
+    if (!f.type.startsWith('image/')) continue;
+    try { cg.certs.push(await shrink(f)); } catch (e) { toast('เปิดรูปนี้ไม่ได้ ลองเลือกรูปอื่น'); }
+  }
+  cg.noCert = false; const nc = $('#f-nocert'); if (nc) nc.checked = false;
+  $('#thumbs').innerHTML = thumbsHTML(); saveDraft();
+}
+
+$('#fBack').addEventListener('click', () => { if (step > 1) { step--; renderStep(); } else go('home'); });
+$('#fNext').addEventListener('click', async () => {
+  if (step === 1 && !cg.name.trim()) { $('#e-name').hidden = false; const n = $('#f-name'); n.setAttribute('aria-invalid', 'true'); n.focus(); return; }
+  if (step === 3 && !cg.cases.length) { $('#e-cases').hidden = false; $('#e-cases').scrollIntoView({ block: 'center' }); return; }
+  if (step < TOTAL) { step++; renderStep(); return; }
+  await generate();
+});
+
+async function generate() {
+  const gen = $('#gen'); gen.classList.add('on');
+  const t0 = Date.now();
+  const payload = { name: cg.name, area: cg.area, role: cg.role, years: cg.years, cases: cg.cases, work: cg.work, has_certificate: cg.certs.length > 0 };
+  const res = await callAPI('/api/profiles/generate', payload);
+  const about = (res && (res.profile_text || res.profile)) || mockProfile(cg);
+  await new Promise(r => setTimeout(r, Math.max(0, 1400 - (Date.now() - t0))));
+  const prev = store.get('jg_my_profile', null);
+  const my = Object.assign({}, cg, { id: prev ? prev.id : 'u' + Date.now(), about, aiAbout: about, edited: false, published: prev ? prev.published : false, source: res ? 'api' : 'template' });
+  store.set('jg_my_profile', my);
+  gen.classList.remove('on');
+  go('profile');
+}
+
+/* ======================================================================
+   PROFILE
+   ====================================================================== */
+function renderProfile() {
+  const my = store.get('jg_my_profile', null);
+  if (!my) { step = 1; go('caregiver'); return; }
+  $('#pfPub').textContent = my.published ? 'อัปเดตโปรไฟล์' : 'เผยแพร่โปรไฟล์';
+  $('#pfBody').innerHTML = `
+  <div class="pf-band"><div class="in">
+    <span class="pill-l">${ICON.spark} ${my.source === 'api' ? 'สร้างโดย AI จากคำตอบของคุณ' : 'สร้างจากคำตอบของคุณ (โหมดทดลอง)'}</span>
+    <h1 tabindex="-1" id="pfTitle">โปรไฟล์ของคุณพร้อมแล้ว</h1>
+    <p>ตรวจดูอีกครั้ง แก้ไขข้อความได้ก่อนเผยแพร่</p>
+  </div></div>
+  <div class="pf-wrap">
+    <div class="pf-card">
+      <div class="person"><span class="av">${esc(initials(my.name))}</span><div>
+        <div class="nm">คุณ${esc(my.name)}</div>
+        <div class="muted small">${ROLES[my.role].label}, ประสบการณ์ ${yearsText(my.years)}</div>
+        ${my.area ? `<div class="muted small" style="display:flex;gap:4px;align-items:center">${ICON.pin}${esc(my.area)}</div>` : ''}
+      </div></div>
+      <section>
+        <div class="sec-row"><h3>เกี่ยวกับฉัน</h3><button type="button" class="linkbtn" id="pfEdit">${ICON.pen} แก้ไขข้อความ</button></div>
+        <div id="pfAboutWrap"><p class="about">${esc(my.about)}</p></div>
+      </section>
+      <section><h3>กรณีที่ดูแลได้</h3><div class="tags">${my.cases.map(c => `<span class="tag">${CASES[c].label}</span>`).join('')}<span class="tag n">${WORK[my.work].label}</span></div></section>
+      <section><h3>ใบรับรอง</h3>${my.certs.length ? `<div class="thumbs" style="margin-top:0">${my.certs.map((s, i) => `<div class="thumb"><img src="${s}" alt="ใบรับรองรูปที่ ${i + 1}"></div>`).join('')}</div>` : `<p class="muted">${my.noCert ? 'ยังไม่มีใบรับรอง' : 'ยังไม่ได้แนบรูปใบรับรอง'}</p>`}</section>
+      ${my.phone ? `<section><h3>เบอร์ติดต่อ</h3><p>${esc(my.phone)}</p><p class="muted small">ครอบครัวจะเห็นเบอร์นี้หลังจากคุณตอบรับการติดต่อ</p></section>` : ''}
+    </div>
+    <p class="note">${ICON.info}<span>ข้อความที่คุณแก้ไขจะถูกเก็บไว้ เพื่อช่วยให้ระบบสร้างโปรไฟล์ได้ดีขึ้นในครั้งต่อไป</span></p>
+    ${my.published ? `<div class="done">${ICON.tick} เผยแพร่แล้ว ครอบครัวที่โพสต์งานจะเห็นโปรไฟล์นี้ <button type="button" class="linkbtn" data-go="family">ลองดูจากฝั่งครอบครัว</button></div>` : ''}
+  </div>`;
+  $('#pfEdit').addEventListener('click', () => {
+    $('#pfAboutWrap').innerHTML = `<label for="pfText" class="sr">ข้อความเกี่ยวกับฉัน</label><textarea id="pfText" class="text" rows="6">${esc(my.about)}</textarea>
+      <div class="det-actions" style="margin-top:12px"><button type="button" class="btn btn-o" id="pfCancel">ยกเลิก</button><button type="button" class="btn btn-p" id="pfSave">บันทึกข้อความ</button></div>`;
+    $('#pfText').focus();
+    $('#pfCancel').onclick = () => renderProfile();
+    $('#pfSave').onclick = () => {
+      const v = $('#pfText').value.trim();
+      if (!v) { toast('ข้อความต้องไม่ว่าง'); return; }
+      my.about = v; my.edited = v !== my.aiAbout;   // เก็บทั้ง aiAbout (ต้นฉบับ) และ about (ฉบับแก้) ไว้ทำ evaluation
+      store.set('jg_my_profile', my); syncPublished(my);
+      renderProfile(); toast('บันทึกข้อความแล้ว');
+    };
+  });
+}
+function syncPublished(my) {
+  if (!my.published) return;
+  const list = store.get('jg_caregivers', []).filter(c => c.id !== my.id);
+  list.unshift(my); store.set('jg_caregivers', list);
+}
+$('#pfRedo').addEventListener('click', () => { step = 1; go('caregiver'); });
+$('#pfPub').addEventListener('click', () => {
+  const my = store.get('jg_my_profile', null); if (!my) return;
+  const was = my.published; my.published = true;
+  store.set('jg_my_profile', my); syncPublished(my);
+  toast(was ? 'อัปเดตโปรไฟล์แล้ว' : 'เผยแพร่โปรไฟล์แล้ว');
+  renderProfile();
+});
+
+/* ======================================================================
+   FAMILY POST
+   ====================================================================== */
+let job = Object.assign({ text: '', area: '', budget: '', start: '', needs: [], work: '', posted: false, add: [], remove: [], manualWork: '' }, store.get('jg_job', {}));
+const saveJob = () => store.set('jg_job', job);
+function detect() {
+  const t = job.text.toLowerCase();
+  const s = new Set(Object.keys(CASES).filter(k => CASES[k].kw.some(w => t.includes(w.toLowerCase()))));
+  job.add.forEach(k => s.add(k)); job.remove.forEach(k => s.delete(k));
+  job.needs = Object.keys(CASES).filter(k => s.has(k));
+  const dw = Object.keys(WORK).find(k => WORK[k].kw.some(w => t.includes(w)));
+  job.work = job.manualWork || dw || '';
+}
+function renderNeeds() { $('#j-needs').innerHTML = chipHTML(job.needs, 'fam'); }
+function renderWork() {
+  $('#j-work').innerHTML = Object.entries(WORK).map(([k, w]) => `<label class="opt"><input type="radio" name="jwork" value="${k}" ${job.work === k ? 'checked' : ''}><b>${w.label}</b></label>`).join('');
+}
+function renderFamily() {
+  $('#j-text').value = job.text; $('#j-area').value = job.area; $('#j-budget').value = job.budget; $('#j-start').value = job.start;
+  renderNeeds(); renderWork();
+  $('#s-family .step-h').focus({ preventScroll: true });
+}
+let detT;
+$('#j-text').addEventListener('input', e => {
+  job.text = e.target.value;
+  if (job.text.trim()) $('#e-text').hidden = true;
+  clearTimeout(detT);
+  detT = setTimeout(() => { detect(); renderNeeds(); renderWork(); saveJob(); }, 250);
+});
+$('#j-example').addEventListener('click', () => {
+  job.text = SAMPLE_JOB; job.add = []; job.remove = []; job.manualWork = '';
+  $('#j-text').value = job.text; $('#e-text').hidden = true;
+  detect(); renderNeeds(); renderWork(); saveJob();
+});
+$('#j-needs').addEventListener('click', e => {
+  const b = e.target.closest('[data-case]'); if (!b) return;
+  const k = b.dataset.case;
+  if (job.needs.includes(k)) { job.remove = [...new Set([...job.remove, k])]; job.add = job.add.filter(x => x !== k); }
+  else { job.add = [...new Set([...job.add, k])]; job.remove = job.remove.filter(x => x !== k); }
+  detect();
+  b.setAttribute('aria-pressed', job.needs.includes(k));
+  if (job.needs.length) $('#e-needs').hidden = true;
+  saveJob();
+});
+$('#j-work').addEventListener('change', e => { if (e.target.name === 'jwork') { job.manualWork = e.target.value; job.work = e.target.value; saveJob(); } });
+['area', 'budget', 'start'].forEach(f => $('#j-' + f).addEventListener('input', e => { job[f] = e.target.value; saveJob(); }));
+$('#j-submit').addEventListener('click', () => {
+  if (!job.text.trim()) { $('#e-text').hidden = false; $('#j-text').focus(); return; }
+  detect();
+  if (!job.needs.length) { $('#e-needs').hidden = false; renderNeeds(); $('#j-needs').scrollIntoView({ block: 'center' }); return; }
+  job.posted = true; saveJob(); selId = null; go('applicants');
+});
+
+/* ======================================================================
+   APPLICANTS
+   ====================================================================== */
+let selId = null, sortBy = 'score', query = '';
+const cmp = new Set();
+function candidates() {
+  const pub = store.get('jg_caregivers', []);
+  return [...pub, ...SEED].map(c => Object.assign({}, c, { about: c.about || mockProfile(c), m: scoreFor(c, job) }));
+}
+function visible() {
+  let list = candidates();
+  const q = query.trim();
+  if (q) list = list.filter(c => [c.name, c.area, ROLES[c.role].label, ...c.cases.map(k => CASES[k].label)].join(' ').includes(q));
+  list.sort(sortBy === 'years' ? (a, b) => b.years - a.years : (a, b) => b.m.score - a.m.score);
+  return list;
+}
+const myId = () => (store.get('jg_my_profile', null) || {}).id;
+function cardHTML(c, i) {
+  const av = ['', 'b', 'c'][i % 3];
+  return `<article class="app ${c.id === selId ? 'sel' : ''}">
+    <button type="button" class="app-main" data-sel="${c.id}" aria-pressed="${c.id === selId}">
+      <span class="av ${av}">${esc(initials(c.name))}</span>
+      <span class="app-id"><b>คุณ${esc(c.name)}</b><small>${ROLES[c.role].label}, ${yearsText(c.years)}${c.area ? ', ' + esc(c.area) : ''}</small></span>
+      <span class="app-score"><b>${c.m.score}%</b><span class="bar"><span style="width:${c.m.score}%"></span></span></span>
+      <span class="app-sum">${esc(c.about)}</span>
+    </button>
+    <div class="app-foot">
+      <span class="tags">${c.cases.slice(0, 3).map(k => `<span class="tag ${c.m.matched.includes(k) ? '' : 'n'}">${CASES[k].label}</span>`).join('')}${c.sample ? '<span class="tag n">ข้อมูลตัวอย่าง</span>' : ''}${c.id === myId() ? '<span class="tag f">โปรไฟล์ของคุณ</span>' : ''}</span>
+      <label class="cmp"><input type="checkbox" data-cmp="${c.id}" ${cmp.has(c.id) ? 'checked' : ''}> เปรียบเทียบ</label>
+    </div>
+  </article>`;
+}
+function detailHTML(c) {
+  if (!c) return `<p class="muted">เลือกผู้สมัครเพื่อดูรายละเอียด</p>`;
+  const C = 276.46, dash = (c.m.score / 100 * C).toFixed(1);
+  return `<div class="det-top">
+      <div class="ring"><svg width="104" height="104" viewBox="0 0 104 104" aria-hidden="true"><circle cx="52" cy="52" r="44" fill="none" stroke="#ECE6FA" stroke-width="10"/><circle cx="52" cy="52" r="44" fill="none" stroke="#5E35B1" stroke-width="10" stroke-linecap="round" stroke-dasharray="${dash} ${C}" transform="rotate(-90 52 52)"/></svg>
+      <div class="c"><b>${c.m.score}%</b><small>เหมาะสม</small></div></div>
+      <div><h2>คุณ${esc(c.name)}</h2><p class="muted small">${ROLES[c.role].label}, ${yearsText(c.years)}</p>${hasCert(c) ? `<p class="okline">${ICON.shield} มีใบรับรอง</p>` : ''}</div>
+    </div>
+    <section><h3>ทำไมถึงเหมาะกับงานนี้</h3><ul class="checks">${(c.m.pros.length ? c.m.pros : ['ยังไม่พบจุดที่ตรงกับความต้องการที่ระบุ']).map(p => `<li>${ICON.tick}<span>${esc(p)}</span></li>`).join('')}</ul></section>
+    ${c.m.cons.length ? `<div class="warn">${ICON.info}<div><b>ควรสอบถามเพิ่ม</b><ul>${c.m.cons.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>` : ''}
+    <section><h3>สรุปโปรไฟล์</h3><p style="color:var(--body);line-height:1.8">${esc(c.about)}</p></section>
+    ${c.certs && c.certs.length ? `<section><h3>รูปใบรับรอง</h3><div class="thumbs" style="margin-top:0">${c.certs.map((s, i) => `<div class="thumb"><img src="${s}" alt="ใบรับรองรูปที่ ${i + 1}"></div>`).join('')}</div></section>` : ''}
+    <div class="det-actions"><button type="button" class="btn btn-p" data-msg="${c.id}">${ICON.msg} ส่งข้อความ</button><button type="button" class="btn btn-o" data-cmpadd="${c.id}">${cmp.has(c.id) ? 'เอาออกจากการเปรียบเทียบ' : 'เพิ่มเพื่อเปรียบเทียบ'}</button></div>
+    <p class="fine">คะแนนและสรุปสร้างอัตโนมัติเพื่อช่วยตัดสินใจ โปรดพูดคุยและตรวจสอบข้อมูลก่อนจ้างงาน</p>`;
+}
+function renderApplicants(focus = false) {
+  if (!job.posted) { go('family'); return; }
+  const list = visible();
+  if (!selId || !list.find(c => c.id === selId)) selId = list[0] ? list[0].id : null;
+  $('#apJob').textContent = job.text.length > 70 ? job.text.slice(0, 70) + '…' : job.text;
+  $('#apCount').textContent = `ผู้สมัคร ${list.length} คน`;
+  $('#apNeeds').innerHTML = `<span class="k">ความต้องการ:</span>${job.needs.map(k => `<span class="tag f">${CASES[k].label}</span>`).join('')}${job.work ? `<span class="tag f">${WORK[job.work].label}</span>` : ''}${job.area ? `<span class="tag n">${esc(job.area)}</span>` : ''}`;
+  $('#apList').innerHTML = list.length ? list.map(cardHTML).join('') : `<div class="empty">ไม่พบผู้สมัครที่ตรงกับคำค้น ลองค้นด้วยคำอื่น</div>`;
+  $('#apDetail').innerHTML = detailHTML(list.find(c => c.id === selId));
+  renderCmpBar();
+  if (focus) $('#apCount').focus({ preventScroll: true });
+}
+function renderCmpBar() {
+  $('#cmpBar').classList.toggle('on', cmp.size > 0);
+  $('#cmpText').textContent = `เลือกไว้ ${cmp.size} คน`;
+}
+function toggleCmp(id, on) {
+  if (on && cmp.size >= 3 && !cmp.has(id)) { toast('เปรียบเทียบได้สูงสุด 3 คน'); return false; }
+  on ? cmp.add(id) : cmp.delete(id); return true;
+}
+$('#s-applicants').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.sel) {
+    selId = b.dataset.sel; renderApplicants();
+    if (window.matchMedia('(max-width:1000px)').matches) $('#apDetail').scrollIntoView({ behavior: 'smooth' });
+  }
+  if (b.dataset.msg) openMsg(b.dataset.msg);
+  if (b.dataset.cmpadd) { toggleCmp(b.dataset.cmpadd, !cmp.has(b.dataset.cmpadd)); renderApplicants(); }
+});
+$('#s-applicants').addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.cmp) { if (!toggleCmp(t.dataset.cmp, t.checked)) t.checked = false; renderApplicants(); }
+  if (t.id === 'apSort') { sortBy = t.value; renderApplicants(); }
+});
+$('#apSearch').addEventListener('input', e => { query = e.target.value; renderApplicants(); });
+
+/* compare dialog */
+$('#cmpOpen').addEventListener('click', () => {
+  const all = candidates();
+  const xs = [...cmp].map(id => all.find(c => c.id === id)).filter(Boolean);
+  if (xs.length < 2) { toast('เลือกอย่างน้อย 2 คนเพื่อเปรียบเทียบ'); return; }
+  const rows = [
+    ['ความเหมาะสม', c => `<b class="big">${c.m.score}%</b>`],
+    ['บทบาท', c => ROLES[c.role].label],
+    ['ประสบการณ์', c => yearsText(c.years)],
+    ['พื้นที่', c => esc(c.area) || 'ไม่ระบุ'],
+    ['รูปแบบงาน', c => WORK[c.work].label + (c.m.workOk ? '' : ' (ไม่ตรงกับงาน)')],
+    ['ตรงกับความต้องการ', c => `${c.m.matched.length} จาก ${job.needs.length} ข้อ`],
+    ['ยังไม่ได้ระบุ', c => c.m.missing.map(k => CASES[k].label).join(', ') || 'ครบทุกข้อ'],
+    ['ใบรับรอง', c => hasCert(c) ? 'มี' : 'ยังไม่มี'],
+    ['', c => `<button type="button" class="btn btn-p" data-msg="${c.id}" style="min-height:44px">${ICON.msg} ส่งข้อความ</button>`]
+  ];
+  $('#cmpBody').innerHTML = `<table class="ctable"><thead><tr><th scope="col"><span class="sr">หัวข้อ</span></th>${xs.map(c => `<th scope="col">คุณ${esc(c.name)}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(([k, f]) => `<tr><th scope="row">${k}</th>${xs.map(c => `<td>${f(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  $('#dlgCompare').showModal();
+});
+$('#cmpBody').addEventListener('click', e => { const b = e.target.closest('[data-msg]'); if (b) { $('#dlgCompare').close(); openMsg(b.dataset.msg); } });
+
+/* message dialog */
+let msgTo = null;
+function openMsg(id) {
+  const c = candidates().find(x => x.id === id); if (!c) return;
+  msgTo = c;
+  $('#msgTitle').textContent = `ส่งข้อความถึงคุณ${c.name}`;
+  $('#msgText').value = `สวัสดีค่ะ คุณ${c.name} ครอบครัวเรากำลังหาผู้ดูแล${job.work ? 'แบบ' + WORK[job.work].label : ''} สำหรับ${job.needs.map(k => CASES[k].label).join(' ')} สนใจพูดคุยรายละเอียดเพิ่มเติมไหมคะ`;
+  $('#dlgMsg').showModal(); $('#msgText').focus();
+}
+$('#msgSend').addEventListener('click', () => {
+  const text = $('#msgText').value.trim();
+  if (!text) { toast('พิมพ์ข้อความก่อนส่ง'); return; }
+  const msgs = store.get('jg_msgs', []); msgs.push({ to: msgTo.id, text, at: new Date().toISOString() }); store.set('jg_msgs', msgs);
+  $('#dlgMsg').close(); toast(`ส่งข้อความถึงคุณ${msgTo.name}แล้ว`);
+});
+$$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target.closest('[data-close]') || e.target === d) d.close(); }));
+
+/* ======================================================================
+   ROUTER
+   ====================================================================== */
+const SCREENS = { home: 's-home', caregiver: 's-caregiver', profile: 's-profile', family: 's-family', applicants: 's-applicants' };
+function show() {
+  const name = location.hash.slice(1);
+  const key = SCREENS[name] ? name : 'home';
+  $$('.screen').forEach(s => s.classList.toggle('on', s.id === SCREENS[key]));
+  $$('.topnav [data-nav]').forEach(b => b.dataset.nav.split(' ').includes(key) ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+  window.scrollTo(0, 0);
+  if (key === 'caregiver') renderStep(false);
+  if (key === 'profile') renderProfile();
+  if (key === 'family') renderFamily();
+  if (key === 'applicants') renderApplicants(true);
+}
+function go(n) { if (location.hash === '#' + n) show(); else location.hash = n; }
+window.addEventListener('hashchange', show);
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-go]'); if (!b) return;
+  e.preventDefault();
+  if (b.dataset.go === 'caregiver' && !location.hash.startsWith('#caregiver')) step = 1;
+  go(b.dataset.go);
+});
+$('#resetDemo').addEventListener('click', () => {
+  ['jg_cg_draft', 'jg_my_profile', 'jg_caregivers', 'jg_job', 'jg_msgs'].forEach(store.del);
+  cg = { name: '', phone: '', area: '', role: 'na', years: 1, cases: [], work: 'live', certs: [], noCert: false };
+  job = { text: '', area: '', budget: '', start: '', needs: [], work: '', posted: false, add: [], remove: [], manualWork: '' };
+  cmp.clear(); selId = null; step = 1;
+  go('home'); toast('ล้างข้อมูลทดลองแล้ว');
+});
+show();
+</script>
+</body>
+</html>

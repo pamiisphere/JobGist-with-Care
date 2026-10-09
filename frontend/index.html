@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>JobGist with Care</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
   --line:#E4E0EE; --line-2:#CFC8DE;
   --p:#5E35B1; --p-d:#4527A0; --p-soft:#ECE6FA;
   --f:#9C2F73; --f-d:#86255F; --f-soft:#F8E4F0; --f-ink:#5E1843;
-  --lilac:#C9B6FF; --err:#B42318;
+  --lilac:#C9B6FF; --err:#B42318; --gold:#A86A0B; --gold-soft:#FFF4DE;
   --serif:'Noto Serif Thai', Georgia, serif;
   --sans:'Noto Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --shadow:0 18px 44px rgba(30,21,51,.12);
@@ -31,6 +31,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
 .muted{color:var(--muted)} .small{font-size:14px}
 svg{flex-shrink:0}
+[hidden]{display:none!important}
 
 /* top bar */
 .topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
@@ -39,11 +40,23 @@ svg{flex-shrink:0}
 .brand-mark{width:38px;height:38px;border-radius:11px;background:var(--p);display:grid;place-items:center;color:#fff}
 .brand b{display:block;font-size:18px;line-height:1.15}
 .brand small{display:block;font-size:12px;color:var(--muted);line-height:1.15}
+.top-r{display:flex;align-items:center;gap:6px}
 .topnav{display:flex;gap:4px}
 .topnav button{min-height:44px;padding:0 16px;border:0;background:none;border-radius:999px;font-weight:600;cursor:pointer;color:var(--body)}
 .topnav button:hover{background:var(--p-soft);color:var(--p-d)}
 .topnav button[aria-current="page"]{background:var(--p-soft);color:var(--p-d)}
-@media (max-width:600px){.topnav{display:none}}
+.iconbtn{position:relative;width:44px;height:44px;border-radius:50%;border:0;background:none;display:grid;place-items:center;cursor:pointer;color:var(--body)}
+.iconbtn:hover{background:var(--p-soft)}
+.dotc{position:absolute;top:4px;right:4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--f);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;line-height:1}
+.rolebadge{font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--p-soft);color:var(--p-d)}
+.rolebadge.fm{background:var(--f-soft);color:var(--f-ink)}
+@media (max-width:760px){.topnav{display:none}.rolebadge{display:none}}
+
+/* bottom tab bar (mobile, app screens) */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:25;display:none;background:#fff;border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:52px;border:0;background:none;font-size:12px;font-weight:600;color:var(--muted);border-radius:12px;cursor:pointer}
+.tabbar button[aria-current="page"]{color:var(--p-d);background:var(--p-soft)}
+@media (max-width:760px){body.tabs-on .tabbar{display:flex}body.tabs-on{padding-bottom:76px}}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:999px;border:1.5px solid transparent;font-weight:600;cursor:pointer;text-decoration:none;transition:background-color .15s,border-color .15s;white-space:nowrap}
@@ -52,7 +65,7 @@ svg{flex-shrink:0}
 .btn-f{background:var(--f);color:#fff}.btn-f:hover{background:var(--f-d)}
 .btn-o{background:#fff;border-color:var(--line-2);color:var(--ink)}.btn-o:hover{border-color:var(--ink)}
 .btn-dark{background:#fff;border-color:var(--ink);color:var(--ink)}.btn-dark:hover{background:var(--ink);color:#fff}
-.linkbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 4px;border:0;background:none;color:var(--p);font-weight:600;cursor:pointer}
+.linkbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 4px;border:0;background:none;color:var(--p);font-weight:600;cursor:pointer;text-align:left}
 .linkbtn:hover{color:var(--p-d);text-decoration:underline}
 
 .screen{display:none}
@@ -69,18 +82,18 @@ svg{flex-shrink:0}
 .assure span{display:inline-flex;gap:6px;align-items:center}
 .hero-art{position:relative;min-height:560px}
 .hero-art .blob{position:absolute;inset:0 0 0 70px;border-radius:40px;background:var(--p-soft)}
-.hero-art .dot{position:absolute;top:36px;right:110px;width:24px;height:24px;border-radius:50%;background:var(--lilac)}
-.card-pf{position:absolute;top:44px;left:0;width:440px;background:#fff;border-radius:24px;padding:28px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:18px}
-.card-fit{position:absolute;bottom:28px;right:28px;width:350px;background:var(--ink);color:#fff;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 56px rgba(30,21,51,.24)}
-.card-fit .lbl{font-size:14px;color:#D9CFF5}
-.card-fit .num{font-size:34px;font-weight:700}
-.track-d{height:8px;border-radius:999px;background:rgba(255,255,255,.18)}
-.track-d span{display:block;height:100%;border-radius:inherit;background:var(--lilac)}
+.hero-art .back{position:absolute;top:70px;left:44px;width:400px;height:420px;border-radius:24px;background:#fff;opacity:.6;transform:rotate(-5deg)}
+.card-pf{position:absolute;top:44px;left:20px;width:420px;background:#fff;border-radius:24px;padding:26px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:16px}
+.card-match{position:absolute;bottom:28px;right:20px;width:320px;background:var(--ink);color:#fff;border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:10px;box-shadow:0 24px 56px rgba(30,21,51,.24)}
+.card-match .lbl{font-size:14px;color:#D9CFF5}
+.mini-actions{display:flex;justify-content:center;gap:14px;padding-top:4px}
+.mini-actions span{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line-2);background:#fff;color:var(--muted)}
+.mini-actions span.l{background:var(--p);border-color:var(--p);color:#fff}
 @media (max-width:960px){
   .hero .wrap{grid-template-columns:1fr;padding-top:48px;gap:40px}
   .hero-art{min-height:0;display:flex;flex-direction:column;gap:16px;padding:20px;border-radius:32px;background:var(--p-soft)}
-  .hero-art .blob,.hero-art .dot{display:none}
-  .card-pf,.card-fit{position:static;width:auto}
+  .hero-art .blob,.hero-art .back{display:none}
+  .card-pf,.card-match{position:static;width:auto}
 }
 .sec{padding:16px 0 88px}
 .sec-head{display:flex;flex-direction:column;gap:10px;max-width:760px;margin-bottom:36px}
@@ -106,14 +119,17 @@ svg{flex-shrink:0}
 .how p{font-size:15px;line-height:1.7;color:var(--muted)}
 @media (max-width:960px){.how{padding:32px}.how ol{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:560px){.how ol{grid-template-columns:1fr}}
-footer.site{margin-top:88px;border-top:1px solid var(--line);background:#fff}
-footer.site .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-top:28px;padding-bottom:28px;font-size:14px;color:var(--muted)}
+footer.site{margin-top:64px;border-top:1px solid var(--line);background:#fff}
+footer.site .wrap{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;padding-top:20px;padding-bottom:20px;font-size:14px;color:var(--muted)}
+footer.site .demo{display:flex;gap:4px 12px;flex-wrap:wrap;align-items:center}
 
 /* shared bits */
 .tags{display:flex;gap:8px;flex-wrap:wrap}
-.tag{padding:5px 12px;border-radius:999px;background:var(--p-soft);color:var(--p-d);font-size:13px;font-weight:500;line-height:1.5}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:999px;background:var(--p-soft);color:var(--p-d);font-size:13px;font-weight:500;line-height:1.5}
 .tag.f{background:var(--f-soft);color:var(--f-ink)}
 .tag.n{background:#F0EDF6;color:var(--body)}
+.tag.o{background:#fff;border:1.5px dashed var(--line-2);color:var(--body)}
+.tag.g{background:var(--gold-soft);color:var(--gold)}
 .av{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:20px;background:var(--f-soft);color:var(--f-d);flex-shrink:0}
 .av.b{background:var(--p-soft);color:var(--p-d)} .av.c{background:#F0EDF6;color:var(--body)}
 .person{display:flex;gap:16px;align-items:center}
@@ -130,21 +146,31 @@ footer.site .wrap{display:flex;justify-content:space-between;align-items:center;
 .fs{border:0;padding:0;margin:0;min-width:0}
 .fs legend{padding:0}
 .h2{font-size:21px;outline:none}
+.block{margin-top:34px}
 .field{display:flex;flex-direction:column;gap:8px;margin-top:22px}
 .field label,.lbl{font-size:15px;font-weight:600}
-.text,textarea.text{width:100%;min-height:52px;padding:0 16px;border-radius:14px;border:1.5px solid var(--line-2);background:#fff;font-size:16px;transition:border-color .15s}
+.opt-l{font-weight:400;color:var(--muted);font-size:14px}
+.text,textarea.text,select.text{width:100%;min-height:52px;padding:0 16px;border-radius:14px;border:1.5px solid var(--line-2);background:#fff;font-size:16px;transition:border-color .15s}
 textarea.text{padding:14px 16px;line-height:1.7;resize:vertical;min-height:150px}
 .text:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px var(--p-soft)}
 .text[aria-invalid="true"]{border-color:var(--err)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid2 .field{margin-top:0}
 .err{color:var(--err);font-size:14px;font-weight:500;margin-top:8px}
 .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
-.chip{min-height:44px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;border:1.5px solid var(--line-2);background:#fff;cursor:pointer;font-weight:500;font-size:15px;transition:background-color .12s,border-color .12s}
+.chip{min-height:44px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;border:1.5px solid var(--line-2);background:#fff;cursor:pointer;font-weight:500;font-size:15px;transition:background-color .12s,border-color .12s;text-align:left}
 .chip:hover{border-color:var(--p)}
 .chip .ck{display:none}
 .chip[aria-pressed="true"]{background:var(--p);border-color:var(--p);color:#fff}
 .chip[aria-pressed="true"] .ck{display:inline}
 .chip.fam:hover{border-color:var(--f)}
-.chip.fam[aria-pressed="true"]{background:var(--f);border-color:var(--f)}
+.chip.fam.req{background:var(--f);border-color:var(--f);color:#fff}
+.chip.fam.opt{background:var(--f-soft);border-color:var(--f);border-style:dashed;color:var(--f-ink)}
+.chip.fam.req .ck,.chip.fam.opt .ck{display:inline}
+.chip .st{font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;background:rgba(255,255,255,.22)}
+.chip.fam.opt .st{background:#fff}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:12px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:4px}
 .opts{display:flex;flex-direction:column;gap:10px;margin-top:16px}
 .opts.row{flex-direction:row;flex-wrap:wrap}
 .opt{display:flex;gap:14px;align-items:center;padding:14px 16px;border:2px solid var(--line);border-radius:16px;background:#fff;cursor:pointer;transition:border-color .12s,background-color .12s}
@@ -160,7 +186,18 @@ textarea.text{padding:14px 16px;line-height:1.7;resize:vertical;min-height:150px
 .sbtn{width:52px;height:52px;border:0;background:none;font-size:24px;cursor:pointer;border-radius:999px;color:var(--p)}
 .sbtn:hover{background:var(--p-soft)}
 .stepper output{min-width:130px;text-align:center;font-weight:700;font-size:18px}
-.drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:32px 20px;margin-top:22px;border:2px dashed var(--line-2);border-radius:20px;background:#fff;cursor:pointer;text-align:center;color:var(--body)}
+.skills{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+.sk{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:0;min-width:0}
+.sk legend{font-weight:600;padding:0;margin-bottom:10px;float:left;width:100%}
+.seg{clear:both;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.seg label{position:relative;display:block}
+.seg input{position:absolute;opacity:0;inset:0;margin:0;width:100%;height:100%;cursor:pointer}
+.seg span{display:flex;align-items:center;justify-content:center;text-align:center;min-height:44px;padding:4px 6px;border-radius:10px;border:1.5px solid var(--line-2);font-size:13px;font-weight:600;line-height:1.3;background:#fff}
+.seg input:checked+span{background:var(--p);border-color:var(--p);color:#fff}
+.seg input[value="not_comfortable"]:checked+span{background:#F0EDF6;border-color:var(--muted);color:var(--body)}
+.seg input:focus-visible+span{outline:3px solid var(--lilac);outline-offset:2px}
+@media (max-width:440px){.seg{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px 20px;margin-top:16px;border:2px dashed var(--line-2);border-radius:20px;background:#fff;cursor:pointer;text-align:center;color:var(--body)}
 .drop:hover{border-color:var(--p);background:#FBFAFE}
 .drop:focus-within{outline:3px solid var(--lilac);outline-offset:2px}
 .drop svg{color:var(--p)}
@@ -169,18 +206,33 @@ textarea.text{padding:14px 16px;line-height:1.7;resize:vertical;min-height:150px
 .thumb{position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#fff}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .thumb .rm{position:absolute;top:6px;right:6px;width:32px;height:32px;border-radius:50%;border:0;background:rgba(30,21,51,.75);color:#fff;font-size:18px;cursor:pointer;display:grid;place-items:center}
-.check{display:flex;gap:10px;align-items:center;margin-top:18px;min-height:44px;cursor:pointer}
-.check input{width:20px;height:20px;accent-color:var(--p)}
+.thumb .cap{position:absolute;left:0;right:0;bottom:0;padding:4px 8px;background:rgba(30,21,51,.7);color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .review{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 20px}
 .rv{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
 .rv:last-child{border-bottom:0}
 .rv .k{font-size:14px;color:var(--muted)}
 .rv .v{font-weight:600}
-.hint{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:16px;background:var(--f-soft);color:var(--f-ink);font-size:14px;line-height:1.6;margin-top:28px}
+.hint{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:16px;background:var(--f-soft);color:var(--f-ink);font-size:14px;line-height:1.6;margin-top:24px}
+.hint.p{background:var(--p-soft);color:var(--p-d)}
+.panel{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px}
+.panel-h{display:inline-flex;gap:6px;align-items:center;font-weight:700;color:var(--f-d)}
 .flow-foot{position:sticky;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid var(--line);z-index:5}
-.flow-foot .in{max-width:640px;margin:0 auto;padding:14px 20px 18px;display:flex;gap:12px}
+.flow-foot .in{max-width:640px;margin:0 auto;padding:14px 20px calc(18px + env(safe-area-inset-bottom));display:flex;gap:12px}
 .flow-foot .btn{flex:1}
 .flow-foot .btn.grow{flex:2}
+
+/* role picker */
+.rolepick{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.rp{position:relative;display:flex;flex-direction:column;gap:6px;padding:18px;border:2px solid var(--line);border-radius:20px;background:#fff;cursor:pointer}
+.rp input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.rp .ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:var(--p)}
+.rp.fm .ic{background:var(--f)}
+.rp b{font-size:18px}
+.rp small{color:var(--muted);font-size:14px;line-height:1.5}
+.rp.cg:has(input:checked){border-color:var(--p);background:var(--p-soft)}
+.rp.fm:has(input:checked){border-color:var(--f);background:var(--f-soft)}
+.rp:has(input:focus-visible){outline:3px solid var(--lilac);outline-offset:2px}
+@media (max-width:420px){.rolepick{grid-template-columns:1fr}}
 
 /* generating */
 .gen{position:fixed;inset:0;background:rgba(248,246,252,.97);display:none;place-items:center;z-index:60;padding:24px}
@@ -194,7 +246,7 @@ textarea.text{padding:14px 16px;line-height:1.7;resize:vertical;min-height:150px
 .pf-band{background:var(--p);color:#fff}
 .pf-band .in{max-width:640px;margin:0 auto;padding:32px 20px 76px;display:flex;flex-direction:column;gap:10px}
 .pf-band .pill-l{align-self:flex-start;display:inline-flex;gap:6px;align-items:center;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.16);font-size:13px;font-weight:600}
-.pf-band h1{font-size:clamp(26px,4vw,32px)}
+.pf-band h1{font-size:clamp(26px,4vw,32px);outline:none}
 .pf-band p{color:#E6DDFA}
 .pf-wrap{max-width:640px;margin:-52px auto 0;padding:0 16px 32px}
 .pf-card{background:#fff;border-radius:24px;padding:24px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:22px}
@@ -203,80 +255,115 @@ textarea.text{padding:14px 16px;line-height:1.7;resize:vertical;min-height:150px
 .sec-row h3{margin:0}
 .about{color:var(--body);line-height:1.8;font-size:16px}
 .note{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:14px;color:var(--muted);padding:0 4px}
-.done{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px;padding:14px 16px;border-radius:16px;background:var(--p-soft);color:var(--p-d);font-weight:600}
+.status{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;padding:14px 16px;border-radius:16px;font-weight:600}
+.status.on{background:var(--p-soft);color:var(--p-d)}
+.status.off{background:#F0EDF6;color:var(--body)}
+.status.warn{background:var(--gold-soft);color:var(--gold)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.kv div{display:flex;flex-direction:column}
+.kv .k{font-size:13px;color:var(--muted)}
+.kv .v{font-weight:600}
 
-/* applicants */
-.ap{padding:32px 0 120px}
-.ap-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
-.ap-head .crumb{font-size:14px;color:var(--muted);max-width:52em}
-.ap-head h1{font-size:clamp(28px,3.4vw,34px)}
-.ap-tools{display:flex;gap:10px;flex-wrap:wrap}
-.search{display:flex;align-items:center;gap:8px;width:280px;max-width:100%;min-height:48px;padding:0 16px;border-radius:999px;background:#fff;border:1.5px solid var(--line-2)}
-.search:focus-within{border-color:var(--p);box-shadow:0 0 0 3px var(--p-soft)}
-.search input{flex:1;border:0;background:none;outline:none;min-width:0}
-.select{min-height:48px;padding:0 16px;border-radius:999px;background:#fff;border:1.5px solid var(--line-2);cursor:pointer}
-.needs-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:20px 0 24px}
-.needs-row .k{font-size:14px;color:var(--muted);margin-right:4px}
-.ap-grid{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:24px;align-items:start}
-@media (max-width:1000px){.ap-grid{grid-template-columns:1fr}}
-.ap-list{display:flex;flex-direction:column;gap:14px}
-.app{background:#fff;border-radius:22px;border:2px solid var(--line);overflow:hidden;transition:border-color .12s}
-.app.sel{border-color:var(--p)}
-.app-main{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 16px;align-items:center;width:100%;padding:20px 20px 12px;border:0;background:none;text-align:left;cursor:pointer}
-.app-main:hover .app-id b{color:var(--p-d)}
-.app-id b{display:block;font-size:18px}
-.app-id small{display:block;font-size:14px;color:var(--muted)}
-.app-score{display:flex;flex-direction:column;align-items:flex-end;gap:6px;width:120px}
-.app-score b{font-size:24px;line-height:1;color:var(--p)}
-.bar{display:block;width:120px;height:6px;border-radius:999px;background:var(--line)}
+/* swipe deck */
+.deck-page{max-width:560px;margin:0 auto;padding:24px 16px 48px}
+.deck-head{display:flex;flex-direction:column;gap:10px}
+.deck-head h1{font-size:clamp(24px,4vw,30px);outline:none}
+.deck-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.select{min-height:44px;padding:0 14px;border-radius:999px;background:#fff;border:1.5px solid var(--line-2);cursor:pointer;max-width:100%}
+.deck{display:grid;margin-top:18px}
+.deck>.swcard{grid-area:1/1}
+.swcard{position:relative;background:#fff;border-radius:26px;box-shadow:var(--shadow);padding:22px;display:flex;flex-direction:column;gap:14px;touch-action:pan-y;user-select:none;-webkit-user-select:none;transition:transform .26s ease,opacity .26s ease;--like:0;--pass:0;cursor:grab;min-width:0}
+.swcard:active{cursor:grabbing}
+.swcard.next{transform:scale(.95) translateY(16px);opacity:.55;pointer-events:none}
+.swcard.next *{visibility:hidden}
+.sw-stamp{position:absolute;top:20px;z-index:2;padding:4px 14px;border-radius:10px;font-weight:700;font-size:20px;border:3px solid;pointer-events:none;background:#fff}
+.sw-stamp.like{left:18px;color:var(--p);border-color:var(--p);opacity:var(--like);transform:rotate(-10deg)}
+.sw-stamp.pass{right:18px;color:var(--muted);border-color:var(--muted);opacity:var(--pass);transform:rotate(10deg)}
+.flag{align-self:flex-start;display:inline-flex;gap:6px;align-items:center;padding:6px 12px;border-radius:999px;background:var(--f-soft);color:var(--f-ink);font-size:13px;font-weight:700}
+.sw-actions{display:flex;justify-content:center;align-items:center;gap:18px;margin-top:22px}
+.rbtn{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line-2);background:#fff;cursor:pointer;color:var(--muted);box-shadow:0 6px 16px rgba(30,21,51,.08)}
+.rbtn:hover{border-color:var(--ink);color:var(--ink)}
+.rbtn.like{width:76px;height:76px;background:var(--p);border-color:var(--p);color:#fff}
+.rbtn.like:hover{background:var(--p-d);color:#fff}
+.rbtn.fav[aria-pressed="true"]{color:var(--gold);border-color:#E8C27A;background:var(--gold-soft)}
+.rbtn:disabled{opacity:.35;cursor:default;box-shadow:none}
+.sw-hint{text-align:center;font-size:13px;color:var(--muted);margin-top:12px}
+.empty{padding:40px 24px;text-align:center;background:#fff;border:1.5px dashed var(--line-2);border-radius:22px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty b{color:var(--ink);font-size:18px}
+/* job card */
+.jc-wage b{font-size:30px;line-height:1.2;color:var(--ink)}
+.jc-wage span{font-size:15px;color:var(--muted);margin-left:6px}
+.jc-title{font-family:var(--sans);font-size:20px;line-height:1.45}
+.meta{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:15px;color:var(--body)}
+.meta span{display:inline-flex;gap:5px;align-items:center}
+.meta svg{color:var(--p)}
+.swcard h3{font-family:var(--sans);font-size:15px;font-weight:700;margin-bottom:8px}
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.tasks li{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.55}
+.tasks .ok{color:var(--p)} .tasks .no{color:var(--line-2)}
+.tasks small{color:var(--muted)}
+.canline{font-size:14px;font-weight:600;color:var(--p-d);background:var(--p-soft);padding:8px 12px;border-radius:12px;align-self:flex-start}
+/* caregiver card */
+.cgc-top{display:flex;gap:14px;align-items:center}
+.cgc-top .who{flex:1;min-width:0}
+.cgc-top .nm{font-size:20px;font-weight:700;line-height:1.35}
+.score{display:flex;flex-direction:column;align-items:center;gap:0;min-width:72px}
+.score b{font-size:28px;line-height:1;color:var(--p)}
+.score small{font-size:12px;color:var(--muted)}
+.bar{display:block;width:100%;height:6px;border-radius:999px;background:var(--line);margin-top:6px}
 .bar span{display:block;height:100%;border-radius:inherit;background:var(--p)}
-.app-sum{grid-column:1/-1;margin-top:8px;color:var(--body);font-size:15px;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.app-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 20px 14px;flex-wrap:wrap}
-.cmp{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:14px;font-weight:600;cursor:pointer;color:var(--body)}
-.cmp input{width:18px;height:18px;accent-color:var(--p)}
-@media (max-width:520px){.app-main{grid-template-columns:auto minmax(0,1fr)}.app-score{grid-column:1/-1;flex-direction:row;align-items:center;width:auto;justify-content:flex-start}.app-score b{font-size:20px}}
-.det{position:sticky;top:88px;background:#fff;border-radius:26px;padding:28px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:22px;scroll-margin-top:84px}
-@media (max-width:1000px){.det{position:static}}
-.det-top{display:flex;gap:20px;align-items:center}
-.ring{position:relative;width:104px;height:104px;flex-shrink:0}
-.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ring .c b{font-size:26px;line-height:1}
-.ring .c small{font-size:12px;color:var(--muted)}
-.det h2{font-family:var(--sans);font-size:22px}
-.det h3{font-family:var(--sans);font-size:16px;margin-bottom:10px}
-.okline{display:inline-flex;gap:6px;align-items:center;font-size:14px;color:var(--p-d);font-weight:600;margin-top:4px}
-.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.ai-box{background:#FBFAFE;border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.ai-l{display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:700;color:var(--p);margin-bottom:4px}
+.ai-box p{color:var(--body);font-size:15px;line-height:1.75}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .checks li{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.6}
 .checks li svg{margin-top:3px;color:var(--p)}
 .warn{display:flex;gap:10px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:var(--f-soft);color:var(--f-ink);font-size:14px;line-height:1.6}
 .warn ul{margin:4px 0 0;padding-left:18px}
-.det-actions{display:flex;gap:10px;flex-wrap:wrap}
-.det-actions .btn{flex:1}
 .fine{font-size:13px;color:var(--muted);line-height:1.6}
-.empty{padding:40px 24px;text-align:center;background:#fff;border:1.5px dashed var(--line-2);border-radius:22px;color:var(--muted)}
-.cmpbar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:30;display:none;align-items:center;gap:14px;padding:10px 10px 10px 22px;border-radius:999px;background:var(--ink);color:#fff;box-shadow:0 18px 44px rgba(30,21,51,.3)}
-.cmpbar.on{display:flex}
-.cmpbar .btn{min-height:44px;background:var(--lilac);color:var(--ink)}
-.cmpbar .btn:hover{background:#fff}
+
+/* matches */
+.page{max-width:720px;margin:0 auto;padding:28px 16px 48px}
+.page h1{font-size:clamp(26px,4vw,32px);outline:none}
+.page h2{font-family:var(--sans);font-size:18px;margin:30px 0 12px}
+.mlist{display:flex;flex-direction:column;gap:12px}
+.mcard{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.mcard.hl{border:2px solid var(--p)}
+.mrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.contact{display:flex;gap:10px;flex-wrap:wrap}
+.contact .btn{min-height:44px}
+.cta-card{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:30px;padding:20px;border-radius:20px;background:var(--p-soft)}
 
 /* dialogs */
-dialog{border:0;border-radius:24px;padding:0;width:min(920px,94vw);max-height:90vh;color:var(--ink);box-shadow:0 30px 80px rgba(30,21,51,.3)}
-dialog.sm{width:min(520px,94vw)}
+dialog{border:0;border-radius:24px;padding:0;width:min(600px,94vw);max-height:90vh;color:var(--ink);box-shadow:0 30px 80px rgba(30,21,51,.3)}
+dialog.sm{width:min(460px,94vw)}
 dialog::backdrop{background:rgba(30,21,51,.5)}
-.dlg-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--line)}
-.dlg-h h2{font-size:22px}
-.xbtn{width:44px;height:44px;border-radius:50%;border:0;background:#F0EDF6;cursor:pointer;display:grid;place-items:center}
+.dlg-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.dlg-h h2{font-size:21px}
+.xbtn{width:44px;height:44px;border-radius:50%;border:0;background:#F0EDF6;cursor:pointer;display:grid;place-items:center;flex-shrink:0}
 .xbtn:hover{background:var(--p-soft)}
-.dlg-b{padding:20px 24px 24px;overflow:auto}
-.ctable{width:100%;border-collapse:collapse;min-width:560px}
-.ctable th,.ctable td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);font-size:15px}
-.ctable thead th{font-size:17px;border-bottom:2px solid var(--line)}
-.ctable tbody th{font-weight:600;color:var(--muted);width:170px;font-size:14px}
-.ctable .big{font-size:22px;color:var(--p)}
-.tscroll{overflow-x:auto}
+.dlg-b{padding:20px 22px 24px;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.dlg-b h3{font-family:var(--sans);font-size:15px;margin-bottom:8px}
+.dlg-actions{display:flex;gap:10px;flex-wrap:wrap}
+.dlg-actions .btn{flex:1}
+.matchbox{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding:32px 24px}
+.matchbox .heart{width:84px;height:84px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center}
+.matchbox h2{font-size:26px}
+.nlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.nlist li{padding:14px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:2px}
+.nlist li:last-child{border-bottom:0}
+.nlist .unread b::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--f);margin-right:8px;vertical-align:2px}
+.rate{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.rate label{position:relative}
+.rate input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.rate span{display:grid;place-items:center;width:48px;height:44px;border-radius:12px;border:1.5px solid var(--line-2);font-weight:700;background:#fff}
+.rate input:checked+span{background:var(--p);border-color:var(--p);color:#fff}
+.rate input:focus-visible+span{outline:3px solid var(--lilac);outline-offset:2px}
+.rate-k{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);max-width:270px;margin-top:4px}
 
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:80;background:var(--ink);color:#fff;padding:12px 20px;border-radius:14px;font-weight:500;transition:opacity .2s,transform .2s;max-width:90vw;text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:760px){body.tabs-on .toast{bottom:92px}}
 </style>
 </head>
 <body>
@@ -287,10 +374,14 @@ dialog::backdrop{background:rgba(30,21,51,.5)}
       <span class="brand-mark"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
       <span><b>JobGist</b><small>with Care</small></span>
     </button>
-    <nav class="topnav" aria-label="เมนูหลัก">
-      <button type="button" data-go="caregiver" data-nav="caregiver profile">สำหรับผู้ดูแล</button>
-      <button type="button" data-go="family" data-nav="family applicants">สำหรับครอบครัว</button>
-    </nav>
+    <div class="top-r">
+      <nav class="topnav" id="topnav" aria-label="เมนูหลัก"></nav>
+      <span class="rolebadge" id="roleBadge" hidden></span>
+      <button type="button" class="iconbtn" id="bellBtn" aria-label="การแจ้งเตือน" hidden>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span class="dotc" id="bellCount" hidden></span>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -300,37 +391,34 @@ dialog::backdrop{background:rgba(30,21,51,.5)}
   <div class="hero">
     <div class="wrap">
       <div class="hero-copy">
-        <span class="pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>หางานดูแลผู้สูงอายุและผู้ป่วย เป็นภาษาไทย</span>
-        <h1>งานดูแลที่ใช่<br>เจอกันได้โดยตรง</h1>
-        <p class="hero-lead">ผู้ดูแลไม่ต้องเขียนเรซูเม่ แค่ตอบคำถามทีละขั้น ระบบจะเรียบเรียงเป็นโปรไฟล์พร้อมสมัครงานให้ ส่วนครอบครัวได้อ่านสรุปผู้สมัครแบบเข้าใจง่าย พร้อมเหตุผลว่าทำไมถึงเหมาะ</p>
+        <span class="pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>งานดูแลผู้สูงอายุและผู้ป่วย ใช้งานเป็นภาษาไทย</span>
+        <h1>ผู้ดูแลที่ใช่<br>เจอกันได้โดยตรง</h1>
+        <p class="hero-lead">ผู้ดูแลไม่ต้องเขียนเรซูเม่ แค่ตอบคำถามทีละขั้น ระบบเรียบเรียงเป็นโปรไฟล์ให้ ครอบครัวดูการ์ดทีละใบพร้อมสรุปและเหตุผลว่าทำไมถึงเหมาะ ถ้าสนใจกันทั้งสองฝ่าย ก็ได้ช่องทางติดต่อกันทันที</p>
         <div class="cta-row">
-          <button type="button" class="btn btn-p btn-lg" data-go="caregiver">ฉันเป็นผู้ดูแล สร้างโปรไฟล์</button>
-          <button type="button" class="btn btn-dark btn-lg" data-go="family">ฉันกำลังหาผู้ดูแล</button>
+          <button type="button" class="btn btn-p btn-lg" data-start="caregiver">ฉันเป็นผู้ดูแล หางาน</button>
+          <button type="button" class="btn btn-dark btn-lg" data-start="family">ฉันกำลังหาผู้ดูแล</button>
         </div>
         <div class="assure">
           <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ไม่ต้องมีเรซูเม่</span>
           <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>จ้างตรง ไม่ผ่านเอเจนซี่</span>
-          <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ใช้งานเป็นภาษาไทยทั้งหมด</span>
+          <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ที่อยู่เป็นความลับ เห็นแค่ระยะทาง</span>
         </div>
       </div>
-      <div class="hero-art" aria-label="ตัวอย่างโปรไฟล์และคะแนนความเหมาะสม">
-        <div class="blob"></div><div class="dot"></div>
+      <div class="hero-art" aria-label="ตัวอย่างการ์ดผู้ดูแลและการจับคู่">
+        <div class="blob"></div><div class="back"></div>
         <div class="card-pf">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-            <span style="display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:600;color:var(--p)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>โปรไฟล์ที่ระบบสร้างให้</span>
+            <span class="flag">สนใจงานของคุณแล้ว</span>
             <span class="muted" style="font-size:12px">ตัวอย่าง</span>
           </div>
-          <div class="person"><span class="av">สจ</span><div><div class="nm">คุณสมศรี ใจดี</div><div class="muted" style="font-size:15px">ผู้ช่วยเหลือคนไข้ (NA), ประสบการณ์ 6 ปี</div></div></div>
-          <p style="font-size:15px;line-height:1.75;color:var(--body)">ผู้ช่วยเหลือคนไข้ที่มีประสบการณ์ 6 ปี สามารถดูแลผู้ป่วยติดเตียง ให้อาหารทางสายยาง และดูแลผู้มีภาวะสมองเสื่อมได้อย่างมั่นใจ สะดวกทำงานแบบอยู่ประจำ</p>
-          <div class="tags"><span class="tag">ผู้ป่วยติดเตียง</span><span class="tag">ให้อาหารทางสายยาง</span><span class="tag">ภาวะสมองเสื่อม</span></div>
+          <div class="cgc-top"><span class="av">สจ</span><div class="who"><div class="nm">คุณสมศรี ใจดี</div><div class="muted" style="font-size:14px">ผู้ช่วยเหลือคนไข้ (NA), 6 ปี, บางกะปิ 3.2 กม.</div></div><div class="score"><b>92%</b><small>เหมาะสม</small></div></div>
+          <div class="ai-box"><span class="ai-l">สรุปโดย AI</span><p>มีประสบการณ์ดูแลผู้ป่วยติดเตียงและให้อาหารทางสายยางตรงกับที่คุณต้องการ สะดวกทำงานแบบอยู่ประจำ</p></div>
+          <div class="mini-actions" aria-hidden="true"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span><span class="l"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span></div>
         </div>
-        <div class="card-fit">
-          <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="lbl">ความเหมาะสมกับงานของคุณ</span><span class="num">92%</span></div>
-          <div class="track-d"><span style="width:92%"></span></div>
-          <div style="display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.6">
-            <span style="display:flex;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9B6FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-top:4px"><path d="M20 6 9 17l-5-5"/></svg>ดูแลผู้ป่วยติดเตียงได้ ตรงกับที่ต้องการ</span>
-            <span style="display:flex;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9B6FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-top:4px"><path d="M20 6 9 17l-5-5"/></svg>สะดวกทำงานแบบอยู่ประจำ ตรงกับรูปแบบงานนี้</span>
-          </div>
+        <div class="card-match">
+          <span class="lbl">จับคู่สำเร็จ</span>
+          <b style="font-size:20px">คุณกับคุณสมศรีสนใจกัน</b>
+          <span style="font-size:14px;color:#D9CFF5">ดูเบอร์โทรและ LINE แล้วคุยรายละเอียดกันต่อได้เลย</span>
         </div>
       </div>
     </div>
@@ -343,21 +431,21 @@ dialog::backdrop{background:rgba(30,21,51,.5)}
         <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
         <div><h3>สำหรับผู้ดูแล</h3><p class="muted" style="margin-top:4px">ผู้ดูแล, ผู้ช่วยเหลือคนไข้ (NA), ผู้ช่วยพยาบาล (PN) และผู้ดูแลที่บ้าน</p></div>
         <ul>
-          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>แบบฟอร์มภาษาไทยทีละขั้น ไม่ต้องพิมพ์ยาว</li>
-          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ถ่ายรูปใบรับรองแนบเป็นหลักฐานได้ทันที</li>
-          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ได้โปรไฟล์พร้อมสมัครงาน แก้ไขเองได้ทุกเมื่อ</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ตอบคำถามแบบแตะเลือก ไม่ต้องพิมพ์ยาว</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>การ์ดงานบอกแค่ที่ต้องรู้: ค่าจ้าง ระยะทาง งานที่ทำ</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5E35B1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>รับได้หลายงานพร้อมกัน</li>
         </ul>
-        <button type="button" class="btn btn-p go" data-go="caregiver">เริ่มสร้างโปรไฟล์</button>
+        <button type="button" class="btn btn-p go" data-start="caregiver">เริ่มสร้างโปรไฟล์</button>
       </div>
       <div class="side fm">
         <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span>
         <div><h3>สำหรับครอบครัว</h3><p class="muted" style="margin-top:4px">ครอบครัวและผู้ว่าจ้างที่ต้องการจ้างผู้ดูแลโดยตรง</p></div>
         <ul>
-          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C2F73" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>เล่าอาการผู้ป่วยเป็นภาษาที่พูดปกติ</li>
-          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C2F73" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>อ่านสรุปผู้สมัครและคะแนนความเหมาะสมพร้อมเหตุผล</li>
-          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C2F73" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>เปรียบเทียบและเลือกเอง ไม่ต้องผ่านเอเจนซี่</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C2F73" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>เล่าอาการผู้ป่วยเป็นภาษาที่พูดปกติ แนบรูปได้</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C2F73" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ดูการ์ดผู้ดูแลทีละใบ เรียงตามความเหมาะสม</li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C2F73" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>สนใจตรงกัน ได้ช่องทางติดต่อทันที</li>
         </ul>
-        <button type="button" class="btn btn-f go" data-go="family">โพสต์หาผู้ดูแล</button>
+        <button type="button" class="btn btn-f go" data-start="family">ประกาศหาผู้ดูแล</button>
       </div>
     </div>
   </div></div>
@@ -366,23 +454,48 @@ dialog::backdrop{background:rgba(30,21,51,.5)}
     <div class="how">
       <h2>ใช้งานอย่างไร</h2>
       <ol>
-        <li><span class="n" style="background:var(--p)">1</span><b>ตอบคำถามทีละขั้น</b><p>ผู้ดูแลแตะเลือกบทบาท ประสบการณ์ และกรณีที่มั่นใจดูแล</p></li>
-        <li><span class="n" style="background:var(--p)">2</span><b>ได้โปรไฟล์ภาษาไทย</b><p>ตรวจและแก้ไขข้อความได้ก่อนเผยแพร่</p></li>
-        <li><span class="n" style="background:var(--f)">3</span><b>ครอบครัวโพสต์ความต้องการ</b><p>เล่าอาการและสิ่งที่อยากให้ช่วย ระบบจับประเด็นให้</p></li>
-        <li><span class="n" style="background:var(--f)">4</span><b>เปรียบเทียบและเลือกเอง</b><p>ดูคะแนน เหตุผล และติดต่อผู้ดูแลได้โดยตรง</p></li>
+        <li><span class="n" style="background:var(--p)">1</span><b>ตอบคำถามทีละขั้น</b><p>ผู้ดูแลเลือกบทบาท พื้นที่ ค่าจ้าง และกรณีที่มั่นใจดูแล</p></li>
+        <li><span class="n" style="background:var(--p)">2</span><b>ได้โปรไฟล์ภาษาไทย</b><p>ตรวจและแก้ไขได้ก่อนเผยแพร่ให้ครอบครัวเห็น</p></li>
+        <li><span class="n" style="background:var(--f)">3</span><b>ปัดเลือกการ์ด</b><p>ครอบครัวดูผู้ดูแล ผู้ดูแลดูงาน กดสนใจหรือผ่าน</p></li>
+        <li><span class="n" style="background:var(--f)">4</span><b>สนใจตรงกัน คุยต่อได้เลย</b><p>ระบบเปิดเบอร์โทรและ LINE ให้ทั้งสองฝ่าย ตกลงจ้างกันเอง</p></li>
       </ol>
     </div>
   </div>
 </section>
 
+<!-- ============ SIGN UP ============ -->
+<section class="screen" id="s-signup">
+  <div class="flow">
+    <h1 class="step-h" tabindex="-1">สร้างบัญชี</h1>
+    <p class="step-sub">ใช้เวลาไม่ถึง 1 นาที</p>
+    <fieldset class="fs block" style="margin-top:22px">
+      <legend class="lbl">ฉันเป็น</legend>
+      <div class="rolepick">
+        <label class="rp cg"><input type="radio" name="su-role" value="caregiver"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span><b>ผู้ดูแล</b><small>หางานดูแลผู้สูงอายุและผู้ป่วย</small></label>
+        <label class="rp fm"><input type="radio" name="su-role" value="family"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span><b>ครอบครัว</b><small>หาผู้ดูแลให้คนที่คุณรัก</small></label>
+      </div>
+      <p class="err" id="e-su-role" hidden>เลือกว่าคุณเป็นผู้ดูแลหรือครอบครัว</p>
+    </fieldset>
+    <div class="field"><label for="su-name">ชื่อที่ให้คนอื่นเห็น</label><input id="su-name" class="text" autocomplete="name" placeholder="เช่น สมศรี ใจดี"><p class="err" id="e-su-name" hidden>กรอกชื่อก่อนสมัคร</p></div>
+    <div class="field"><label for="su-email">อีเมล</label><input id="su-email" class="text" type="email" autocomplete="email" placeholder="name@example.com"><p class="err" id="e-su-email" hidden>กรอกอีเมลให้ถูกต้อง</p></div>
+    <div class="field"><label for="su-pass">รหัสผ่าน</label><input id="su-pass" class="text" type="password" autocomplete="new-password" placeholder="อย่างน้อย 6 ตัวอักษร"><p class="err" id="e-su-pass" hidden>รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร</p></div>
+    <div class="field"><label for="su-phone">เบอร์โทรศัพท์ <span class="opt-l">(ไม่บังคับ)</span></label><input id="su-phone" class="text" type="tel" inputmode="tel" autocomplete="tel" placeholder="08X-XXX-XXXX"></div>
+    <div class="hint p"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-top:2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg><span>เบอร์โทรจะแสดงให้อีกฝ่ายเห็นหลังจากสนใจกันทั้งสองฝ่ายแล้วเท่านั้น<br><span class="small">โหมดทดลอง: รหัสผ่านไม่ถูกบันทึกหรือส่งไปที่ใด</span></span></div>
+  </div>
+  <div class="flow-foot"><div class="in">
+    <button type="button" class="btn btn-o" data-go="home">ยกเลิก</button>
+    <button type="button" class="btn btn-p grow" id="su-submit">สมัครและเริ่มต้น</button>
+  </div></div>
+</section>
+
 <!-- ============ CAREGIVER FORM ============ -->
-<section class="screen" id="s-caregiver">
+<section class="screen" id="s-cg-form">
   <div class="flow">
     <div class="flow-top">
       <div class="row"><span>สร้างโปรไฟล์ของคุณ</span><span id="stepNum"></span></div>
-      <div class="prog" role="progressbar" aria-label="ความคืบหน้า" aria-valuemin="1" aria-valuemax="5" id="progWrap"><span id="prog"></span></div>
+      <div class="prog" role="progressbar" aria-label="ความคืบหน้า" aria-valuemin="1" aria-valuemax="7" id="progWrap"><span id="prog"></span></div>
     </div>
-    <div id="formBody"></div>
+    <div id="cgBody"></div>
   </div>
   <div class="flow-foot"><div class="in">
     <button type="button" class="btn btn-o" id="fBack">ย้อนกลับ</button>
@@ -390,8 +503,8 @@ dialog::backdrop{background:rgba(30,21,51,.5)}
   </div></div>
 </section>
 
-<!-- ============ PROFILE ============ -->
-<section class="screen" id="s-profile">
+<!-- ============ CAREGIVER PROFILE ============ -->
+<section class="screen" id="s-cg-profile">
   <div id="pfBody"></div>
   <div class="flow-foot"><div class="in">
     <button type="button" class="btn btn-o" id="pfRedo">แก้ไขคำตอบ</button>
@@ -399,173 +512,338 @@ dialog::backdrop{background:rgba(30,21,51,.5)}
   </div></div>
 </section>
 
-<!-- ============ FAMILY POST ============ -->
-<section class="screen" id="s-family">
-  <div class="flow">
-    <h1 class="step-h" tabindex="-1">เล่าให้เราฟังว่าต้องการให้ช่วยอะไร</h1>
-    <p class="step-sub">เขียนแบบที่พูดปกติได้เลย ไม่ต้องใช้ศัพท์ทางการ</p>
-    <div class="field">
-      <label for="j-text">อาการและสิ่งที่ต้องการ</label>
-      <textarea id="j-text" class="text" rows="6" placeholder="เช่น คุณแม่อายุ 78 ปี ติดเตียง ต้องให้อาหารทางสายยาง อยากได้คนดูแลอยู่ประจำ" aria-describedby="e-text"></textarea>
-      <p class="err" id="e-text" hidden>เล่าอาการหรือสิ่งที่ต้องการสั้นๆ อย่างน้อย 1 ประโยค</p>
-      <button type="button" class="linkbtn" id="j-example" style="align-self:flex-start">ใส่ข้อความตัวอย่าง</button>
+<!-- ============ CAREGIVER JOB FEED ============ -->
+<section class="screen" id="s-cg-feed">
+  <div class="deck-page">
+    <div class="deck-head">
+      <div id="feedBanner"></div>
+      <h1 id="feedTitle" tabindex="-1">งานที่เหมาะกับคุณ</h1>
+      <div class="deck-tools">
+        <span class="muted small" id="feedCount"></span>
+        <label><span class="sr">ระยะทางสูงสุด</span><select id="feedKm" class="select"></select></label>
+      </div>
     </div>
-    <div class="review" style="padding:20px">
-      <p style="display:inline-flex;gap:6px;align-items:center;font-weight:700;color:var(--f-d)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>สิ่งที่ระบบเข้าใจจากข้อความ</p>
-      <p class="muted small">ระบบเลือกให้อัตโนมัติจากสิ่งที่คุณเขียน แตะเพื่อเพิ่มหรือเอาออกได้</p>
-      <div class="chips" id="j-needs" role="group" aria-label="ความต้องการในการดูแล"></div>
-      <p class="err" id="e-needs" hidden>เลือกอย่างน้อย 1 ข้อ เพื่อให้ระบบหาผู้ดูแลที่ตรงกับงาน</p>
-      <fieldset class="fs" style="margin-top:20px"><legend class="lbl">รูปแบบงาน</legend><div class="opts row fam" id="j-work"></div></fieldset>
+    <div class="deck" id="feedDeck" aria-live="polite"></div>
+    <div class="sw-actions" id="feedActions">
+      <button type="button" class="rbtn" data-act="pass" aria-label="ผ่านงานนี้"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      <button type="button" class="rbtn like" data-act="like" aria-label="สนใจงานนี้"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></button>
     </div>
-    <div class="field"><label for="j-area">พื้นที่</label><input id="j-area" class="text" placeholder="เช่น บางกะปิ กรุงเทพฯ" autocomplete="address-level2"></div>
-    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
-      <div class="field"><label for="j-budget">งบต่อเดือน (บาท)</label><input id="j-budget" class="text" inputmode="numeric" placeholder="ไม่บังคับ"></div>
-      <div class="field"><label for="j-start">วันที่เริ่มงาน</label><input id="j-start" class="text" type="date"></div>
-    </div>
+    <p class="sw-hint" id="feedHint">ปัดขวา = สนใจ, ปัดซ้าย = ผ่าน หรือกดปุ่มด้านบน</p>
   </div>
+</section>
+
+<!-- ============ FAMILY POST ============ -->
+<section class="screen" id="s-fam-post">
+  <div class="flow" id="famBody"></div>
   <div class="flow-foot"><div class="in">
-    <button type="button" class="btn btn-o" data-go="home">ยกเลิก</button>
-    <button type="button" class="btn btn-f grow" id="j-submit">โพสต์และดูผู้สมัคร</button>
+    <button type="button" class="btn btn-o" id="j-cancel">ยกเลิก</button>
+    <button type="button" class="btn btn-f grow" id="j-submit">ประกาศงานและดูผู้ดูแล</button>
   </div></div>
 </section>
 
-<!-- ============ APPLICANTS ============ -->
-<section class="screen" id="s-applicants">
-  <div class="wrap ap">
-    <div class="ap-head">
-      <div>
-        <p class="crumb">งานที่โพสต์: <span id="apJob"></span> <button type="button" class="linkbtn" data-go="family" style="min-height:32px">แก้ไขงาน</button></p>
-        <h1 id="apCount" tabindex="-1">ผู้สมัคร</h1>
-      </div>
-      <div class="ap-tools">
-        <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C5670" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="sr">ค้นหาผู้สมัคร</span><input id="apSearch" type="search" placeholder="ค้นหาชื่อ ทักษะ หรือพื้นที่"></label>
-        <label><span class="sr">เรียงลำดับ</span><select id="apSort" class="select"><option value="score">เรียงตาม: ความเหมาะสม</option><option value="years">เรียงตาม: ประสบการณ์</option></select></label>
-      </div>
+<!-- ============ FAMILY DECK ============ -->
+<section class="screen" id="s-fam-deck">
+  <div class="deck-page">
+    <div class="deck-head" id="deckHead"></div>
+    <div class="deck" id="famDeck" aria-live="polite"></div>
+    <div class="sw-actions" id="famActions">
+      <button type="button" class="rbtn" data-act="pass" aria-label="ผ่านผู้ดูแลคนนี้"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      <button type="button" class="rbtn fav" data-act="fav" aria-label="บันทึกเป็นรายการโปรด" aria-pressed="false"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1Z"/></svg></button>
+      <button type="button" class="rbtn like" data-act="like" aria-label="สนใจผู้ดูแลคนนี้"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></button>
     </div>
-    <div class="needs-row" id="apNeeds"></div>
-    <div class="ap-grid">
-      <div class="ap-list" id="apList"></div>
-      <aside class="det" id="apDetail" aria-live="polite"></aside>
-    </div>
+    <p class="sw-hint" id="famHint">ปัดขวา = สนใจ, ปัดซ้าย = ผ่าน, ดาว = เก็บไว้ดูทีหลัง</p>
   </div>
-  <div class="cmpbar" id="cmpBar"><span id="cmpText"></span><button type="button" class="btn" id="cmpOpen">เปรียบเทียบ</button></div>
+</section>
+
+<!-- ============ MATCHES ============ -->
+<section class="screen" id="s-matches">
+  <div class="page" id="matchBody"></div>
 </section>
 </main>
 
+<nav class="tabbar" id="tabbar" aria-label="เมนูหลัก"></nav>
+
 <footer class="site"><div class="wrap">
-  <span>JobGist with Care</span>
-  <button type="button" class="linkbtn" id="resetDemo">ล้างข้อมูลทดลอง</button>
+  <span>JobGist with Care · โหมดทดลอง ข้อมูลเก็บในเบราว์เซอร์นี้เท่านั้น</span>
+  <span class="demo">
+    <button type="button" class="linkbtn" id="switchRole">สลับฝั่ง</button>
+    <button type="button" class="linkbtn" id="openReview">ให้คะแนนแพลตฟอร์ม</button>
+    <button type="button" class="linkbtn" id="resetDemo">ล้างข้อมูลทดลอง</button>
+  </span>
 </div></footer>
 
 <div class="gen" id="gen" role="status" aria-live="polite">
   <div class="box"><div class="spin" aria-hidden="true"></div><h2>กำลังสร้างโปรไฟล์ของคุณ</h2><p class="muted">ระบบกำลังเรียบเรียงคำตอบเป็นโปรไฟล์ภาษาไทย</p></div>
 </div>
 
-<dialog id="dlgCompare" aria-labelledby="cmpTitle">
-  <div class="dlg-h"><h2 id="cmpTitle">เปรียบเทียบผู้สมัคร</h2><button type="button" class="xbtn" data-close aria-label="ปิด"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-  <div class="dlg-b"><div class="tscroll" id="cmpBody"></div></div>
+<dialog id="dlgDetail" aria-labelledby="detTitle">
+  <div class="dlg-h"><h2 id="detTitle">รายละเอียด</h2><button type="button" class="xbtn" data-close aria-label="ปิด"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="dlg-b" id="detBody"></div>
 </dialog>
 
-<dialog id="dlgMsg" class="sm" aria-labelledby="msgTitle">
-  <div class="dlg-h"><h2 id="msgTitle">ส่งข้อความ</h2><button type="button" class="xbtn" data-close aria-label="ปิด"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-  <div class="dlg-b">
-    <label for="msgText" class="lbl">ข้อความ</label>
-    <textarea id="msgText" class="text" rows="5" style="margin-top:8px"></textarea>
-    <p class="fine" style="margin-top:10px">โหมดทดลอง: ข้อความจะถูกบันทึกไว้ในเบราว์เซอร์นี้เท่านั้น</p>
-    <div class="det-actions" style="margin-top:16px"><button type="button" class="btn btn-o" data-close>ยกเลิก</button><button type="button" class="btn btn-p" id="msgSend">ส่งข้อความ</button></div>
+<dialog id="dlgMatch" class="sm" aria-labelledby="matchTitle">
+  <div class="matchbox">
+    <span class="heart"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
+    <h2 id="matchTitle">จับคู่สำเร็จ</h2>
+    <p class="muted" id="matchText"></p>
+    <div class="dlg-actions" style="width:100%"><button type="button" class="btn btn-o" data-close>ดูการ์ดต่อ</button><button type="button" class="btn btn-p" id="matchGo">ดูช่องทางติดต่อ</button></div>
   </div>
+</dialog>
+
+<dialog id="dlgNotif" class="sm" aria-labelledby="notifTitle">
+  <div class="dlg-h"><h2 id="notifTitle">การแจ้งเตือน</h2><button type="button" class="xbtn" data-close aria-label="ปิด"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="dlg-b" id="notifBody"></div>
+</dialog>
+
+<dialog id="dlgReview" class="sm" aria-labelledby="revTitle">
+  <div class="dlg-h"><h2 id="revTitle">ให้คะแนนแพลตฟอร์ม</h2><button type="button" class="xbtn" data-close aria-label="ปิด"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="dlg-b" id="revBody"></div>
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* ======================================================================
-   CONFIG
-   ใส่ URL ของ FastAPI backend เพื่อใช้ LLM จริง เช่น "http://localhost:8000"
-   เว้นว่าง = โหมดทดลอง สร้างข้อความจาก template ในเบราว์เซอร์
-   Endpoint ที่คาดหวัง:
-     POST {API_BASE}/api/profiles/generate
-       body: { name, area, role, years, cases[], work, has_certificate }
-       resp: { profile_text: "..." }
+   JobGist with Care — UI prototype (ตรงกับ schema v2: matches / swipe)
+
+   ตอนนี้เป็นโหมดทดลอง: ข้อมูลทั้งหมดอยู่ใน localStorage
+   ทุกจุดที่ต้องต่อของจริงอยู่ในอ็อบเจกต์ `api` ด้านล่าง ฟังก์ชันตั้งชื่อ
+   ตาม RPC/ตารางใน Supabase เพื่อให้สลับไปใช้ supabase-js ได้ทีละตัว:
+     api.signUp            → supabase.auth.signUp({ options:{ data:{ role, display_name, phone } } })
+     api.candidateCaregivers → supabase.rpc('candidate_caregivers', { p_job_post_id, p_max_km })
+                               แล้ว backend เติม ai_applicant_summaries (summary + fit_score)
+     api.jobFeedForMe      → supabase.rpc('job_feed_for_me', { p_max_km })
+     api.swipe             → supabase.from('matches').upsert(...)  (trigger ตั้ง matched_at ให้)
+     api.getMatchContact   → supabase.rpc('get_match_contact', { p_match_id })
+     generateProfile       → POST {API_BASE}/api/profiles/generate  (FastAPI → Typhoon / GPT-4o-mini)
    ====================================================================== */
-const CONFIG = { API_BASE: "" };
+const CONFIG = { API_BASE: '' };
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const store = {
-  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { toast('บันทึกข้อมูลในเบราว์เซอร์ไม่ได้ ลองลดจำนวนรูปที่แนบ'); } },
-  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
-};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id' + Date.now() + Math.random().toString(36).slice(2));
+const nowISO = () => new Date().toISOString();
+const addDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+const num = v => { const s = String(v ?? '').replace(/[^\d]/g, ''); return s === '' ? '' : Number(s); };
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2800); }
 
 const ICON = {
   check: '<svg class="ck" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
   tick: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
+  dot: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>',
   spark: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>',
   arrow: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>',
   upload: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>',
-  pin: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+  pin: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+  cal: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  home: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>',
+  user: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
   pen: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
   info: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
   shield: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>',
-  msg: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>'
+  heart: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
+  phone: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z"/></svg>',
+  chat: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>',
+  star: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1Z"/></svg>',
+  cards: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 12h6"/></svg>',
+  tabUser: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  tabPost: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  tabMatch: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>'
 };
 
-/* ---------- domain data ---------- */
-const ROLES = {
-  cg:   { label: 'ผู้ดูแล (Caregiver)',   full: 'ผู้ดูแลผู้สูงอายุและผู้ป่วย', desc: 'ดูแลกิจวัตรประจำวันของผู้สูงอายุหรือผู้ป่วย' },
-  na:   { label: 'ผู้ช่วยเหลือคนไข้ (NA)', full: 'ผู้ช่วยเหลือคนไข้',        desc: 'ผ่านการอบรมหลักสูตรผู้ช่วยเหลือคนไข้' },
-  pn:   { label: 'ผู้ช่วยพยาบาล (PN)',    full: 'ผู้ช่วยพยาบาล',           desc: 'ผ่านการอบรมหลักสูตรผู้ช่วยพยาบาล' },
-  home: { label: 'ผู้ดูแลที่บ้าน',         full: 'ผู้ดูแลที่บ้าน',            desc: 'มีประสบการณ์ดูแลคนในครอบครัวหรือคนรู้จัก' }
-};
-const CASES = {
-  bed:      { label: 'ผู้ป่วยติดเตียง',        verb: 'ดูแลผู้ป่วยติดเตียง',        kw: ['ติดเตียง', 'ลุกไม่ได้', 'นอนอย่างเดียว'] },
-  tube:     { label: 'ให้อาหารทางสายยาง',     verb: 'ให้อาหารทางสายยาง',         kw: ['สายยาง', 'ทางสาย', 'ฟีดอาหาร', 'ฟีดนม'] },
-  dementia: { label: 'ภาวะสมองเสื่อม',        verb: 'ดูแลผู้มีภาวะสมองเสื่อม',    kw: ['สมองเสื่อม', 'อัลไซเมอร์', 'หลงลืม', 'ความจำ'] },
-  stroke:   { label: 'ผู้ป่วยหลอดเลือดสมอง',  verb: 'ดูแลผู้ป่วยหลอดเลือดสมอง', kw: ['เส้นเลือดในสมอง', 'หลอดเลือดสมอง', 'สโตรก', 'stroke', 'อัมพาต', 'อัมพฤกษ์'] },
-  surgery:  { label: 'ดูแลหลังผ่าตัด',        verb: 'ดูแลผู้ป่วยหลังผ่าตัด',      kw: ['ผ่าตัด'] },
-  wound:    { label: 'ทำแผลกดทับ',           verb: 'ทำแผลกดทับ',               kw: ['แผลกดทับ', 'ทำแผล'] },
-  doctor:   { label: 'พาไปพบแพทย์',          verb: 'พาผู้ป่วยไปพบแพทย์',        kw: ['หาหมอ', 'พบแพทย์', 'พบหมอ', 'โรงพยาบาล', 'นัดหมอ'] },
-  elder:    { label: 'ผู้สูงอายุทั่วไป',       verb: 'ดูแลผู้สูงอายุทั่วไป',       kw: ['ผู้สูงอายุ', 'สูงวัย', 'คนแก่'] }
-};
-const WORK = {
-  live: { label: 'อยู่ประจำ',  desc: 'พักอาศัยที่บ้านผู้ป่วย',            kw: ['อยู่ประจำ', 'ค้างคืน', 'พักที่บ้าน', '24 ชั่วโมง', '24 ชม'] },
-  day:  { label: 'ไป-กลับ',   desc: 'ทำงานเป็นกะรายวัน',               kw: ['ไปกลับ', 'ไป-กลับ', 'ไป กลับ', 'รายวัน', 'เช้าไปเย็นกลับ'] },
-  hour: { label: 'รายชั่วโมง', desc: 'ช่วยเฉพาะช่วงเวลาที่ครอบครัวต้องการ', kw: ['รายชั่วโมง', 'เป็นชั่วโมง', 'บางช่วงเวลา'] }
-};
-const SAMPLE_JOB = 'คุณแม่อายุ 78 ปี ติดเตียงหลังเป็นเส้นเลือดในสมอง ต้องให้อาหารทางสายยาง อยากได้คนดูแลอยู่ประจำ ช่วยพลิกตัว เช็ดตัว และพาไปหาหมอเดือนละครั้ง';
-
-/* ข้อมูลตัวอย่างผู้ดูแล (ไม่ใช่บุคคลจริง) */
-const SEED = [
-  { id: 's1', name: 'สมศรี ใจดี',     role: 'na',   years: 6, area: 'บางกะปิ กรุงเทพฯ', cases: ['bed', 'tube', 'dementia', 'wound'], work: 'live', cert: true,  sample: true },
-  { id: 's2', name: 'วิไล ทองดี',     role: 'pn',   years: 9, area: 'ลาดพร้าว กรุงเทพฯ', cases: ['surgery', 'tube', 'wound', 'doctor'], work: 'day', cert: true, sample: true },
-  { id: 's3', name: 'ประยูร แก้วมณี', role: 'home', years: 3, area: 'บึงกุ่ม กรุงเทพฯ',  cases: ['bed', 'elder', 'doctor'], work: 'live', cert: false, sample: true },
-  { id: 's4', name: 'อรุณี ศรีสุข',   role: 'cg',   years: 4, area: 'บางกะปิ กรุงเทพฯ', cases: ['stroke', 'bed', 'doctor', 'elder'], work: 'live', cert: true, sample: true }
+/* ======================================================================
+   คำศัพท์กลาง — ตรงกับ check constraint และตาราง case_types ใน schema
+   ====================================================================== */
+const CASE_TYPES = [
+  { code: 'general_elderly',  label: 'ดูแลผู้สูงอายุทั่วไป / เป็นเพื่อน', short: 'ผู้สูงอายุทั่วไป',     verb: 'ดูแลผู้สูงอายุทั่วไป',             kw: ['ผู้สูงอายุ', 'สูงวัย', 'เป็นเพื่อน', 'อยู่คนเดียว'] },
+  { code: 'mobility_assist',  label: 'ช่วยพยุงเดิน / เคลื่อนย้าย',       short: 'พยุงเดิน / เคลื่อนย้าย', verb: 'ช่วยพยุงเดินและเคลื่อนย้าย',        kw: ['พยุง', 'เดินไม่ค่อยได้', 'เคลื่อนย้าย', 'วีลแชร์', 'รถเข็น', 'ล้มบ่อย'] },
+  { code: 'bedridden',        label: 'ผู้ป่วยติดเตียง',                  short: 'ผู้ป่วยติดเตียง',       verb: 'ดูแลผู้ป่วยติดเตียง',               kw: ['ติดเตียง', 'ลุกไม่ได้', 'พลิกตัว', 'นอนตลอด'] },
+  { code: 'feeding_tube',     label: 'ให้อาหารทางสายยาง',               short: 'ให้อาหารทางสายยาง',     verb: 'ให้อาหารทางสายยาง',                 kw: ['สายยาง', 'ทางสาย', 'ฟีดอาหาร', 'ฟีดนม', 'ให้อาหารทางสาย'] },
+  { code: 'dementia',         label: 'ภาวะสมองเสื่อม / อัลไซเมอร์',      short: 'ภาวะสมองเสื่อม',        verb: 'ดูแลผู้มีภาวะสมองเสื่อม',           kw: ['สมองเสื่อม', 'อัลไซเมอร์', 'หลงลืม', 'จำไม่ได้', 'ความจำ'] },
+  { code: 'stroke_rehab',     label: 'ฟื้นฟูผู้ป่วยหลอดเลือดสมอง',       short: 'ฟื้นฟูหลอดเลือดสมอง',   verb: 'ฟื้นฟูผู้ป่วยหลอดเลือดสมอง',        kw: ['เส้นเลือดในสมอง', 'หลอดเลือดสมอง', 'สโตรก', 'stroke', 'อัมพาต', 'อัมพฤกษ์', 'กายภาพ'] },
+  { code: 'wound_care',       label: 'ทำแผล / ดูแลแผลกดทับ',            short: 'ทำแผล / แผลกดทับ',      verb: 'ทำแผลและดูแลแผลกดทับ',             kw: ['แผลกดทับ', 'ทำแผล', 'ล้างแผล'] },
+  { code: 'suction',          label: 'ดูดเสมหะ',                        short: 'ดูดเสมหะ',              verb: 'ดูดเสมหะ',                          kw: ['ดูดเสมหะ', 'เสมหะ'] },
+  { code: 'urinary_catheter', label: 'ดูแลสายสวนปัสสาวะ',               short: 'สายสวนปัสสาวะ',         verb: 'ดูแลสายสวนปัสสาวะ',                 kw: ['สายสวน', 'สวนปัสสาวะ'] },
+  { code: 'medication',       label: 'จัดยา / ดูแลการทานยา',             short: 'จัดยา / ดูแลการทานยา',  verb: 'จัดยาและดูแลการทานยา',             kw: ['จัดยา', 'ทานยา', 'กินยา', 'ป้อนยา'] },
+  { code: 'diabetes_care',    label: 'ดูแลผู้ป่วยเบาหวาน / เจาะน้ำตาล',  short: 'เบาหวาน / เจาะน้ำตาล',  verb: 'ดูแลผู้ป่วยเบาหวานและเจาะน้ำตาล',   kw: ['เบาหวาน', 'เจาะน้ำตาล', 'อินซูลิน'] },
+  { code: 'palliative',       label: 'ดูแลผู้ป่วยระยะท้าย',              short: 'ผู้ป่วยระยะท้าย',       verb: 'ดูแลผู้ป่วยระยะท้าย',               kw: ['ระยะท้าย', 'ระยะสุดท้าย', 'ประคับประคอง'] }
 ];
+const CT = Object.fromEntries(CASE_TYPES.map(c => [c.code, c]));
+const COMFORT = {
+  experienced:      { label: 'มีประสบการณ์', w: 1 },
+  trained:          { label: 'เคยอบรม',      w: 0.85 },
+  willing_to_learn: { label: 'ยินดีเรียนรู้',  w: 0.35 },
+  not_comfortable:  { label: 'ไม่สะดวก',      w: 0 }
+};
+const CAN = ['experienced', 'trained'];   // นับว่า "ทำได้" (เหมือนใน candidate_caregivers / job_feed_for_me)
+const CARE_ROLES = {
+  caregiver:       { label: 'ผู้ดูแล (Caregiver)',   full: 'ผู้ดูแลผู้สูงอายุและผู้ป่วย', desc: 'ดูแลกิจวัตรประจำวันของผู้สูงอายุหรือผู้ป่วย' },
+  nurse_aide:      { label: 'ผู้ช่วยเหลือคนไข้ (NA)', full: 'ผู้ช่วยเหลือคนไข้',        desc: 'ผ่านการอบรมหลักสูตรผู้ช่วยเหลือคนไข้' },
+  practical_nurse: { label: 'ผู้ช่วยพยาบาล (PN)',    full: 'ผู้ช่วยพยาบาล',           desc: 'ผ่านการอบรมหลักสูตรผู้ช่วยพยาบาล' },
+  informal:        { label: 'ผู้ดูแลที่บ้าน',         full: 'ผู้ดูแลที่บ้าน',            desc: 'เคยดูแลคนในครอบครัวหรือคนรู้จัก' }
+};
+const ARR = {
+  live_in: { label: 'อยู่ประจำ', desc: 'พักอาศัยที่บ้านผู้ป่วย', kw: ['อยู่ประจำ', 'ค้างคืน', 'พักที่บ้าน', '24 ชั่วโมง', '24 ชม'] },
+  daily:   { label: 'ไป-กลับ',  desc: 'ทำงานเป็นกะ กลับบ้านทุกวัน', kw: ['ไปกลับ', 'ไป-กลับ', 'รายวัน', 'เช้าไปเย็นกลับ'] }
+};
+const UNIT = { month: 'เดือน', day: 'วัน', hour: 'ชั่วโมง' };
+const GENDER = { female: 'หญิง', male: 'ชาย', other: 'อื่นๆ', prefer_not_say: 'ไม่ระบุ' };
+const CERT_TYPES = {
+  nurse_aide: 'ประกาศนียบัตรผู้ช่วยเหลือคนไข้ (NA)',
+  practical_nurse: 'ประกาศนียบัตรผู้ช่วยพยาบาล (PN)',
+  caregiver_training: 'ใบผ่านการอบรมผู้ดูแล',
+  first_aid: 'ใบผ่านการอบรมปฐมพยาบาล',
+  other: 'เอกสารอื่นๆ'
+};
+/* พิกัดกลางเขต (ประมาณ) — แทน AI location pin ในโหมดทดลอง
+   ของจริง: ผู้ใช้กรอกที่อยู่ → backend ปักหมุด → เก็บใน *_locations (ลับ) */
+const DISTRICTS = [
+  { d: 'ปทุมวัน', p: 'กรุงเทพมหานคร', lat: 13.744, lng: 100.522 },
+  { d: 'สาทร', p: 'กรุงเทพมหานคร', lat: 13.708, lng: 100.526 },
+  { d: 'คลองเตย', p: 'กรุงเทพมหานคร', lat: 13.708, lng: 100.584 },
+  { d: 'วัฒนา', p: 'กรุงเทพมหานคร', lat: 13.742, lng: 100.585 },
+  { d: 'พระโขนง', p: 'กรุงเทพมหานคร', lat: 13.702, lng: 100.601 },
+  { d: 'บางนา', p: 'กรุงเทพมหานคร', lat: 13.668, lng: 100.604 },
+  { d: 'ห้วยขวาง', p: 'กรุงเทพมหานคร', lat: 13.776, lng: 100.579 },
+  { d: 'ดินแดง', p: 'กรุงเทพมหานคร', lat: 13.770, lng: 100.553 },
+  { d: 'จตุจักร', p: 'กรุงเทพมหานคร', lat: 13.828, lng: 100.560 },
+  { d: 'ลาดพร้าว', p: 'กรุงเทพมหานคร', lat: 13.806, lng: 100.607 },
+  { d: 'บางกะปิ', p: 'กรุงเทพมหานคร', lat: 13.765, lng: 100.647 },
+  { d: 'บึงกุ่ม', p: 'กรุงเทพมหานคร', lat: 13.785, lng: 100.669 },
+  { d: 'บางเขน', p: 'กรุงเทพมหานคร', lat: 13.873, lng: 100.596 },
+  { d: 'มีนบุรี', p: 'กรุงเทพมหานคร', lat: 13.814, lng: 100.731 },
+  { d: 'เมืองนนทบุรี', p: 'นนทบุรี', lat: 13.859, lng: 100.521 },
+  { d: 'ปากเกร็ด', p: 'นนทบุรี', lat: 13.913, lng: 100.498 },
+  { d: 'เมืองสมุทรปราการ', p: 'สมุทรปราการ', lat: 13.599, lng: 100.597 }
+];
+const districtOf = name => DISTRICTS.find(x => x.d === name) || null;
+const districtOptions = sel => {
+  const groups = [...new Set(DISTRICTS.map(x => x.p))];
+  return `<option value="">เลือกเขต / อำเภอ</option>` + groups.map(p => `<optgroup label="${p}">${DISTRICTS.filter(x => x.p === p).map(x => `<option value="${x.d}" ${x.d === sel ? 'selected' : ''}>${x.d}</option>`).join('')}</optgroup>`).join('');
+};
 
-/* ---------- helpers ---------- */
-const yearsText = y => y === 0 ? 'น้อยกว่า 1 ปี' : `${y} ปี`;
+/* public.distance_km() ฉบับ JS — สูตรเดียวกัน */
+function distanceKm(a, b) {
+  if (!a || !b) return null;
+  const r = x => x * Math.PI / 180;
+  const h = Math.sin(r(b.lat - a.lat) / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(r(b.lng - a.lng) / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+/* ---------- text helpers ---------- */
+const yearsText = y => Number(y) === 0 ? 'น้อยกว่า 1 ปี' : `${y} ปี`;
 const thaiJoin = xs => xs.length <= 1 ? (xs[0] || '') : xs.slice(0, -1).join(' ') + ' และ' + xs[xs.length - 1];
-const hasCert = c => (c.certs && c.certs.length > 0) || !!c.cert;
+const money = n => Number(n).toLocaleString('th-TH');
+function wageText(min, max, unit) {
+  const u = UNIT[unit] || 'เดือน';
+  if (min && max) return `${money(min)}–${money(max)} บาท/${u}`;
+  if (min) return `ตั้งแต่ ${money(min)} บาท/${u}`;
+  if (max) return `ไม่เกิน ${money(max)} บาท/${u}`;
+  return 'ไม่ระบุค่าจ้าง';
+}
+const kmText = d => d == null ? '' : (d < 1 ? 'ไม่ถึง 1 กม.' : `${d.toFixed(1)} กม.`);
+const fmtDate = s => s ? new Date(s.length === 10 ? s + 'T00:00:00' : s).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 function initials(name) {
   const first = w => { const m = w.replace(/^[เแโใไ]+/, ''); return m.charAt(0) || w.charAt(0); };
-  return name.trim().split(/\s+/).slice(0, 2).map(first).join('') || '?';
+  return String(name || '').trim().split(/\s+/).slice(0, 2).map(first).join('') || '?';
 }
-function areaMatch(a, b) {
-  if (!a || !b) return false;
-  return a.trim().split(/\s+/).filter(t => t.length >= 2).some(t => b.includes(t));
-}
-let toastT;
-function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2800); }
+const codesAt = (skills, lvls) => CASE_TYPES.filter(c => lvls.includes(skills[c.code])).map(c => c.code);
+function hashStr(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(16); }
 
-/* ---------- "AI" layer: API if configured, template fallback ---------- */
-function mockProfile(d) {
-  const parts = [`${ROLES[d.role].full}ที่มีประสบการณ์${d.years === 0 ? 'น้อยกว่า 1 ปี' : ' ' + d.years + ' ปี'}`];
-  if (d.cases.length) parts.push(`สามารถ${thaiJoin(d.cases.map(c => CASES[c].verb))}ได้อย่างมั่นใจ`);
-  parts.push(`สะดวกทำงานแบบ${WORK[d.work].label}${d.area ? ' ในพื้นที่' + d.area : ''}`);
-  if (hasCert(d)) parts.push('มีใบรับรองการอบรมแนบไว้เป็นหลักฐาน');
+/* ======================================================================
+   STATE (localStorage)
+   ====================================================================== */
+const LS = 'jgc_v2';
+const store = {
+  load() { try { return JSON.parse(localStorage.getItem(LS)) || null; } catch (e) { return null; } },
+  save(s) { try { localStorage.setItem(LS, JSON.stringify(s)); } catch (e) { toast('บันทึกข้อมูลในเบราว์เซอร์ไม่ได้ ลองลดจำนวนรูปที่แนบ'); } },
+  clear() { try { localStorage.removeItem(LS); } catch (e) {} }
+};
+const blankState = () => ({ role: null, users: {}, cg: null, profile: null, jobs: [], jobDraft: null, activeJobId: null, matches: [], favorites: [], notifications: [], feedback: [], reviews: {} });
+const blankCg = () => ({ gender: '', birth_year: '', care_roles: [], years_experience: 1, skills: {}, work_arrangements: [], home_province: '', home_district: '', max_travel_km: 15, expected_wage_min: '', expected_wage_max: '', wage_unit: 'month', available_from: '', certs: [] });
+const blankJob = () => ({ title: '', patient_description: '', patient_age: '', patient_gender: '', work_arrangement: '', province: '', district: '', start_date: '', wage_min: '', wage_max: '', wage_unit: 'month', preferred_caregiver_gender: 'any', needs: {}, touched: [], arrTouched: false, photos: [], editingId: null });
+let S = Object.assign(blankState(), store.load() || {});
+const save = () => store.save(S);
+const me = () => S.users[S.role] || {};
+
+/* ======================================================================
+   SAMPLE DATA (ไม่ใช่บุคคลจริง เบอร์และ LINE เป็นค่าสมมติ)
+   ====================================================================== */
+const SEED_CG = [
+  { id: 'cg-s1', display_name: 'สมศรี ใจดี', gender: 'female', birth_year: 1978, care_roles: ['nurse_aide'], years_experience: 6, work_arrangements: ['live_in'], home_district: 'บางกะปิ', max_travel_km: 20, expected_wage_min: 15000, expected_wage_max: 18000, wage_unit: 'month',
+    skills: { bedridden: 'experienced', feeding_tube: 'experienced', dementia: 'trained', wound_care: 'experienced', mobility_assist: 'experienced', medication: 'trained' },
+    certs: [{ cert_type: 'nurse_aide', title: CERT_TYPES.nurse_aide, verification_status: 'verified' }], phone: '080-000-0101', line_id: 'demo_somsri', likesNewJobs: true },
+  { id: 'cg-s2', display_name: 'วิไล ทองดี', gender: 'female', birth_year: 1975, care_roles: ['practical_nurse'], years_experience: 9, work_arrangements: ['daily'], home_district: 'ลาดพร้าว', max_travel_km: 15, expected_wage_min: 800, expected_wage_max: 1000, wage_unit: 'day',
+    skills: { wound_care: 'experienced', suction: 'experienced', urinary_catheter: 'experienced', feeding_tube: 'experienced', medication: 'experienced', diabetes_care: 'experienced' },
+    certs: [{ cert_type: 'practical_nurse', title: CERT_TYPES.practical_nurse, verification_status: 'verified' }], phone: '080-000-0102', line_id: 'demo_wilai', likesNewJobs: false },
+  { id: 'cg-s3', display_name: 'ประยูร แก้วมณี', gender: 'male', birth_year: 1982, care_roles: ['informal'], years_experience: 3, work_arrangements: ['live_in', 'daily'], home_district: 'บึงกุ่ม', max_travel_km: 15, expected_wage_min: 12000, expected_wage_max: 15000, wage_unit: 'month',
+    skills: { general_elderly: 'experienced', mobility_assist: 'experienced', bedridden: 'trained', palliative: 'willing_to_learn' },
+    certs: [], phone: '080-000-0103', line_id: 'demo_prayoon', likesNewJobs: true },
+  { id: 'cg-s4', display_name: 'อรุณี ศรีสุข', gender: 'female', birth_year: 1988, care_roles: ['caregiver'], years_experience: 4, work_arrangements: ['live_in'], home_district: 'ห้วยขวาง', max_travel_km: 25, expected_wage_min: 14000, expected_wage_max: 16000, wage_unit: 'month',
+    skills: { stroke_rehab: 'experienced', bedridden: 'experienced', mobility_assist: 'experienced', feeding_tube: 'trained', general_elderly: 'experienced' },
+    certs: [{ cert_type: 'caregiver_training', title: CERT_TYPES.caregiver_training, verification_status: 'verified' }], phone: '080-000-0104', line_id: 'demo_arunee', likesNewJobs: false },
+  { id: 'cg-s5', display_name: 'มาลัย บุญมา', gender: 'female', birth_year: 1970, care_roles: ['caregiver'], years_experience: 12, work_arrangements: ['live_in'], home_district: 'บางนา', max_travel_km: 30, expected_wage_min: 16000, expected_wage_max: 20000, wage_unit: 'month',
+    skills: { dementia: 'experienced', general_elderly: 'experienced', medication: 'experienced', palliative: 'trained', diabetes_care: 'trained', bedridden: 'trained' },
+    certs: [{ cert_type: 'caregiver_training', title: CERT_TYPES.caregiver_training, verification_status: 'verified' }, { cert_type: 'first_aid', title: CERT_TYPES.first_aid, verification_status: 'pending' }], phone: '080-000-0105', line_id: 'demo_malai', likesNewJobs: false },
+  { id: 'cg-s6', display_name: 'กมล สุขใจ', gender: 'male', birth_year: 1992, care_roles: ['nurse_aide'], years_experience: 2, work_arrangements: ['daily'], home_district: 'จตุจักร', max_travel_km: 10, expected_wage_min: 700, expected_wage_max: 900, wage_unit: 'day',
+    skills: { mobility_assist: 'experienced', stroke_rehab: 'trained', general_elderly: 'experienced', wound_care: 'willing_to_learn' },
+    certs: [{ cert_type: 'nurse_aide', title: CERT_TYPES.nurse_aide, verification_status: 'pending' }], phone: '080-000-0106', line_id: 'demo_kamol', likesNewJobs: true }
+].map(c => Object.assign({ sample: true, is_visible: true, home_province: (districtOf(c.home_district) || {}).p }, c));
+
+const SEED_JOBS = [
+  { id: 'job-s1', title: 'ดูแลคุณแม่ติดเตียง อยู่ประจำ', district: 'วัฒนา', work_arrangement: 'live_in', wage_min: 16000, wage_max: 18000, wage_unit: 'month', start: 7, patient_age: 78, patient_gender: 'female', preferred_caregiver_gender: 'female',
+    needs: [{ code: 'bedridden', is_required: true }, { code: 'feeding_tube', is_required: true }, { code: 'wound_care', is_required: false }],
+    patient_description: 'คุณแม่อายุ 78 ปี ติดเตียงหลังผ่าตัดสะโพก ให้อาหารทางสายยางวันละ 4 มื้อ ต้องพลิกตัวทุก 2 ชั่วโมง มีแผลกดทับเล็กน้อยที่ก้นกบ',
+    family_liked: true, family: { display_name: 'คุณนภา', phone: '080-000-0201', line_id: 'demo_napa' } },
+  { id: 'job-s2', title: 'ช่วยฟื้นฟูคุณพ่อหลังเป็นสโตรก', district: 'ลาดพร้าว', work_arrangement: 'daily', wage_min: 900, wage_max: 1100, wage_unit: 'day', start: 3, patient_age: 70, patient_gender: 'male', preferred_caregiver_gender: 'any',
+    needs: [{ code: 'stroke_rehab', is_required: true }, { code: 'mobility_assist', is_required: true }, { code: 'medication', is_required: false }],
+    patient_description: 'คุณพ่ออายุ 70 ปี เป็นเส้นเลือดในสมองตีบ แขนขาซีกขวาอ่อนแรง ต้องการคนช่วยพยุงเดินและทำกายภาพตามที่นักกายภาพสอน เช้าไปเย็นกลับ',
+    family_liked: false, family: { display_name: 'คุณธีระ', phone: '080-000-0202', line_id: 'demo_teera' } },
+  { id: 'job-s3', title: 'ดูแลคุณยายที่มีภาวะสมองเสื่อม', district: 'บางกะปิ', work_arrangement: 'live_in', wage_min: 15000, wage_max: 17000, wage_unit: 'month', start: 14, patient_age: 85, patient_gender: 'female', preferred_caregiver_gender: 'female',
+    needs: [{ code: 'dementia', is_required: true }, { code: 'medication', is_required: true }, { code: 'general_elderly', is_required: false }],
+    patient_description: 'คุณยายอายุ 85 ปี เป็นอัลไซเมอร์ระยะกลาง เดินได้เองแต่หลงลืม ต้องดูแลเรื่องทานยาให้ตรงเวลาและอยู่เป็นเพื่อน',
+    family_liked: true, family: { display_name: 'คุณพิมพ์', phone: '080-000-0203', line_id: 'demo_pim' } },
+  { id: 'job-s4', title: 'ดูแลผู้ป่วยเบาหวาน ไป-กลับ', district: 'ห้วยขวาง', work_arrangement: 'daily', wage_min: 800, wage_max: 1000, wage_unit: 'day', start: 5, patient_age: 66, patient_gender: 'male', preferred_caregiver_gender: 'any',
+    needs: [{ code: 'diabetes_care', is_required: true }, { code: 'medication', is_required: true }],
+    patient_description: 'คุณลุงอายุ 66 ปี เป็นเบาหวาน ต้องเจาะน้ำตาลก่อนอาหารและฉีดอินซูลิน ช่วยจัดยาและพาเดินออกกำลังกายเบาๆ',
+    family_liked: false, family: { display_name: 'คุณสุดา', phone: '080-000-0204', line_id: 'demo_suda' } },
+  { id: 'job-s5', title: 'ดูแลผู้ป่วยระยะท้ายที่บ้าน', district: 'บางนา', work_arrangement: 'live_in', wage_min: 20000, wage_max: 25000, wage_unit: 'month', start: 2, patient_age: 90, patient_gender: 'male', preferred_caregiver_gender: 'any',
+    needs: [{ code: 'palliative', is_required: true }, { code: 'suction', is_required: true }, { code: 'bedridden', is_required: true }],
+    patient_description: 'คุณตาอายุ 90 ปี อยู่ในระยะประคับประคอง ติดเตียง ต้องดูดเสมหะเป็นระยะ ครอบครัวอยากให้ท่านอยู่สบายที่บ้าน',
+    family_liked: false, family: { display_name: 'คุณวรรณ', phone: '080-000-0205', line_id: 'demo_wan' } }
+].map(j => Object.assign({ status: 'open', province: (districtOf(j.district) || {}).p, start_date: addDays(j.start), sample: true }, j));
+
+/* ======================================================================
+   "AI" (template ในโหมดทดลอง — ของจริงเรียก FastAPI)
+   ====================================================================== */
+function myCaregiver() {
+  if (!S.cg) return null;
+  const u = S.users.caregiver || {};
+  return Object.assign({}, S.cg, { id: 'me-cg', display_name: u.display_name || 'ฉัน', phone: u.phone, line_id: u.line_id, is_visible: !!(S.profile && S.profile.is_visible), mine: true, profile_text: S.profile && S.profile.output_text });
+}
+function mockWorkerProfile(c) {
+  const roles = c.care_roles.map(r => CARE_ROLES[r].full);
+  const parts = [`${thaiJoin(roles) || 'ผู้ดูแล'}ที่มีประสบการณ์ทำงานดูแล ${yearsText(c.years_experience)}`];
+  const exp = codesAt(c.skills, ['experienced']).map(k => CT[k].verb);
+  const tr = codesAt(c.skills, ['trained']).map(k => CT[k].verb);
+  const wl = codesAt(c.skills, ['willing_to_learn']).map(k => CT[k].verb);
+  if (exp.length) parts.push(`มีประสบการณ์${thaiJoin(exp)}`);
+  if (tr.length) parts.push(`ผ่านการอบรมเรื่อง${thaiJoin(tr)}`);
+  if (wl.length) parts.push(`และยินดีเรียนรู้การ${thaiJoin(wl)}`);
+  const arr = c.work_arrangements.map(a => ARR[a].label).join('หรือ');
+  if (arr) parts.push(`สะดวกทำงานแบบ${arr}${c.home_district ? ` ในย่าน${c.home_district} รัศมีไม่เกิน ${c.max_travel_km} กม.` : ''}`);
+  if (c.certs.length) parts.push(`มี${thaiJoin(c.certs.map(x => CERT_TYPES[x.cert_type]))}แนบไว้เป็นหลักฐาน`);
+  if (c.available_from) parts.push(`พร้อมเริ่มงานตั้งแต่ ${fmtDate(c.available_from)}`);
   return parts.join(' ');
+}
+function inputSnapshot(c) {   // = ai_worker_profiles.input_snapshot (ไม่รวมไฟล์รูป)
+  const u = S.users.caregiver || {};
+  return { display_name: u.display_name, gender: c.gender, birth_year: c.birth_year, care_roles: c.care_roles, years_experience: c.years_experience, skills: c.skills,
+    work_arrangements: c.work_arrangements, home_province: c.home_province, home_district: c.home_district, max_travel_km: c.max_travel_km,
+    expected_wage_min: c.expected_wage_min, expected_wage_max: c.expected_wage_max, wage_unit: c.wage_unit, available_from: c.available_from,
+    certificates: c.certs.map(x => x.cert_type) };
 }
 async function callAPI(path, body) {
   if (!CONFIG.API_BASE) return null;
@@ -573,136 +851,356 @@ async function callAPI(path, body) {
     const r = await fetch(CONFIG.API_BASE + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (!r.ok) throw new Error(r.status);
     return await r.json();
-  } catch (e) {
-    toast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ จึงใช้โหมดทดลองแทน');
-    return null;
-  }
+  } catch (e) { toast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ จึงใช้โหมดทดลองแทน'); return null; }
 }
 
-/* ---------- fit score ---------- */
-function scoreFor(c, job) {
-  const need = job.needs || [];
-  const matched = need.filter(n => c.cases.includes(n));
-  const missing = need.filter(n => !c.cases.includes(n));
-  const workOk = !job.work || c.work === job.work;
-  const areaOk = areaMatch(job.area, c.area);
-  let s = need.length ? 60 * matched.length / need.length : 40;
-  s += workOk ? 20 : 6;
-  s += job.area ? (areaOk ? 10 : 3) : 7;
-  s += hasCert(c) ? 5 : 0;
-  s += Math.min(c.years, 10) / 10 * 5;
-  s = Math.round(Math.min(s, 99));
+/* fit score + rationale (ของจริง: ai_applicant_summaries.fit_score / fit_rationale) */
+function fitFor(c, job) {
+  const needs = job.needs || [];
+  const req = needs.filter(n => n.is_required);
+  let wSum = 0, sSum = 0;
+  needs.forEach(n => { const w = n.is_required ? 1 : 0.5; wSum += w; sSum += w * ((COMFORT[c.skills[n.code]] || { w: 0 }).w); });
+  const needScore = wSum ? sSum / wSum : 0.6;
+  const met = req.filter(n => CAN.includes(c.skills[n.code]));
+  const learn = req.filter(n => c.skills[n.code] === 'willing_to_learn');
+  const missing = req.filter(n => !CAN.includes(c.skills[n.code]) && c.skills[n.code] !== 'willing_to_learn');
+  const d = distanceKm(districtOf(job.district), districtOf(c.home_district));
+  const distScore = d == null ? 0.5 : d <= 5 ? 1 : d <= 10 ? 0.85 : d <= 20 ? 0.6 : d <= 30 ? 0.4 : 0.2;
+  const sameUnit = c.wage_unit && job.wage_unit && c.wage_unit === job.wage_unit;
+  const wageOk = !sameUnit || !job.wage_max || !c.expected_wage_min || c.expected_wage_min <= job.wage_max;
+  const wageScore = !sameUnit ? 0.7 : wageOk ? 1 : 0.3;
+  const hasCert = c.certs.length > 0;
+  const score = Math.min(99, Math.round(55 * needScore + 15 * distScore + 10 * wageScore + 10 * Math.min(c.years_experience, 10) / 10 + (hasCert ? 10 : 0)));
   const pros = [], cons = [];
-  if (matched.length) pros.push(`สามารถ${thaiJoin(matched.map(n => CASES[n].verb))}ได้ ตรงกับที่ต้องการ`);
-  if (job.work && workOk) pros.push(`สะดวกทำงานแบบ${WORK[c.work].label} ตรงกับรูปแบบงานนี้`);
-  if (job.area && areaOk) pros.push(`อยู่ในพื้นที่ใกล้เคียง (${c.area})`);
-  if (c.years >= 3) pros.push(`มีประสบการณ์ดูแล ${c.years} ปี`);
-  if (hasCert(c)) pros.push('มีใบรับรองการอบรมแนบไว้');
-  if (missing.length) cons.push(`ยังไม่ได้ระบุว่า${thaiJoin(missing.map(n => CASES[n].verb))}ได้`);
-  if (!workOk) cons.push(`สะดวกทำงานแบบ${WORK[c.work].label} มากกว่า${WORK[job.work].label}`);
-  if (!hasCert(c)) cons.push('ยังไม่มีใบรับรองอย่างเป็นทางการ');
-  return { score: s, matched, missing, workOk, pros, cons };
+  if (met.length) pros.push(`${thaiJoin(met.map(n => CT[n.code].verb))}ได้ ตรงกับที่ต้องการ`);
+  if (d != null && d <= 10) pros.push(`อยู่ใกล้ (${c.home_district}, ประมาณ ${kmText(d)})`);
+  if (c.years_experience >= 3) pros.push(`ประสบการณ์ดูแล ${c.years_experience} ปี`);
+  if (hasCert) pros.push(`มี${CERT_TYPES[c.certs[0].cert_type]}`);
+  if (sameUnit && wageOk && job.wage_max) pros.push('ค่าจ้างที่คาดหวังอยู่ในงบของคุณ');
+  if (learn.length) cons.push(`ยังไม่เคย${thaiJoin(learn.map(n => CT[n.code].verb))} แต่ยินดีเรียนรู้`);
+  if (missing.length) cons.push(`ยังไม่ได้ระบุว่า${thaiJoin(missing.map(n => CT[n.code].verb))}ได้`);
+  if (d != null && d > 20) cons.push(`อยู่ค่อนข้างไกล (ประมาณ ${kmText(d)})`);
+  if (sameUnit && !wageOk) cons.push('ค่าจ้างที่คาดหวังสูงกว่างบที่ตั้งไว้');
+  if (!hasCert) cons.push('ยังไม่มีใบรับรองอย่างเป็นทางการ');
+  return { score, met, req, missing, learn, distance_km: d, pros, cons };
+}
+function mockSummary(c, job, fit) {   // ของจริง: summarize_applicant()
+  const role = c.care_roles.map(r => CARE_ROLES[r].full)[0] || 'ผู้ดูแล';
+  let s = `${role} ประสบการณ์ ${yearsText(c.years_experience)}`;
+  if (fit.met.length) s += ` ${thaiJoin(fit.met.map(n => CT[n.code].verb))}ได้ตรงกับที่ครอบครัวต้องการ`;
+  s += ` สะดวกทำงานแบบ${c.work_arrangements.map(a => ARR[a].label).join('หรือ')}`;
+  if (fit.missing.length) s += ` ควรสอบถามเรื่อง${thaiJoin(fit.missing.map(n => CT[n.code].short))}เพิ่มเติม`;
+  return s;
 }
 
 /* ======================================================================
-   CAREGIVER FORM
+   API LAYER (mock) — แต่ละฟังก์ชันจำลอง RPC / ตารางใน Supabase
    ====================================================================== */
-const TOTAL = 5;
-let step = 1;
-let cg = Object.assign({ name: '', phone: '', area: '', role: 'na', years: 1, cases: [], work: 'live', certs: [], noCert: false }, store.get('jg_cg_draft', {}));
-const saveDraft = () => store.set('jg_cg_draft', cg);
+const allCaregivers = () => { const mine = myCaregiver(); return mine ? [mine, ...SEED_CG] : SEED_CG; };
+const openJobs = () => S.jobs.filter(j => j.status === 'open' && new Date(j.expires_at) > new Date());
+const findMatch = (side, jobId, cgId) => S.matches.find(m => m.side === side && m.job_post_id === jobId && m.caregiver_id === cgId);
+function notify(role, type, title, body, matchId) {
+  S.notifications.unshift({ id: uid(), role, type, title, body, match_id: matchId || null, read_at: null, created_at: nowISO() });
+}
 
-const chipHTML = (sel, cls = '') => Object.entries(CASES).map(([k, c]) =>
-  `<button type="button" class="chip ${cls}" data-case="${k}" aria-pressed="${sel.includes(k)}">${ICON.check}${c.label}</button>`).join('');
-const thumbsHTML = () => cg.certs.map((src, i) =>
-  `<div class="thumb"><img src="${src}" alt="ใบรับรองรูปที่ ${i + 1}"><button type="button" class="rm" data-rm="${i}" aria-label="ลบรูปที่ ${i + 1}">×</button></div>`).join('');
+const api = {
+  /* supabase.rpc('candidate_caregivers', { p_job_post_id, p_max_km })
+     SQL คัดกรองแบบถูก (ยังไม่เรียก LLM) → backend สรุป + ให้คะแนนเฉพาะแถวบนๆ → frontend เรียงตาม fit_score */
+  candidateCaregivers(jobId, maxKm) {
+    const job = S.jobs.find(j => j.id === jobId);
+    if (!job) return [];
+    return allCaregivers().filter(c => c.is_visible).map(c => {
+      const m = findMatch('family', jobId, c.id);
+      const fit = fitFor(c, job);
+      return Object.assign({}, c, { m, fit, distance_km: fit.distance_km, summary: mockSummary(c, job, fit),
+        caregiver_liked: m ? m.caregiver_decision === 'like' : !!c.likesNewJobs, caregiver_passed: m && m.caregiver_decision === 'pass' });
+    }).filter(r => {
+      if (r.m && r.m.family_decision) return false;                                       // ปัดไปแล้ว
+      if (r.caregiver_passed) return false;                                                // ผู้ดูแลไม่สนใจงานนี้
+      if (!r.work_arrangements.includes(job.work_arrangement)) return false;
+      if (job.preferred_caregiver_gender !== 'any' && r.gender !== job.preferred_caregiver_gender) return false;
+      if (job.wage_max && r.expected_wage_min && r.wage_unit === job.wage_unit && r.expected_wage_min > job.wage_max) return false;
+      if (maxKm != null && (r.distance_km == null || r.distance_km > maxKm)) return false;
+      return true;
+    }).sort((a, b) => (b.caregiver_liked - a.caregiver_liked) || (b.fit.score - a.fit.score));
+  },
+
+  /* supabase.rpc('job_feed_for_me', { p_max_km })  — null = ใช้ max_travel_km ของฉัน */
+  jobFeedForMe(maxKm) {
+    const c = myCaregiver(); if (!c) return [];
+    const myLoc = districtOf(c.home_district);
+    const limit = maxKm === 'all' ? null : (maxKm ?? c.max_travel_km);
+    return SEED_JOBS.map(j => {
+      const m = findMatch('caregiver', j.id, c.id);
+      const req = j.needs.filter(n => n.is_required);
+      return Object.assign({}, j, { m, distance_km: distanceKm(districtOf(j.district), myLoc),
+        needs_required: req.length, needs_i_can_do: req.filter(n => CAN.includes(c.skills[n.code])).length,
+        family_liked: m ? m.family_decision === 'like' : j.family_liked });
+    }).filter(j => {
+      if (j.m && j.m.caregiver_decision) return false;
+      if (j.m && j.m.family_decision === 'pass') return false;
+      if (c.work_arrangements.length && !c.work_arrangements.includes(j.work_arrangement)) return false;
+      if (j.preferred_caregiver_gender !== 'any' && j.preferred_caregiver_gender !== c.gender) return false;
+      if (limit != null && (j.distance_km == null || j.distance_km > limit)) return false;
+      return true;
+    }).sort((a, b) => (b.family_liked - a.family_liked) || (b.needs_i_can_do - a.needs_i_can_do) || ((a.distance_km ?? 999) - (b.distance_km ?? 999)));
+  },
+
+  /* supabase.from('matches').upsert({ job_post_id, caregiver_id, family_decision | caregiver_decision },
+       { onConflict: 'job_post_id,caregiver_id' })  — trigger matches_before_write ตั้ง matched_at เอง */
+  swipe(side, jobId, cgId, decision) {
+    let m = findMatch(side, jobId, cgId);
+    if (!m) {
+      m = { id: uid(), side, job_post_id: jobId, caregiver_id: cgId, caregiver_decision: null, family_decision: null, matched_at: null, created_at: nowISO() };
+      if (side === 'family') { const c = allCaregivers().find(x => x.id === cgId); if (c && c.likesNewJobs) m.caregiver_decision = 'like'; }
+      else { const j = SEED_JOBS.find(x => x.id === jobId); if (j && j.family_liked) m.family_decision = 'like'; }
+      S.matches.push(m);
+    }
+    if (side === 'family') { m.family_decision = decision; m.family_decided_at = nowISO(); }
+    else { m.caregiver_decision = decision; m.caregiver_decided_at = nowISO(); }
+    if (!m.matched_at && m.family_decision === 'like' && m.caregiver_decision === 'like') {
+      m.matched_at = nowISO();
+      const job = side === 'family' ? S.jobs.find(j => j.id === jobId) : SEED_JOBS.find(j => j.id === jobId);
+      const other = side === 'family' ? (allCaregivers().find(x => x.id === cgId) || {}).display_name : job.family.display_name;
+      notify(side, 'match', 'จับคู่สำเร็จ', `คุณกับคุณ${(other || '').replace(/^คุณ/, '')}สนใจกันในงาน "${job.title}" ดูช่องทางติดต่อได้แล้ว`, m.id);
+    }
+    save();
+    return m;
+  },
+
+  /* supabase.rpc('get_match_contact', { p_match_id }) — คืนค่าเฉพาะเมื่อ matched_at ไม่ว่าง */
+  getMatchContact(m) {
+    if (!m || !m.matched_at) return null;
+    if (m.side === 'family') { const c = allCaregivers().find(x => x.id === m.caregiver_id) || {}; return { display_name: c.display_name, phone: c.phone, line_id: c.line_id }; }
+    const j = SEED_JOBS.find(x => x.id === m.job_post_id); return j ? j.family : null;
+  }
+};
+
+/* ======================================================================
+   NAV + ROUTER
+   ====================================================================== */
+const TABS = {
+  caregiver: [{ key: 'cg-feed', label: 'หางาน', icon: ICON.cards }, { key: 'cg-profile', label: 'โปรไฟล์', icon: ICON.tabUser }, { key: 'matches', label: 'จับคู่แล้ว', icon: ICON.tabMatch }],
+  family: [{ key: 'fam-deck', label: 'หาผู้ดูแล', icon: ICON.cards }, { key: 'fam-post', label: 'ประกาศงาน', icon: ICON.tabPost }, { key: 'matches', label: 'จับคู่แล้ว', icon: ICON.tabMatch }]
+};
+const SCREENS = ['home', 'signup', 'cg-form', 'cg-profile', 'cg-feed', 'fam-post', 'fam-deck', 'matches'];
+const NEED = { 'cg-form': 'caregiver', 'cg-profile': 'caregiver', 'cg-feed': 'caregiver', 'fam-post': 'family', 'fam-deck': 'family', matches: 'any' };
+const TAB_SCREENS = ['cg-feed', 'fam-deck', 'matches'];
+let pendingRole = null, current = 'home';
+
+function homeFor() {
+  if (S.role === 'caregiver') return S.profile ? 'cg-feed' : 'cg-form';
+  if (S.role === 'family') return openJobs().length ? 'fam-deck' : 'fam-post';
+  return 'home';
+}
+function renderNav(key) {
+  const tabs = S.role ? TABS[S.role] : [];
+  const btn = t => `<button type="button" data-go="${t.key}" ${t.key === key ? 'aria-current="page"' : ''}>${t.icon}<span>${t.label}</span></button>`;
+  $('#topnav').innerHTML = S.role ? tabs.map(t => `<button type="button" data-go="${t.key}" ${t.key === key ? 'aria-current="page"' : ''}>${t.label}</button>`).join('')
+    : `<button type="button" data-start="caregiver">สำหรับผู้ดูแล</button><button type="button" data-start="family">สำหรับครอบครัว</button>`;
+  $('#tabbar').innerHTML = tabs.map(btn).join('');
+  document.body.classList.toggle('tabs-on', !!S.role && TAB_SCREENS.includes(key));
+  const rb = $('#roleBadge');
+  rb.hidden = !S.role; rb.textContent = S.role === 'family' ? 'ครอบครัว' : 'ผู้ดูแล'; rb.classList.toggle('fm', S.role === 'family');
+  $('#bellBtn').hidden = !S.role;
+  const unread = S.notifications.filter(n => n.role === S.role && !n.read_at).length;
+  $('#bellCount').hidden = !unread; $('#bellCount').textContent = unread;
+  $('#bellBtn').setAttribute('aria-label', unread ? `การแจ้งเตือน ยังไม่อ่าน ${unread} รายการ` : 'การแจ้งเตือน');
+  const other = S.role === 'family' ? 'caregiver' : 'family';
+  $('#switchRole').hidden = !S.role;
+  $('#switchRole').textContent = S.role ? `สลับเป็นฝั่ง${other === 'family' ? 'ครอบครัว' : 'ผู้ดูแล'} (ทดลอง)` : '';
+  $('#openReview').hidden = !S.role;
+}
+/* Router: เก็บหน้าปัจจุบันไว้ในตัวแปร `route` ส่วน hash ใน URL เป็นแค่ของเสริม
+   (บางที่ เช่น iframe แบบ about:srcdoc ของหน้าพรีวิว ไม่อนุญาตให้แก้ URL) */
+const readHash = () => { try { return location.hash.slice(1); } catch (e) { return ''; } };
+let route = readHash() || 'home';
+function syncHash(key) {
+  try { if (location.protocol !== 'about:' && location.hash !== '#' + key) history.replaceState(null, '', '#' + key); } catch (e) {}
+}
+function show() {
+  let key = route || 'home';
+  if (!SCREENS.includes(key)) key = 'home';
+  if (NEED[key]) {
+    if (!S.role) { pendingRole = NEED[key] === 'any' ? null : NEED[key]; key = 'signup'; }
+    else if (NEED[key] !== 'any' && NEED[key] !== S.role) key = homeFor();
+  }
+  if (key === 'cg-feed' && !S.profile) key = 'cg-form';
+  if (key === 'fam-deck' && !openJobs().length) key = 'fam-post';
+  route = key; syncHash(key);
+  current = key;
+  $$('.screen').forEach(s => s.classList.toggle('on', s.id === 's-' + key));
+  renderNav(key);
+  window.scrollTo(0, 0);
+  ({ home: () => {}, signup: renderSignup, 'cg-form': () => renderStep(false), 'cg-profile': renderProfile, 'cg-feed': renderFeed, 'fam-post': renderFamPost, 'fam-deck': renderFamDeck, matches: renderMatches }[key])();
+}
+function go(n) {
+  route = n;
+  try { if (location.protocol !== 'about:' && location.hash !== '#' + n) history.pushState(null, '', '#' + n); } catch (e) {}
+  show();
+}
+// ปุ่ม back/forward ของเบราว์เซอร์ (เมื่อเปิดไฟล์ตรงๆ)
+window.addEventListener('popstate', () => { route = readHash() || 'home'; show(); });
+window.addEventListener('hashchange', () => { const h = readHash(); if (h && h !== route) { route = h; show(); } });
+document.addEventListener('click', e => {
+  const s = e.target.closest('[data-start]');
+  if (s) { e.preventDefault(); const r = s.dataset.start; if (S.users[r]) { S.role = r; save(); go(homeFor()); } else { pendingRole = r; go('signup'); } return; }
+  const b = e.target.closest('[data-go]'); if (!b) return;
+  e.preventDefault();
+  if (b.dataset.go === 'cg-form') cgStep = 1;
+  go(b.dataset.go);
+});
+
+/* ======================================================================
+   SIGN UP
+   ====================================================================== */
+function renderSignup() {
+  $$('input[name="su-role"]').forEach(r => { r.checked = r.value === pendingRole; });
+  ['name', 'email', 'pass', 'phone'].forEach(f => { $('#su-' + f).value = ''; $('#su-' + f).removeAttribute('aria-invalid'); });
+  $$('#s-signup .err').forEach(x => x.hidden = true);
+  $('#s-signup .step-h').focus({ preventScroll: true });
+}
+function fieldErr(id, bad) { const el = $('#su-' + id); $('#e-su-' + id).hidden = !bad; bad ? el.setAttribute('aria-invalid', 'true') : el.removeAttribute('aria-invalid'); return bad; }
+$('#su-submit').addEventListener('click', () => {
+  const role = ($('input[name="su-role"]:checked') || {}).value;
+  const name = $('#su-name').value.trim(), email = $('#su-email').value.trim(), pass = $('#su-pass').value, phone = $('#su-phone').value.trim();
+  $('#e-su-role').hidden = !!role;
+  const bad = [!role, fieldErr('name', !name), fieldErr('email', !/^\S+@\S+\.\S+$/.test(email)), fieldErr('pass', pass.length < 6)];
+  if (bad.some(Boolean)) { const first = $('#s-signup [aria-invalid="true"]'); if (first) first.focus(); return; }
+  /* ของจริง: await supabase.auth.signUp({ email, password: pass, options: { data: { role, display_name: name, phone } } })
+     trigger handle_new_user สร้าง profiles + contact_details ให้ */
+  S.role = role;
+  S.users[role] = { display_name: name, email, phone, line_id: '' };
+  if (role === 'caregiver' && !S.cg) S.cg = blankCg();
+  save(); cgStep = 1;
+  toast('สร้างบัญชีแล้ว');
+  go(homeFor());
+});
+
+/* ======================================================================
+   CAREGIVER FORM (7 ขั้น) → caregiver_details, caregiver_case_skills,
+   caregiver_locations, certificates, contact_details
+   ====================================================================== */
+const TOTAL = 7;
+let cgStep = 1;
+const beYears = () => { let o = '<option value="">เลือกปี พ.ศ.</option>'; for (let be = 2553; be >= 2483; be--) o += `<option value="${be - 543}">${be}</option>`; return o; };
+const radioRow = (name, map, sel, cls = '') => `<div class="opts row ${cls}">${Object.entries(map).map(([k, v]) => `<label class="opt"><input type="radio" name="${name}" value="${k}" ${sel === k ? 'checked' : ''}><b>${typeof v === 'string' ? v : v.label}</b></label>`).join('')}</div>`;
 const rv = (k, v, s) => `<div class="rv"><div><div class="k">${k}</div><div class="v">${v}</div></div><button type="button" class="linkbtn" data-goto="${s}" aria-label="แก้ไข${k}">แก้ไข</button></div>`;
+const certThumbs = () => S.cg.certs.map((x, i) => `<div class="thumb">${x.preview ? `<img src="${x.preview}" alt="${esc(x.title)}">` : ''}<span class="cap">${esc(x.title)}</span><button type="button" class="rm" data-rmcert="${i}" aria-label="ลบ ${esc(x.title)}">×</button></div>`).join('');
+const skillCount = () => codesAt(S.cg.skills, ['experienced', 'trained', 'willing_to_learn']).length;
 
 const STEPS = {
-  1: () => `<h1 class="step-h" tabindex="-1">เริ่มจากข้อมูลพื้นฐาน</h1>
-    <p class="step-sub">ใช้สำหรับให้ครอบครัวติดต่อคุณเมื่อสนใจ</p>
-    <div class="field"><label for="f-name">ชื่อ-นามสกุล</label><input id="f-name" class="text" autocomplete="name" placeholder="เช่น สมศรี ใจดี" value="${esc(cg.name)}" aria-describedby="e-name"><p class="err" id="e-name" hidden>กรอกชื่อ-นามสกุลก่อนไปขั้นถัดไป</p></div>
-    <div class="field"><label for="f-phone">เบอร์โทรศัพท์</label><input id="f-phone" class="text" type="tel" inputmode="tel" autocomplete="tel" placeholder="08X-XXX-XXXX" value="${esc(cg.phone)}"></div>
-    <div class="field"><label for="f-area">พื้นที่ที่สะดวกทำงาน</label><input id="f-area" class="text" placeholder="เช่น บางกะปิ กรุงเทพฯ" value="${esc(cg.area)}"></div>`,
-  2: () => `<fieldset class="fs"><legend><h1 class="step-h" tabindex="-1">คุณทำงานดูแลในบทบาทไหน</h1></legend>
-    <p class="step-sub">เลือกที่ตรงกับคุณที่สุด</p>
-    <div class="opts">${Object.entries(ROLES).map(([k, r]) => `<label class="opt"><input type="radio" name="role" value="${k}" ${cg.role === k ? 'checked' : ''}><span><b>${r.label}</b><small>${r.desc}</small></span></label>`).join('')}</div></fieldset>
-    <div class="field" style="margin-top:30px"><span class="lbl" id="yrs-l">ทำงานดูแลมาแล้วกี่ปี</span>
-    <div class="stepper" role="group" aria-labelledby="yrs-l"><button type="button" class="sbtn" data-yr="-1" aria-label="ลดจำนวนปี">−</button><output id="yrs" aria-live="polite">${yearsText(cg.years)}</output><button type="button" class="sbtn" data-yr="1" aria-label="เพิ่มจำนวนปี">+</button></div></div>`,
-  3: () => `<h1 class="step-h" tabindex="-1">คุณมั่นใจดูแลกรณีไหนบ้าง</h1>
-    <p class="step-sub">แตะเลือกได้หลายข้อ (เลือกแล้ว <b id="caseCount">${cg.cases.length}</b> ข้อ)</p>
-    <div class="chips" role="group" aria-label="กรณีที่ดูแลได้">${chipHTML(cg.cases)}</div>
-    <p class="err" id="e-cases" hidden>เลือกอย่างน้อย 1 ข้อ เพื่อให้ครอบครัวรู้ว่าคุณดูแลกรณีไหนได้</p>
-    <fieldset class="fs" style="margin-top:34px"><legend class="h2">รูปแบบงานที่ต้องการ</legend>
-    <div class="opts">${Object.entries(WORK).map(([k, w]) => `<label class="opt"><input type="radio" name="work" value="${k}" ${cg.work === k ? 'checked' : ''}><span><b>${w.label}</b><small>${w.desc}</small></span></label>`).join('')}</div></fieldset>`,
-  4: () => `<h1 class="step-h" tabindex="-1">แนบรูปใบรับรอง</h1>
-    <p class="step-sub">ถ่ายรูปใบประกาศหรือเอกสารการอบรม ช่วยให้ครอบครัวมั่นใจมากขึ้น (ไม่บังคับ)</p>
-    <label class="drop"><input type="file" id="f-cert" accept="image/*" multiple class="sr">${ICON.upload}<b>แตะเพื่อถ่ายรูปหรือเลือกรูป</b><small class="muted">แนบได้สูงสุด 3 รูป</small></label>
-    <div class="thumbs" id="thumbs">${thumbsHTML()}</div>
-    <label class="check"><input type="checkbox" id="f-nocert" ${cg.noCert ? 'checked' : ''}> ฉันยังไม่มีใบรับรอง</label>
-    <div class="hint">${ICON.info}<span>ไม่มีใบรับรองก็สมัครงานได้ ครอบครัวจะเห็นประสบการณ์และกรณีที่คุณดูแลได้เป็นหลัก</span></div>`,
-  5: () => `<h1 class="step-h" tabindex="-1">ตรวจสอบก่อนสร้างโปรไฟล์</h1>
+  1: () => { const u = S.users.caregiver || {}; const c = S.cg; return `<h1 class="step-h" tabindex="-1">เริ่มจากข้อมูลของคุณ</h1>
+    <p class="step-sub">เบอร์โทรและ LINE จะแสดงให้ครอบครัวเห็นหลังสนใจกันทั้งสองฝ่ายเท่านั้น</p>
+    <div class="field"><label for="f-name">ชื่อ-นามสกุล</label><input id="f-name" class="text" data-u="display_name" autocomplete="name" value="${esc(u.display_name)}" aria-describedby="e-name"><p class="err" id="e-name" hidden>กรอกชื่อก่อนไปขั้นถัดไป</p></div>
+    <div class="grid2" style="margin-top:22px">
+      <div class="field"><label for="f-phone">เบอร์โทรศัพท์</label><input id="f-phone" class="text" data-u="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="08X-XXX-XXXX" value="${esc(u.phone)}"></div>
+      <div class="field"><label for="f-line">LINE ID <span class="opt-l">(ไม่บังคับ)</span></label><input id="f-line" class="text" data-u="line_id" value="${esc(u.line_id)}"></div>
+    </div>
+    <fieldset class="fs block" style="margin-top:26px"><legend class="lbl">เพศ</legend>${radioRow('gender', GENDER, c.gender)}</fieldset>
+    <div class="field"><label for="f-by">ปีเกิด (พ.ศ.) <span class="opt-l">(ไม่บังคับ)</span></label><select id="f-by" class="text" data-f="birth_year">${beYears()}</select></div>`; },
+  2: () => `<h1 class="step-h" tabindex="-1">คุณทำงานดูแลในบทบาทไหน</h1>
+    <p class="step-sub">เลือกได้มากกว่า 1 ข้อ</p>
+    <div class="opts" role="group" aria-label="บทบาท">${Object.entries(CARE_ROLES).map(([k, r]) => `<label class="opt"><input type="checkbox" data-multi="care_roles" value="${k}" ${S.cg.care_roles.includes(k) ? 'checked' : ''}><span><b>${r.label}</b><small>${r.desc}</small></span></label>`).join('')}</div>
+    <p class="err" id="e-roles" hidden>เลือกอย่างน้อย 1 บทบาท</p>
+    <div class="field block"><span class="lbl" id="yrs-l">ทำงานดูแลมาแล้วกี่ปี</span>
+    <div class="stepper" role="group" aria-labelledby="yrs-l"><button type="button" class="sbtn" data-stepf="years_experience" data-d="-1" data-min="0" data-max="60" aria-label="ลดจำนวนปี">−</button><output id="out-years_experience" aria-live="polite">${yearsText(S.cg.years_experience)}</output><button type="button" class="sbtn" data-stepf="years_experience" data-d="1" data-min="0" data-max="60" aria-label="เพิ่มจำนวนปี">+</button></div></div>`,
+  3: () => `<h1 class="step-h" tabindex="-1">คุณดูแลกรณีเหล่านี้ได้แค่ไหน</h1>
+    <p class="step-sub">ตอบเฉพาะข้อที่เกี่ยวกับคุณ ข้อที่ข้ามไปถือว่ายังไม่ได้ระบุ (ตอบแล้ว <b id="skillCount">${skillCount()}</b> ข้อ)</p>
+    <div class="skills">${CASE_TYPES.map(c => `<fieldset class="sk"><legend>${c.label}</legend><div class="seg">${Object.entries(COMFORT).map(([lv, o]) => `<label><input type="radio" name="sk:${c.code}" value="${lv}" ${S.cg.skills[c.code] === lv ? 'checked' : ''}><span>${o.label}</span></label>`).join('')}</div></fieldset>`).join('')}</div>
+    <p class="err" id="e-skills" hidden>ตอบอย่างน้อย 1 ข้อว่ามีประสบการณ์ เคยอบรม หรือยินดีเรียนรู้</p>`,
+  4: () => `<h1 class="step-h" tabindex="-1">รูปแบบงานและพื้นที่</h1>
+    <p class="step-sub">ครอบครัวจะเห็นแค่เขตที่คุณอยู่และระยะทาง ไม่เห็นที่อยู่</p>
+    <fieldset class="fs block" style="margin-top:22px"><legend class="lbl">รูปแบบงานที่สะดวก <span class="opt-l">(เลือกได้ทั้งสองแบบ)</span></legend>
+    <div class="opts">${Object.entries(ARR).map(([k, a]) => `<label class="opt"><input type="checkbox" data-multi="work_arrangements" value="${k}" ${S.cg.work_arrangements.includes(k) ? 'checked' : ''}><span><b>${a.label}</b><small>${a.desc}</small></span></label>`).join('')}</div></fieldset>
+    <p class="err" id="e-arr" hidden>เลือกรูปแบบงานอย่างน้อย 1 แบบ</p>
+    <div class="field"><label for="f-dist">เขต / อำเภอที่คุณอยู่</label><select id="f-dist" class="text" data-f="home_district" aria-describedby="e-dist">${districtOptions(S.cg.home_district)}</select><p class="err" id="e-dist" hidden>เลือกเขตเพื่อให้ระบบคำนวณระยะทางได้</p></div>
+    <div class="field"><span class="lbl" id="km-l">เดินทางได้ไกลสุด</span>
+    <div class="stepper" role="group" aria-labelledby="km-l"><button type="button" class="sbtn" data-stepf="max_travel_km" data-d="-5" data-min="5" data-max="100" aria-label="ลดระยะทาง">−</button><output id="out-max_travel_km" aria-live="polite">${S.cg.max_travel_km} กม.</output><button type="button" class="sbtn" data-stepf="max_travel_km" data-d="5" data-min="5" data-max="100" aria-label="เพิ่มระยะทาง">+</button></div></div>
+    <div class="field"><label for="f-avail">พร้อมเริ่มงานวันที่ <span class="opt-l">(ไม่บังคับ)</span></label><input id="f-avail" class="text" type="date" data-f="available_from" value="${esc(S.cg.available_from)}"></div>`,
+  5: () => `<h1 class="step-h" tabindex="-1">ค่าจ้างที่ต้องการ</h1>
+    <p class="step-sub">ใส่เป็นช่วงได้ ใช้ช่วยจับคู่กับงบของครอบครัว (ไม่บังคับ)</p>
+    <fieldset class="fs block" style="margin-top:22px"><legend class="lbl">คิดค่าจ้างเป็น</legend>${radioRow('wage_unit', UNIT, S.cg.wage_unit)}</fieldset>
+    <div class="grid2" style="margin-top:22px">
+      <div class="field"><label for="f-wmin">ต่ำสุด (บาท)</label><input id="f-wmin" class="text" inputmode="numeric" data-f="expected_wage_min" data-num value="${esc(S.cg.expected_wage_min)}" placeholder="เช่น 15000"></div>
+      <div class="field"><label for="f-wmax">สูงสุด (บาท)</label><input id="f-wmax" class="text" inputmode="numeric" data-f="expected_wage_max" data-num value="${esc(S.cg.expected_wage_max)}" placeholder="เช่น 18000"></div>
+    </div>
+    <p class="err" id="e-wage" hidden>ค่าจ้างสูงสุดต้องไม่น้อยกว่าค่าจ้างต่ำสุด</p>`,
+  6: () => `<h1 class="step-h" tabindex="-1">แนบรูปใบรับรอง</h1>
+    <p class="step-sub">ช่วยให้ครอบครัวมั่นใจมากขึ้น ไม่มีก็สมัครงานได้ (แนบได้สูงสุด 3 ใบ)</p>
+    <div class="field"><label for="f-ctype">ประเภทเอกสาร</label><select id="f-ctype" class="text">${Object.entries(CERT_TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div>
+    <label class="drop"><input type="file" id="f-cert" accept="image/*,application/pdf" class="sr">${ICON.upload}<b>แตะเพื่อถ่ายรูปหรือเลือกไฟล์</b><small class="muted">รูป JPG, PNG หรือ PDF ไม่เกิน 5 MB</small></label>
+    <div class="thumbs" id="thumbs">${certThumbs()}</div>
+    <div class="hint">${ICON.info}<span>ทีมงานจะตรวจสอบเอกสารก่อนแสดงป้าย "ยืนยันแล้ว" ระหว่างนี้ครอบครัวจะเห็นเป็น "รอตรวจสอบ"</span></div>`,
+  7: () => { const c = S.cg, u = S.users.caregiver || {};
+    const sk = lv => codesAt(c.skills, [lv]).map(k => CT[k].short).join(', ');
+    return `<h1 class="step-h" tabindex="-1">ตรวจสอบก่อนสร้างโปรไฟล์</h1>
     <p class="step-sub">ถ้าข้อมูลถูกต้องแล้ว กดสร้างโปรไฟล์ได้เลย</p>
     <div class="review">
-      ${rv('ชื่อ-นามสกุล', esc(cg.name), 1)}
-      ${rv('เบอร์โทรศัพท์', esc(cg.phone) || 'ไม่ระบุ', 1)}
-      ${rv('พื้นที่', esc(cg.area) || 'ไม่ระบุ', 1)}
-      ${rv('บทบาท', `${ROLES[cg.role].label}, ${yearsText(cg.years)}`, 2)}
-      ${rv('กรณีที่ดูแลได้', cg.cases.map(c => CASES[c].label).join(', '), 3)}
-      ${rv('รูปแบบงาน', WORK[cg.work].label, 3)}
-      ${rv('ใบรับรอง', cg.certs.length ? `แนบแล้ว ${cg.certs.length} รูป` : (cg.noCert ? 'ยังไม่มี' : 'ไม่ได้แนบ'), 4)}
+      ${rv('ชื่อ', esc(u.display_name), 1)}
+      ${rv('ติดต่อ', [u.phone, u.line_id && 'LINE ' + u.line_id].filter(Boolean).map(esc).join(', ') || 'ไม่ระบุ', 1)}
+      ${rv('บทบาท', `${c.care_roles.map(r => CARE_ROLES[r].label).join(', ')}, ${yearsText(c.years_experience)}`, 2)}
+      ${sk('experienced') ? rv('มีประสบการณ์', sk('experienced'), 3) : ''}
+      ${sk('trained') ? rv('เคยอบรม', sk('trained'), 3) : ''}
+      ${sk('willing_to_learn') ? rv('ยินดีเรียนรู้', sk('willing_to_learn'), 3) : ''}
+      ${rv('รูปแบบงานและพื้นที่', `${c.work_arrangements.map(a => ARR[a].label).join(', ')}, ${esc(c.home_district)} ในรัศมี ${c.max_travel_km} กม.`, 4)}
+      ${rv('ค่าจ้าง', wageText(c.expected_wage_min, c.expected_wage_max, c.wage_unit), 5)}
+      ${rv('ใบรับรอง', c.certs.length ? `แนบแล้ว ${c.certs.length} ใบ` : 'ยังไม่ได้แนบ', 6)}
     </div>
-    <div class="hint">${ICON.spark}<span>ไม่ต้องกังวลเรื่องการเขียน ระบบจะเรียบเรียงคำตอบเป็นโปรไฟล์ภาษาไทยให้ และคุณแก้ไขได้ก่อนเผยแพร่</span></div>`
+    <div class="hint">${ICON.spark}<span>ระบบจะเรียบเรียงคำตอบเป็นโปรไฟล์ภาษาไทยให้ คุณอ่านและแก้ไขได้ก่อนเผยแพร่</span></div>`; }
 };
 
 function renderStep(focus = true) {
-  $('#stepNum').textContent = `ขั้นที่ ${step} จาก ${TOTAL}`;
-  $('#prog').style.width = (step / TOTAL * 100) + '%';
-  $('#progWrap').setAttribute('aria-valuenow', step);
-  $('#formBody').innerHTML = STEPS[step]();
-  $('#fBack').textContent = step === 1 ? 'ยกเลิก' : 'ย้อนกลับ';
-  $('#fNext').innerHTML = step === TOTAL ? `${ICON.spark} สร้างโปรไฟล์` : `ถัดไป ${ICON.arrow}`;
+  if (!S.cg) S.cg = blankCg();
+  $('#stepNum').textContent = `ขั้นที่ ${cgStep} จาก ${TOTAL}`;
+  $('#prog').style.width = (cgStep / TOTAL * 100) + '%';
+  $('#progWrap').setAttribute('aria-valuenow', cgStep);
+  $('#cgBody').innerHTML = STEPS[cgStep]();
+  if (cgStep === 1) $('#f-by').value = S.cg.birth_year || '';
+  $('#fBack').textContent = cgStep === 1 ? 'ยกเลิก' : 'ย้อนกลับ';
+  $('#fNext').innerHTML = cgStep === TOTAL ? `${ICON.spark} สร้างโปรไฟล์` : `ถัดไป ${ICON.arrow}`;
   window.scrollTo(0, 0);
-  if (focus) { const h = $('#formBody .step-h'); if (h) h.focus({ preventScroll: true }); }
+  if (focus) { const h = $('#cgBody .step-h'); if (h) h.focus({ preventScroll: true }); }
 }
+const showErr = (id, on) => { const e = $('#' + id); if (e) e.hidden = !on; if (on) e.scrollIntoView({ block: 'center' }); return on; };
 
-$('#formBody').addEventListener('input', e => {
+$('#cgBody').addEventListener('input', e => {
   const t = e.target;
-  if (t.id === 'f-name') { cg.name = t.value; if (t.value.trim()) { $('#e-name').hidden = true; t.removeAttribute('aria-invalid'); } }
-  if (t.id === 'f-phone') cg.phone = t.value;
-  if (t.id === 'f-area') cg.area = t.value;
-  saveDraft();
+  if (['radio', 'checkbox', 'file'].includes(t.type) || t.tagName === 'SELECT') return;
+  if (t.dataset.u) { (S.users.caregiver = S.users.caregiver || {})[t.dataset.u] = t.value; if (t.id === 'f-name' && t.value.trim()) { $('#e-name').hidden = true; t.removeAttribute('aria-invalid'); } }
+  else if (t.dataset.f) S.cg[t.dataset.f] = 'num' in t.dataset ? num(t.value) : t.value;
+  if ('num' in t.dataset) t.value = S.cg[t.dataset.f];
+  save();
 });
-$('#formBody').addEventListener('change', e => {
+$('#cgBody').addEventListener('change', e => {
   const t = e.target;
-  if (t.name === 'role') cg.role = t.value;
-  if (t.name === 'work') cg.work = t.value;
-  if (t.id === 'f-nocert') cg.noCert = t.checked;
-  if (t.id === 'f-cert') { addCerts([...t.files]); t.value = ''; }
-  saveDraft();
-});
-$('#formBody').addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  if (b.dataset.case) {
-    const k = b.dataset.case;
-    cg.cases = cg.cases.includes(k) ? cg.cases.filter(x => x !== k) : [...cg.cases, k];
-    b.setAttribute('aria-pressed', cg.cases.includes(k));
-    $('#caseCount').textContent = cg.cases.length;
-    if (cg.cases.length) $('#e-cases').hidden = true;
-    saveDraft();
+  if (t.name && t.name.startsWith('sk:')) { S.cg.skills[t.name.slice(3)] = t.value; $('#skillCount').textContent = skillCount(); if (skillCount()) $('#e-skills').hidden = true; }
+  else if (t.dataset.multi) { const f = t.dataset.multi; S.cg[f] = t.checked ? [...new Set([...S.cg[f], t.value])] : S.cg[f].filter(x => x !== t.value); $('#e-roles') && ($('#e-roles').hidden = true); $('#e-arr') && ($('#e-arr').hidden = true); }
+  else if (t.type === 'radio') S.cg[t.name] = t.value;
+  else if (t.tagName === 'SELECT' && t.dataset.f) {
+    S.cg[t.dataset.f] = t.dataset.f === 'birth_year' ? num(t.value) : t.value;
+    if (t.dataset.f === 'home_district') { S.cg.home_province = (districtOf(t.value) || {}).p || ''; $('#e-dist').hidden = !!t.value; }
   }
-  if (b.dataset.yr) { cg.years = Math.max(0, Math.min(40, cg.years + Number(b.dataset.yr))); $('#yrs').textContent = yearsText(cg.years); saveDraft(); }
-  if ('rm' in b.dataset) { cg.certs.splice(Number(b.dataset.rm), 1); $('#thumbs').innerHTML = thumbsHTML(); saveDraft(); }
-  if (b.dataset.goto) { step = Number(b.dataset.goto); renderStep(); }
+  else if (t.id === 'f-cert' && t.files[0]) { addCert(t.files[0]); t.value = ''; }
+  save();
+});
+$('#cgBody').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.stepf) {
+    const f = b.dataset.stepf, v = Math.max(+b.dataset.min, Math.min(+b.dataset.max, Number(S.cg[f]) + Number(b.dataset.d)));
+    S.cg[f] = v; $('#out-' + f).textContent = f === 'max_travel_km' ? `${v} กม.` : yearsText(v); save();
+  }
+  if ('rmcert' in b.dataset) { S.cg.certs.splice(Number(b.dataset.rmcert), 1); $('#thumbs').innerHTML = certThumbs(); save(); }
+  if (b.dataset.goto) { cgStep = Number(b.dataset.goto); renderStep(); }
 });
 
-function shrink(file) {
+function shrink(file, max = 520) {
   return new Promise((res, rej) => {
     const fr = new FileReader();
     fr.onload = () => {
       const img = new Image();
       img.onload = () => {
-        const s = Math.min(1, 520 / Math.max(img.width, img.height));
+        const s = Math.min(1, max / Math.max(img.width, img.height));
         const c = document.createElement('canvas');
         c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
         c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
@@ -713,304 +1211,561 @@ function shrink(file) {
     fr.onerror = rej; fr.readAsDataURL(file);
   });
 }
-async function addCerts(files) {
-  const room = 3 - cg.certs.length;
-  if (room <= 0) { toast('แนบได้สูงสุด 3 รูป ลบรูปเดิมก่อนเพิ่มใหม่'); return; }
-  if (files.length > room) toast(`แนบเพิ่มได้อีก ${room} รูป ระบบเลือก ${room} รูปแรกให้`);
-  for (const f of files.slice(0, room)) {
-    if (!f.type.startsWith('image/')) continue;
-    try { cg.certs.push(await shrink(f)); } catch (e) { toast('เปิดรูปนี้ไม่ได้ ลองเลือกรูปอื่น'); }
-  }
-  cg.noCert = false; const nc = $('#f-nocert'); if (nc) nc.checked = false;
-  $('#thumbs').innerHTML = thumbsHTML(); saveDraft();
+async function addCert(file) {
+  if (S.cg.certs.length >= 3) { toast('แนบได้สูงสุด 3 ใบ ลบใบเดิมก่อนเพิ่มใหม่'); return; }
+  if (file.size > 5 * 1024 * 1024) { toast('ไฟล์ใหญ่เกิน 5 MB ลองถ่ายรูปใหม่หรือเลือกไฟล์อื่น'); return; }
+  const type = $('#f-ctype').value;
+  /* ของจริง: supabase.storage.from('certificates').upload(`${uid}/${uuid}.jpg`, file)
+     แล้ว insert certificates { cert_type, title, file_path } — verification_status เป็น pending เสมอ */
+  let preview = null;
+  if (file.type.startsWith('image/')) { try { preview = await shrink(file); } catch (e) { toast('เปิดรูปนี้ไม่ได้ ลองเลือกรูปอื่น'); return; } }
+  S.cg.certs.push({ cert_type: type, title: CERT_TYPES[type], preview, verification_status: 'pending' });
+  $('#thumbs').innerHTML = certThumbs(); save();
 }
 
-$('#fBack').addEventListener('click', () => { if (step > 1) { step--; renderStep(); } else go('home'); });
+$('#fBack').addEventListener('click', () => { if (cgStep > 1) { cgStep--; renderStep(); } else go(S.profile ? 'cg-profile' : 'home'); });
 $('#fNext').addEventListener('click', async () => {
-  if (step === 1 && !cg.name.trim()) { $('#e-name').hidden = false; const n = $('#f-name'); n.setAttribute('aria-invalid', 'true'); n.focus(); return; }
-  if (step === 3 && !cg.cases.length) { $('#e-cases').hidden = false; $('#e-cases').scrollIntoView({ block: 'center' }); return; }
-  if (step < TOTAL) { step++; renderStep(); return; }
-  await generate();
+  const c = S.cg, u = S.users.caregiver || {};
+  if (cgStep === 1 && !String(u.display_name || '').trim()) { $('#e-name').hidden = false; const n = $('#f-name'); n.setAttribute('aria-invalid', 'true'); n.focus(); return; }
+  if (cgStep === 2 && showErr('e-roles', !c.care_roles.length)) return;
+  if (cgStep === 3 && showErr('e-skills', !skillCount())) return;
+  if (cgStep === 4) { if (showErr('e-arr', !c.work_arrangements.length)) return; if (showErr('e-dist', !c.home_district)) return; }
+  if (cgStep === 5 && showErr('e-wage', c.expected_wage_min !== '' && c.expected_wage_max !== '' && c.expected_wage_max < c.expected_wage_min)) return;
+  if (cgStep < TOTAL) { cgStep++; renderStep(); return; }
+  await generateProfile();
 });
 
-async function generate() {
+async function generateProfile() {
   const gen = $('#gen'); gen.classList.add('on');
   const t0 = Date.now();
-  const payload = { name: cg.name, area: cg.area, role: cg.role, years: cg.years, cases: cg.cases, work: cg.work, has_certificate: cg.certs.length > 0 };
-  const res = await callAPI('/api/profiles/generate', payload);
-  const about = (res && (res.profile_text || res.profile)) || mockProfile(cg);
+  const snap = inputSnapshot(S.cg);
+  const res = await callAPI('/api/profiles/generate', snap);
+  const text = (res && (res.profile_text || res.output_text)) || mockWorkerProfile(S.cg);
   await new Promise(r => setTimeout(r, Math.max(0, 1400 - (Date.now() - t0))));
-  const prev = store.get('jg_my_profile', null);
-  const my = Object.assign({}, cg, { id: prev ? prev.id : 'u' + Date.now(), about, aiAbout: about, edited: false, published: prev ? prev.published : false, source: res ? 'api' : 'template' });
-  store.set('jg_my_profile', my);
+  const prev = S.profile;
+  S.profile = { output_text: text, ai_text: text, input_hash: hashStr(JSON.stringify(snap)), model_name: res ? (res.model_name || 'api') : 'template', is_visible: prev ? prev.is_visible : false, created_at: nowISO() };
+  save();
   gen.classList.remove('on');
-  go('profile');
+  go('cg-profile');
 }
 
 /* ======================================================================
-   PROFILE
+   CAREGIVER PROFILE
    ====================================================================== */
 function renderProfile() {
-  const my = store.get('jg_my_profile', null);
-  if (!my) { step = 1; go('caregiver'); return; }
-  $('#pfPub').textContent = my.published ? 'อัปเดตโปรไฟล์' : 'เผยแพร่โปรไฟล์';
+  if (!S.profile) { cgStep = 1; go('cg-form'); return; }
+  const c = S.cg, u = S.users.caregiver || {}, p = S.profile;
+  const stale = hashStr(JSON.stringify(inputSnapshot(c))) !== p.input_hash;
+  const lvRow = lv => { const ks = codesAt(c.skills, [lv]); return ks.length ? `<div><p class="small muted" style="margin-bottom:6px">${COMFORT[lv].label}</p><div class="tags">${ks.map(k => `<span class="tag ${lv === 'willing_to_learn' ? 'o' : lv === 'trained' ? 'n' : ''}">${CT[k].short}</span>`).join('')}</div></div>` : ''; };
+  $('#pfPub').textContent = p.is_visible ? 'ซ่อนโปรไฟล์' : 'เผยแพร่โปรไฟล์';
+  $('#pfPub').className = p.is_visible ? 'btn btn-o grow' : 'btn btn-p grow';
   $('#pfBody').innerHTML = `
   <div class="pf-band"><div class="in">
-    <span class="pill-l">${ICON.spark} ${my.source === 'api' ? 'สร้างโดย AI จากคำตอบของคุณ' : 'สร้างจากคำตอบของคุณ (โหมดทดลอง)'}</span>
-    <h1 tabindex="-1" id="pfTitle">โปรไฟล์ของคุณพร้อมแล้ว</h1>
-    <p>ตรวจดูอีกครั้ง แก้ไขข้อความได้ก่อนเผยแพร่</p>
+    <span class="pill-l">${ICON.spark} ${p.model_name === 'template' ? 'สร้างจากคำตอบของคุณ (โหมดทดลอง)' : 'สร้างโดย AI จากคำตอบของคุณ'}</span>
+    <h1 tabindex="-1">โปรไฟล์ของคุณ</h1>
+    <p>ตรวจดูอีกครั้ง แก้ไขข้อความได้ทุกเมื่อ</p>
   </div></div>
   <div class="pf-wrap">
     <div class="pf-card">
-      <div class="person"><span class="av">${esc(initials(my.name))}</span><div>
-        <div class="nm">คุณ${esc(my.name)}</div>
-        <div class="muted small">${ROLES[my.role].label}, ประสบการณ์ ${yearsText(my.years)}</div>
-        ${my.area ? `<div class="muted small" style="display:flex;gap:4px;align-items:center">${ICON.pin}${esc(my.area)}</div>` : ''}
+      ${stale ? `<div class="status warn">${ICON.info} คำตอบของคุณเปลี่ยนไปแล้ว <button type="button" class="linkbtn" id="pfRegen">สร้างข้อความใหม่จากคำตอบล่าสุด</button></div>` : ''}
+      <div class="status ${p.is_visible ? 'on' : 'off'}" style="margin-bottom:0">${p.is_visible ? `${ICON.tick} เผยแพร่แล้ว ครอบครัวในพื้นที่จะเห็นการ์ดของคุณ <button type="button" class="linkbtn" data-go="cg-feed">ไปดูงาน</button>` : `${ICON.info} ยังไม่เผยแพร่ ครอบครัวจะยังไม่เห็นโปรไฟล์นี้`}</div>
+      <div class="person"><span class="av">${esc(initials(u.display_name))}</span><div>
+        <div class="nm">คุณ${esc(u.display_name)}</div>
+        <div class="muted small">${c.care_roles.map(r => CARE_ROLES[r].label).join(', ')}, ประสบการณ์ ${yearsText(c.years_experience)}</div>
+        <div class="muted small" style="display:flex;gap:4px;align-items:center">${ICON.pin}${esc(c.home_district)}, ${esc(c.home_province)} · รัศมี ${c.max_travel_km} กม.</div>
       </div></div>
       <section>
         <div class="sec-row"><h3>เกี่ยวกับฉัน</h3><button type="button" class="linkbtn" id="pfEdit">${ICON.pen} แก้ไขข้อความ</button></div>
-        <div id="pfAboutWrap"><p class="about">${esc(my.about)}</p></div>
+        <div id="pfAboutWrap"><p class="about">${esc(p.output_text)}</p></div>
       </section>
-      <section><h3>กรณีที่ดูแลได้</h3><div class="tags">${my.cases.map(c => `<span class="tag">${CASES[c].label}</span>`).join('')}<span class="tag n">${WORK[my.work].label}</span></div></section>
-      <section><h3>ใบรับรอง</h3>${my.certs.length ? `<div class="thumbs" style="margin-top:0">${my.certs.map((s, i) => `<div class="thumb"><img src="${s}" alt="ใบรับรองรูปที่ ${i + 1}"></div>`).join('')}</div>` : `<p class="muted">${my.noCert ? 'ยังไม่มีใบรับรอง' : 'ยังไม่ได้แนบรูปใบรับรอง'}</p>`}</section>
-      ${my.phone ? `<section><h3>เบอร์ติดต่อ</h3><p>${esc(my.phone)}</p><p class="muted small">ครอบครัวจะเห็นเบอร์นี้หลังจากคุณตอบรับการติดต่อ</p></section>` : ''}
+      <section><h3>กรณีที่ดูแลได้</h3><div style="display:flex;flex-direction:column;gap:12px">${lvRow('experienced')}${lvRow('trained')}${lvRow('willing_to_learn')}</div></section>
+      <section><h3>รูปแบบงานและค่าจ้าง</h3><div class="kv">
+        <div><span class="k">รูปแบบงาน</span><span class="v">${c.work_arrangements.map(a => ARR[a].label).join(', ')}</span></div>
+        <div><span class="k">ค่าจ้างที่ต้องการ</span><span class="v">${wageText(c.expected_wage_min, c.expected_wage_max, c.wage_unit)}</span></div>
+        ${c.available_from ? `<div><span class="k">พร้อมเริ่มงาน</span><span class="v">${fmtDate(c.available_from)}</span></div>` : ''}
+      </div></section>
+      <section><h3>ใบรับรอง</h3>${c.certs.length ? `<div class="tags">${c.certs.map(x => `<span class="tag ${x.verification_status === 'verified' ? '' : 'g'}">${ICON.shield} ${esc(x.title)} · ${x.verification_status === 'verified' ? 'ยืนยันแล้ว' : 'รอตรวจสอบ'}</span>`).join('')}</div>` : '<p class="muted">ยังไม่ได้แนบใบรับรอง</p>'}</section>
+      <section><h3>ช่องทางติดต่อ (ส่วนตัว)</h3><p>${[u.phone, u.line_id && 'LINE ' + u.line_id].filter(Boolean).map(esc).join(' · ') || '<span class="muted">ยังไม่ได้ใส่</span>'}</p><p class="muted small">ครอบครัวจะเห็นหลังสนใจกันทั้งสองฝ่ายเท่านั้น</p></section>
     </div>
     <p class="note">${ICON.info}<span>ข้อความที่คุณแก้ไขจะถูกเก็บไว้ เพื่อช่วยให้ระบบสร้างโปรไฟล์ได้ดีขึ้นในครั้งต่อไป</span></p>
-    ${my.published ? `<div class="done">${ICON.tick} เผยแพร่แล้ว ครอบครัวที่โพสต์งานจะเห็นโปรไฟล์นี้ <button type="button" class="linkbtn" data-go="family">ลองดูจากฝั่งครอบครัว</button></div>` : ''}
   </div>`;
+  $('#pfBody h1').focus({ preventScroll: true });
+  const rg = $('#pfRegen'); if (rg) rg.onclick = () => generateProfile();
   $('#pfEdit').addEventListener('click', () => {
-    $('#pfAboutWrap').innerHTML = `<label for="pfText" class="sr">ข้อความเกี่ยวกับฉัน</label><textarea id="pfText" class="text" rows="6">${esc(my.about)}</textarea>
-      <div class="det-actions" style="margin-top:12px"><button type="button" class="btn btn-o" id="pfCancel">ยกเลิก</button><button type="button" class="btn btn-p" id="pfSave">บันทึกข้อความ</button></div>`;
+    $('#pfAboutWrap').innerHTML = `<label for="pfText" class="sr">ข้อความเกี่ยวกับฉัน</label><textarea id="pfText" class="text" rows="6">${esc(p.output_text)}</textarea>
+      <div class="dlg-actions" style="margin-top:12px"><button type="button" class="btn btn-o" id="pfCancel">ยกเลิก</button><button type="button" class="btn btn-p" id="pfSave">บันทึกข้อความ</button></div>`;
     $('#pfText').focus();
     $('#pfCancel').onclick = () => renderProfile();
     $('#pfSave').onclick = () => {
       const v = $('#pfText').value.trim();
       if (!v) { toast('ข้อความต้องไม่ว่าง'); return; }
-      my.about = v; my.edited = v !== my.aiAbout;   // เก็บทั้ง aiAbout (ต้นฉบับ) และ about (ฉบับแก้) ไว้ทำ evaluation
-      store.set('jg_my_profile', my); syncPublished(my);
-      renderProfile(); toast('บันทึกข้อความแล้ว');
+      if (v !== p.output_text) {
+        /* feedback_corrections (append-only): เก็บต้นฉบับ AI + ฉบับแก้ ไว้ทำ evaluation */
+        S.feedback.push({ id: uid(), role: 'caregiver', target_type: 'worker_profile', original_text: p.ai_text, corrected_text: v, created_at: nowISO() });
+        p.output_text = v; save(); toast('บันทึกข้อความแล้ว');
+      }
+      renderProfile();
     };
   });
 }
-function syncPublished(my) {
-  if (!my.published) return;
-  const list = store.get('jg_caregivers', []).filter(c => c.id !== my.id);
-  list.unshift(my); store.set('jg_caregivers', list);
-}
-$('#pfRedo').addEventListener('click', () => { step = 1; go('caregiver'); });
+$('#pfRedo').addEventListener('click', () => { cgStep = 1; go('cg-form'); });
 $('#pfPub').addEventListener('click', () => {
-  const my = store.get('jg_my_profile', null); if (!my) return;
-  const was = my.published; my.published = true;
-  store.set('jg_my_profile', my); syncPublished(my);
-  toast(was ? 'อัปเดตโปรไฟล์แล้ว' : 'เผยแพร่โปรไฟล์แล้ว');
+  if (!S.profile) return;
+  S.profile.is_visible = !S.profile.is_visible; save();   // caregiver_details.is_visible
+  toast(S.profile.is_visible ? 'เผยแพร่โปรไฟล์แล้ว' : 'ซ่อนโปรไฟล์แล้ว ครอบครัวจะไม่เห็นการ์ดของคุณ');
   renderProfile();
 });
 
 /* ======================================================================
-   FAMILY POST
+   SWIPE (ใช้ร่วมกันทั้งสองฝั่ง)
    ====================================================================== */
-let job = Object.assign({ text: '', area: '', budget: '', start: '', needs: [], work: '', posted: false, add: [], remove: [], manualWork: '' }, store.get('jg_job', {}));
-const saveJob = () => store.set('jg_job', job);
-function detect() {
-  const t = job.text.toLowerCase();
-  const s = new Set(Object.keys(CASES).filter(k => CASES[k].kw.some(w => t.includes(w.toLowerCase()))));
-  job.add.forEach(k => s.add(k)); job.remove.forEach(k => s.delete(k));
-  job.needs = Object.keys(CASES).filter(k => s.has(k));
-  const dw = Object.keys(WORK).find(k => WORK[k].kw.some(w => t.includes(w)));
-  job.work = job.manualWork || dw || '';
+const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function attachSwipe(card, decide) {
+  let x0 = null, dx = 0;
+  const set = v => { card.style.setProperty('--like', Math.max(0, Math.min(1, v / 110))); card.style.setProperty('--pass', Math.max(0, Math.min(1, -v / 110))); };
+  card.addEventListener('pointerdown', e => {
+    if (e.target.closest('button,a,input,select,textarea,label')) return;
+    x0 = e.clientX; dx = 0; card.setPointerCapture(e.pointerId); card.style.transition = 'none';
+  });
+  card.addEventListener('pointermove', e => {
+    if (x0 == null) return;
+    dx = e.clientX - x0; card.style.transform = `translateX(${dx}px) rotate(${dx / 18}deg)`; set(dx);
+  });
+  const end = () => {
+    if (x0 == null) return;
+    x0 = null; card.style.transition = '';
+    if (Math.abs(dx) > 110) decide(dx > 0 ? 'like' : 'pass');
+    else { card.style.transform = ''; set(0); }
+    dx = 0;
+  };
+  card.addEventListener('pointerup', end);
+  card.addEventListener('pointercancel', end);
 }
-function renderNeeds() { $('#j-needs').innerHTML = chipHTML(job.needs, 'fam'); }
-function renderWork() {
-  $('#j-work').innerHTML = Object.entries(WORK).map(([k, w]) => `<label class="opt"><input type="radio" name="jwork" value="${k}" ${job.work === k ? 'checked' : ''}><b>${w.label}</b></label>`).join('');
+function flyOut(card, d, cb) {
+  if (!card || reduced()) { cb(); return; }
+  const dir = d === 'like' ? 1 : -1;
+  card.style.setProperty(d === 'like' ? '--like' : '--pass', 1);
+  card.style.transform = `translateX(${dir * 130}%) rotate(${dir * 18}deg)`; card.style.opacity = '0';
+  setTimeout(cb, 240);
 }
-function renderFamily() {
-  $('#j-text').value = job.text; $('#j-area').value = job.area; $('#j-budget').value = job.budget; $('#j-start').value = job.start;
-  renderNeeds(); renderWork();
-  $('#s-family .step-h').focus({ preventScroll: true });
+let busy = false;
+function decideTop(deckSel, d, handler) {
+  if (busy) return;
+  const card = $(deckSel + ' .swcard:not(.next)'); if (!card) return;
+  busy = true;
+  flyOut(card, d, () => { busy = false; handler(card.dataset.id, d); });
 }
-let detT;
-$('#j-text').addEventListener('input', e => {
-  job.text = e.target.value;
-  if (job.text.trim()) $('#e-text').hidden = true;
-  clearTimeout(detT);
-  detT = setTimeout(() => { detect(); renderNeeds(); renderWork(); saveJob(); }, 250);
-});
-$('#j-example').addEventListener('click', () => {
-  job.text = SAMPLE_JOB; job.add = []; job.remove = []; job.manualWork = '';
-  $('#j-text').value = job.text; $('#e-text').hidden = true;
-  detect(); renderNeeds(); renderWork(); saveJob();
-});
-$('#j-needs').addEventListener('click', e => {
-  const b = e.target.closest('[data-case]'); if (!b) return;
-  const k = b.dataset.case;
-  if (job.needs.includes(k)) { job.remove = [...new Set([...job.remove, k])]; job.add = job.add.filter(x => x !== k); }
-  else { job.add = [...new Set([...job.add, k])]; job.remove = job.remove.filter(x => x !== k); }
-  detect();
-  b.setAttribute('aria-pressed', job.needs.includes(k));
-  if (job.needs.length) $('#e-needs').hidden = true;
-  saveJob();
-});
-$('#j-work').addEventListener('change', e => { if (e.target.name === 'jwork') { job.manualWork = e.target.value; job.work = e.target.value; saveJob(); } });
-['area', 'budget', 'start'].forEach(f => $('#j-' + f).addEventListener('input', e => { job[f] = e.target.value; saveJob(); }));
-$('#j-submit').addEventListener('click', () => {
-  if (!job.text.trim()) { $('#e-text').hidden = false; $('#j-text').focus(); return; }
-  detect();
-  if (!job.needs.length) { $('#e-needs').hidden = false; renderNeeds(); $('#j-needs').scrollIntoView({ block: 'center' }); return; }
-  job.posted = true; saveJob(); selId = null; go('applicants');
+function showMatch(text) { $('#matchText').textContent = text; $('#dlgMatch').showModal(); }
+$('#matchGo').addEventListener('click', () => { $('#dlgMatch').close(); go('matches'); });
+
+document.addEventListener('keydown', e => {
+  if (document.querySelector('dialog[open]') || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+  const d = e.key === 'ArrowRight' ? 'like' : 'pass';
+  if (current === 'cg-feed') decideTop('#feedDeck', d, onFeedDecide);
+  if (current === 'fam-deck') decideTop('#famDeck', d, onFamDecide);
 });
 
 /* ======================================================================
-   APPLICANTS
+   CAREGIVER JOB FEED
    ====================================================================== */
-let selId = null, sortBy = 'score', query = '';
-const cmp = new Set();
-function candidates() {
-  const pub = store.get('jg_caregivers', []);
-  return [...pub, ...SEED].map(c => Object.assign({}, c, { about: c.about || mockProfile(c), m: scoreFor(c, job) }));
-}
-function visible() {
-  let list = candidates();
-  const q = query.trim();
-  if (q) list = list.filter(c => [c.name, c.area, ROLES[c.role].label, ...c.cases.map(k => CASES[k].label)].join(' ').includes(q));
-  list.sort(sortBy === 'years' ? (a, b) => b.years - a.years : (a, b) => b.m.score - a.m.score);
-  return list;
-}
-const myId = () => (store.get('jg_my_profile', null) || {}).id;
-function cardHTML(c, i) {
-  const av = ['', 'b', 'c'][i % 3];
-  return `<article class="app ${c.id === selId ? 'sel' : ''}">
-    <button type="button" class="app-main" data-sel="${c.id}" aria-pressed="${c.id === selId}">
-      <span class="av ${av}">${esc(initials(c.name))}</span>
-      <span class="app-id"><b>คุณ${esc(c.name)}</b><small>${ROLES[c.role].label}, ${yearsText(c.years)}${c.area ? ', ' + esc(c.area) : ''}</small></span>
-      <span class="app-score"><b>${c.m.score}%</b><span class="bar"><span style="width:${c.m.score}%"></span></span></span>
-      <span class="app-sum">${esc(c.about)}</span>
-    </button>
-    <div class="app-foot">
-      <span class="tags">${c.cases.slice(0, 3).map(k => `<span class="tag ${c.m.matched.includes(k) ? '' : 'n'}">${CASES[k].label}</span>`).join('')}${c.sample ? '<span class="tag n">ข้อมูลตัวอย่าง</span>' : ''}${c.id === myId() ? '<span class="tag f">โปรไฟล์ของคุณ</span>' : ''}</span>
-      <label class="cmp"><input type="checkbox" data-cmp="${c.id}" ${cmp.has(c.id) ? 'checked' : ''}> เปรียบเทียบ</label>
-    </div>
+let feedKm = null;   // null = ใช้ max_travel_km
+function jobCardHTML(j, cls = '') {
+  const c = S.cg;
+  return `<article class="swcard ${cls}" data-id="${j.id}" aria-label="งาน ${esc(j.title)}">
+    <span class="sw-stamp like" aria-hidden="true">สนใจ</span><span class="sw-stamp pass" aria-hidden="true">ผ่าน</span>
+    ${j.family_liked ? `<span class="flag">${ICON.heart} ครอบครัวนี้สนใจคุณ</span>` : ''}
+    <div class="jc-wage"><b>${j.wage_min ? money(j.wage_min) : ''}${j.wage_max ? '–' + money(j.wage_max) : ''}</b><span>บาท/${UNIT[j.wage_unit]}</span></div>
+    <h2 class="jc-title">${esc(j.title)}</h2>
+    <div class="meta"><span>${ICON.pin}${esc(j.district)}${j.distance_km != null ? ' · ' + kmText(j.distance_km) : ''}</span><span>${ICON.home}${ARR[j.work_arrangement].label}</span>${j.start_date ? `<span>${ICON.cal}เริ่ม ${fmtDate(j.start_date)}</span>` : ''}</div>
+    <div class="meta"><span>${ICON.user}ผู้ป่วย${GENDER[j.patient_gender] || ''} ${j.patient_age ? j.patient_age + ' ปี' : ''}</span></div>
+    <div><h3>งานที่ต้องทำ</h3><ul class="tasks">${j.needs.map(n => { const ok = CAN.includes(c.skills[n.code]); return `<li><span class="${ok ? 'ok' : 'no'}">${ok ? ICON.tick : ICON.dot}</span><span>${CT[n.code].label}${n.is_required ? '' : ' <small>(ถ้าทำได้ก็ดี)</small>'}</span></li>`; }).join('')}</ul></div>
+    <p class="canline">คุณทำได้ ${j.needs_i_can_do} จาก ${j.needs_required} ข้อที่จำเป็น</p>
+    <button type="button" class="linkbtn" data-jobdetail="${j.id}" style="align-self:flex-start">ดูรายละเอียดงาน</button>
   </article>`;
 }
-function detailHTML(c) {
-  if (!c) return `<p class="muted">เลือกผู้สมัครเพื่อดูรายละเอียด</p>`;
-  const C = 276.46, dash = (c.m.score / 100 * C).toFixed(1);
-  return `<div class="det-top">
-      <div class="ring"><svg width="104" height="104" viewBox="0 0 104 104" aria-hidden="true"><circle cx="52" cy="52" r="44" fill="none" stroke="#ECE6FA" stroke-width="10"/><circle cx="52" cy="52" r="44" fill="none" stroke="#5E35B1" stroke-width="10" stroke-linecap="round" stroke-dasharray="${dash} ${C}" transform="rotate(-90 52 52)"/></svg>
-      <div class="c"><b>${c.m.score}%</b><small>เหมาะสม</small></div></div>
-      <div><h2>คุณ${esc(c.name)}</h2><p class="muted small">${ROLES[c.role].label}, ${yearsText(c.years)}</p>${hasCert(c) ? `<p class="okline">${ICON.shield} มีใบรับรอง</p>` : ''}</div>
-    </div>
-    <section><h3>ทำไมถึงเหมาะกับงานนี้</h3><ul class="checks">${(c.m.pros.length ? c.m.pros : ['ยังไม่พบจุดที่ตรงกับความต้องการที่ระบุ']).map(p => `<li>${ICON.tick}<span>${esc(p)}</span></li>`).join('')}</ul></section>
-    ${c.m.cons.length ? `<div class="warn">${ICON.info}<div><b>ควรสอบถามเพิ่ม</b><ul>${c.m.cons.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>` : ''}
-    <section><h3>สรุปโปรไฟล์</h3><p style="color:var(--body);line-height:1.8">${esc(c.about)}</p></section>
-    ${c.certs && c.certs.length ? `<section><h3>รูปใบรับรอง</h3><div class="thumbs" style="margin-top:0">${c.certs.map((s, i) => `<div class="thumb"><img src="${s}" alt="ใบรับรองรูปที่ ${i + 1}"></div>`).join('')}</div></section>` : ''}
-    <div class="det-actions"><button type="button" class="btn btn-p" data-msg="${c.id}">${ICON.msg} ส่งข้อความ</button><button type="button" class="btn btn-o" data-cmpadd="${c.id}">${cmp.has(c.id) ? 'เอาออกจากการเปรียบเทียบ' : 'เพิ่มเพื่อเปรียบเทียบ'}</button></div>
-    <p class="fine">คะแนนและสรุปสร้างอัตโนมัติเพื่อช่วยตัดสินใจ โปรดพูดคุยและตรวจสอบข้อมูลก่อนจ้างงาน</p>`;
+function renderFeed() {
+  const c = myCaregiver(); if (!c) return;
+  $('#feedBanner').innerHTML = S.profile.is_visible ? '' : `<div class="status warn">${ICON.info} โปรไฟล์ยังไม่เผยแพร่ ครอบครัวจะยังไม่เห็นคุณ <button type="button" class="linkbtn" data-go="cg-profile">ไปเผยแพร่</button></div>`;
+  const kmOpts = [[null, `ตามที่ตั้งไว้ (${c.max_travel_km} กม.)`], [5, 'ไม่เกิน 5 กม.'], [10, 'ไม่เกิน 10 กม.'], [20, 'ไม่เกิน 20 กม.'], [30, 'ไม่เกิน 30 กม.'], ['all', 'ทุกระยะทาง']];
+  $('#feedKm').innerHTML = kmOpts.map(([v, l]) => `<option value="${v ?? ''}" ${String(v ?? '') === String(feedKm ?? '') ? 'selected' : ''}>${l}</option>`).join('');
+  const rows = api.jobFeedForMe(feedKm);
+  $('#feedCount').textContent = rows.length ? `เหลือ ${rows.length} งานในพื้นที่ของคุณ` : '';
+  $('#feedDeck').innerHTML = rows.length
+    ? [rows[1] && jobCardHTML(rows[1], 'next'), jobCardHTML(rows[0])].filter(Boolean).join('')
+    : `<div class="empty"><b>ดูงานครบแล้ว</b><span>ลองขยายระยะทาง หรือกลับมาดูใหม่เมื่อมีงานเพิ่ม เราจะแจ้งเตือนเมื่อมีครอบครัวสนใจคุณ</span><button type="button" class="btn btn-o" data-go="matches">ดูงานที่จับคู่แล้ว</button></div>`;
+  $$('#feedActions .rbtn').forEach(b => b.disabled = !rows.length);
+  $('#feedHint').hidden = !rows.length;
+  const top = $('#feedDeck .swcard:not(.next)');
+  if (top) attachSwipe(top, d => flyOut(top, d, () => onFeedDecide(top.dataset.id, d)));
 }
-function renderApplicants(focus = false) {
-  if (!job.posted) { go('family'); return; }
-  const list = visible();
-  if (!selId || !list.find(c => c.id === selId)) selId = list[0] ? list[0].id : null;
-  $('#apJob').textContent = job.text.length > 70 ? job.text.slice(0, 70) + '…' : job.text;
-  $('#apCount').textContent = `ผู้สมัคร ${list.length} คน`;
-  $('#apNeeds').innerHTML = `<span class="k">ความต้องการ:</span>${job.needs.map(k => `<span class="tag f">${CASES[k].label}</span>`).join('')}${job.work ? `<span class="tag f">${WORK[job.work].label}</span>` : ''}${job.area ? `<span class="tag n">${esc(job.area)}</span>` : ''}`;
-  $('#apList').innerHTML = list.length ? list.map(cardHTML).join('') : `<div class="empty">ไม่พบผู้สมัครที่ตรงกับคำค้น ลองค้นด้วยคำอื่น</div>`;
-  $('#apDetail').innerHTML = detailHTML(list.find(c => c.id === selId));
-  renderCmpBar();
-  if (focus) $('#apCount').focus({ preventScroll: true });
+function onFeedDecide(jobId, d) {
+  const m = api.swipe('caregiver', jobId, 'me-cg', d);
+  const j = SEED_JOBS.find(x => x.id === jobId);
+  if (m.matched_at) showMatch(`คุณกับ${j.family.display_name}สนใจกันในงาน "${j.title}" ดูเบอร์โทรและ LINE แล้วคุยรายละเอียดกันต่อได้เลย`);
+  else if (d === 'like') toast('ส่งความสนใจแล้ว ครอบครัวจะได้รับแจ้งเตือน');
+  renderFeed(); renderNav(current);
 }
-function renderCmpBar() {
-  $('#cmpBar').classList.toggle('on', cmp.size > 0);
-  $('#cmpText').textContent = `เลือกไว้ ${cmp.size} คน`;
-}
-function toggleCmp(id, on) {
-  if (on && cmp.size >= 3 && !cmp.has(id)) { toast('เปรียบเทียบได้สูงสุด 3 คน'); return false; }
-  on ? cmp.add(id) : cmp.delete(id); return true;
-}
-$('#s-applicants').addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  if (b.dataset.sel) {
-    selId = b.dataset.sel; renderApplicants();
-    if (window.matchMedia('(max-width:1000px)').matches) $('#apDetail').scrollIntoView({ behavior: 'smooth' });
-  }
-  if (b.dataset.msg) openMsg(b.dataset.msg);
-  if (b.dataset.cmpadd) { toggleCmp(b.dataset.cmpadd, !cmp.has(b.dataset.cmpadd)); renderApplicants(); }
+$('#feedActions').addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) decideTop('#feedDeck', b.dataset.act, onFeedDecide); });
+$('#feedKm').addEventListener('change', e => { const v = e.target.value; feedKm = v === '' ? null : v === 'all' ? 'all' : Number(v); renderFeed(); });
+$('#feedDeck').addEventListener('click', e => {
+  const b = e.target.closest('[data-jobdetail]'); if (!b) return;
+  const j = api.jobFeedForMe('all').find(x => x.id === b.dataset.jobdetail) || SEED_JOBS.find(x => x.id === b.dataset.jobdetail);
+  openDetail(j.title, `
+    <div class="meta"><span>${ICON.pin}${esc(j.district)}, ${esc(j.province)}${j.distance_km != null ? ' · ' + kmText(j.distance_km) : ''}</span><span>${ICON.home}${ARR[j.work_arrangement].label}</span></div>
+    <section><h3>ค่าจ้าง</h3><p>${wageText(j.wage_min, j.wage_max, j.wage_unit)}</p></section>
+    <section><h3>เกี่ยวกับผู้ป่วย</h3><p style="line-height:1.8;color:var(--body)">${esc(j.patient_description)}</p></section>
+    <section><h3>ความต้องการ เทียบกับคำตอบของคุณ</h3><ul class="tasks">${j.needs.map(n => { const lv = S.cg.skills[n.code]; return `<li><span class="${CAN.includes(lv) ? 'ok' : 'no'}">${CAN.includes(lv) ? ICON.tick : ICON.dot}</span><span>${CT[n.code].label}${n.is_required ? '' : ' <small>(ถ้าทำได้ก็ดี)</small>'}<br><small>คุณตอบว่า: ${lv ? COMFORT[lv].label : 'ยังไม่ได้ระบุ'}</small></span></li>`; }).join('')}</ul></section>
+    ${j.preferred_caregiver_gender !== 'any' ? `<p class="small muted">ครอบครัวต้องการผู้ดูแลเพศ${GENDER[j.preferred_caregiver_gender]}</p>` : ''}
+    <p class="fine">ที่อยู่ละเอียดจะแสดงหลังจับคู่สำเร็จ และคุยตกลงกับครอบครัวโดยตรง</p>`);
 });
-$('#s-applicants').addEventListener('change', e => {
-  const t = e.target;
-  if (t.dataset.cmp) { if (!toggleCmp(t.dataset.cmp, t.checked)) t.checked = false; renderApplicants(); }
-  if (t.id === 'apSort') { sortBy = t.value; renderApplicants(); }
-});
-$('#apSearch').addEventListener('input', e => { query = e.target.value; renderApplicants(); });
-
-/* compare dialog */
-$('#cmpOpen').addEventListener('click', () => {
-  const all = candidates();
-  const xs = [...cmp].map(id => all.find(c => c.id === id)).filter(Boolean);
-  if (xs.length < 2) { toast('เลือกอย่างน้อย 2 คนเพื่อเปรียบเทียบ'); return; }
-  const rows = [
-    ['ความเหมาะสม', c => `<b class="big">${c.m.score}%</b>`],
-    ['บทบาท', c => ROLES[c.role].label],
-    ['ประสบการณ์', c => yearsText(c.years)],
-    ['พื้นที่', c => esc(c.area) || 'ไม่ระบุ'],
-    ['รูปแบบงาน', c => WORK[c.work].label + (c.m.workOk ? '' : ' (ไม่ตรงกับงาน)')],
-    ['ตรงกับความต้องการ', c => `${c.m.matched.length} จาก ${job.needs.length} ข้อ`],
-    ['ยังไม่ได้ระบุ', c => c.m.missing.map(k => CASES[k].label).join(', ') || 'ครบทุกข้อ'],
-    ['ใบรับรอง', c => hasCert(c) ? 'มี' : 'ยังไม่มี'],
-    ['', c => `<button type="button" class="btn btn-p" data-msg="${c.id}" style="min-height:44px">${ICON.msg} ส่งข้อความ</button>`]
-  ];
-  $('#cmpBody').innerHTML = `<table class="ctable"><thead><tr><th scope="col"><span class="sr">หัวข้อ</span></th>${xs.map(c => `<th scope="col">คุณ${esc(c.name)}</th>`).join('')}</tr></thead>
-    <tbody>${rows.map(([k, f]) => `<tr><th scope="row">${k}</th>${xs.map(c => `<td>${f(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-  $('#dlgCompare').showModal();
-});
-$('#cmpBody').addEventListener('click', e => { const b = e.target.closest('[data-msg]'); if (b) { $('#dlgCompare').close(); openMsg(b.dataset.msg); } });
-
-/* message dialog */
-let msgTo = null;
-function openMsg(id) {
-  const c = candidates().find(x => x.id === id); if (!c) return;
-  msgTo = c;
-  $('#msgTitle').textContent = `ส่งข้อความถึงคุณ${c.name}`;
-  $('#msgText').value = `สวัสดีค่ะ คุณ${c.name} ครอบครัวเรากำลังหาผู้ดูแล${job.work ? 'แบบ' + WORK[job.work].label : ''} สำหรับ${job.needs.map(k => CASES[k].label).join(' ')} สนใจพูดคุยรายละเอียดเพิ่มเติมไหมคะ`;
-  $('#dlgMsg').showModal(); $('#msgText').focus();
-}
-$('#msgSend').addEventListener('click', () => {
-  const text = $('#msgText').value.trim();
-  if (!text) { toast('พิมพ์ข้อความก่อนส่ง'); return; }
-  const msgs = store.get('jg_msgs', []); msgs.push({ to: msgTo.id, text, at: new Date().toISOString() }); store.set('jg_msgs', msgs);
-  $('#dlgMsg').close(); toast(`ส่งข้อความถึงคุณ${msgTo.name}แล้ว`);
-});
-$$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target.closest('[data-close]') || e.target === d) d.close(); }));
 
 /* ======================================================================
-   ROUTER
+   FAMILY POST (job_posts + job_post_case_needs + job_post_locations + photos)
    ====================================================================== */
-const SCREENS = { home: 's-home', caregiver: 's-caregiver', profile: 's-profile', family: 's-family', applicants: 's-applicants' };
-function show() {
-  const name = location.hash.slice(1);
-  const key = SCREENS[name] ? name : 'home';
-  $$('.screen').forEach(s => s.classList.toggle('on', s.id === SCREENS[key]));
-  $$('.topnav [data-nav]').forEach(b => b.dataset.nav.split(' ').includes(key) ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
-  window.scrollTo(0, 0);
-  if (key === 'caregiver') renderStep(false);
-  if (key === 'profile') renderProfile();
-  if (key === 'family') renderFamily();
-  if (key === 'applicants') renderApplicants(true);
+const SAMPLE_JOB = { title: 'หาผู้ดูแลคุณแม่ติดเตียง', text: 'คุณแม่อายุ 78 ปี ติดเตียงหลังเป็นเส้นเลือดในสมอง ต้องให้อาหารทางสายยาง อยากได้คนดูแลอยู่ประจำ ช่วยพลิกตัว เช็ดตัว และจัดยาให้ตรงเวลา' };
+const jd = () => (S.jobDraft = S.jobDraft || blankJob());
+function detectNeeds() {
+  const d = jd(), t = d.patient_description.toLowerCase();
+  CASE_TYPES.forEach(c => {
+    if (d.touched.includes(c.code)) return;
+    if (c.kw.some(w => t.includes(w.toLowerCase()))) d.needs[c.code] = d.needs[c.code] || 'req';
+    else delete d.needs[c.code];
+  });
+  if (!d.arrTouched) d.work_arrangement = Object.keys(ARR).find(k => ARR[k].kw.some(w => t.includes(w))) || '';
 }
-function go(n) { if (location.hash === '#' + n) show(); else location.hash = n; }
-window.addEventListener('hashchange', show);
-document.addEventListener('click', e => {
-  const b = e.target.closest('[data-go]'); if (!b) return;
-  e.preventDefault();
-  if (b.dataset.go === 'caregiver' && !location.hash.startsWith('#caregiver')) step = 1;
-  go(b.dataset.go);
+function needChipsHTML() {
+  const d = jd();
+  return CASE_TYPES.map(c => { const s = d.needs[c.code];
+    return `<button type="button" class="chip fam ${s || ''}" data-need="${c.code}" aria-label="${c.label}: ${s === 'req' ? 'จำเป็น' : s === 'opt' ? 'ถ้าทำได้ก็ดี' : 'ไม่ต้องการ'} แตะเพื่อเปลี่ยน">${ICON.check}${c.short}${s ? `<span class="st">${s === 'req' ? 'จำเป็น' : 'ถ้าได้ก็ดี'}</span>` : ''}</button>`; }).join('');
+}
+const arrOptsHTML = () => radioRow('j-arr', ARR, jd().work_arrangement, 'fam');
+const photoThumbs = () => jd().photos.map((src, i) => `<div class="thumb"><img src="${src}" alt="รูปที่ ${i + 1}"><button type="button" class="rm" data-rmphoto="${i}" aria-label="ลบรูปที่ ${i + 1}">×</button></div>`).join('');
+
+function renderFamPost() {
+  const d = jd();
+  $('#j-submit').textContent = d.editingId ? 'บันทึกการแก้ไข' : 'ประกาศงานและดูผู้ดูแล';
+  $('#famBody').innerHTML = `
+    <h1 class="step-h" tabindex="-1">${d.editingId ? 'แก้ไขประกาศงาน' : 'เล่าให้เราฟังว่าต้องการให้ช่วยอะไร'}</h1>
+    <p class="step-sub">เขียนแบบที่พูดปกติได้เลย ไม่ต้องใช้ศัพท์ทางการ</p>
+    <div class="field"><label for="j-title">ชื่อประกาศ</label><input id="j-title" class="text" data-j="title" maxlength="150" placeholder="เช่น หาผู้ดูแลคุณแม่ติดเตียง" value="${esc(d.title)}"><p class="err" id="e-title" hidden>ตั้งชื่อประกาศสั้นๆ</p></div>
+    <div class="field"><label for="j-text">อาการและสิ่งที่ต้องการ</label>
+      <textarea id="j-text" class="text" data-j="patient_description" rows="5" placeholder="เช่น คุณแม่อายุ 78 ปี ติดเตียง ต้องให้อาหารทางสายยาง อยากได้คนดูแลอยู่ประจำ">${esc(d.patient_description)}</textarea>
+      <p class="err" id="e-text" hidden>เล่าอาการหรือสิ่งที่ต้องการอย่างน้อย 1 ประโยค</p>
+      <button type="button" class="linkbtn" id="j-example" style="align-self:flex-start">ใส่ข้อความตัวอย่าง</button></div>
+    <div class="panel">
+      <p class="panel-h">${ICON.spark}สิ่งที่ระบบเข้าใจจากข้อความ</p>
+      <p class="muted small">ระบบเลือกให้จากสิ่งที่คุณเขียน แตะเพื่อเปลี่ยน: จำเป็น → ถ้าได้ก็ดี → เอาออก</p>
+      <div class="legend"><span><i style="background:var(--f)"></i>จำเป็น</span><span><i style="background:var(--f-soft);border:1.5px dashed var(--f)"></i>ถ้าทำได้ก็ดี</span></div>
+      <div class="chips" id="j-needs" role="group" aria-label="ความต้องการในการดูแล">${needChipsHTML()}</div>
+      <p class="err" id="e-needs" hidden>เลือกอย่างน้อย 1 ข้อ เพื่อให้ระบบหาผู้ดูแลที่ตรงกับงาน</p>
+      <fieldset class="fs" style="margin-top:20px"><legend class="lbl">รูปแบบงาน</legend><div id="j-arrwrap">${arrOptsHTML()}</div></fieldset>
+      <p class="err" id="e-arr2" hidden>เลือกรูปแบบงาน</p>
+    </div>
+    <div class="grid2" style="margin-top:22px">
+      <div class="field"><label for="j-age">อายุผู้ป่วย (ปี)</label><input id="j-age" class="text" inputmode="numeric" data-j="patient_age" data-num value="${esc(d.patient_age)}"></div>
+      <div class="field"><label for="j-pg">เพศผู้ป่วย</label><select id="j-pg" class="text" data-j="patient_gender"><option value="">ไม่ระบุ</option><option value="female" ${d.patient_gender === 'female' ? 'selected' : ''}>หญิง</option><option value="male" ${d.patient_gender === 'male' ? 'selected' : ''}>ชาย</option><option value="other" ${d.patient_gender === 'other' ? 'selected' : ''}>อื่นๆ</option></select></div>
+    </div>
+    <div class="field"><label for="j-dist">พื้นที่ (เขต / อำเภอ)</label><select id="j-dist" class="text" data-j="district">${districtOptions(d.district)}</select><p class="err" id="e-dist2" hidden>เลือกเขตเพื่อคำนวณระยะทางกับผู้ดูแล</p></div>
+    <div class="hint p">${ICON.shield}<span>ผู้ดูแลจะเห็นแค่เขตและระยะทาง ที่อยู่ละเอียดคุณบอกเองหลังจับคู่สำเร็จ</span></div>
+    <fieldset class="fs block"><legend class="lbl">ค่าจ้างที่ให้</legend>${radioRow('j-unit', UNIT, d.wage_unit, 'fam')}</fieldset>
+    <div class="grid2" style="margin-top:14px">
+      <div class="field"><label for="j-wmin">ต่ำสุด (บาท)</label><input id="j-wmin" class="text" inputmode="numeric" data-j="wage_min" data-num value="${esc(d.wage_min)}" placeholder="ไม่บังคับ"></div>
+      <div class="field"><label for="j-wmax">สูงสุด (บาท)</label><input id="j-wmax" class="text" inputmode="numeric" data-j="wage_max" data-num value="${esc(d.wage_max)}" placeholder="ไม่บังคับ"></div>
+    </div>
+    <p class="err" id="e-wage2" hidden>ค่าจ้างสูงสุดต้องไม่น้อยกว่าค่าจ้างต่ำสุด</p>
+    <div class="field"><label for="j-start">วันที่อยากให้เริ่มงาน</label><input id="j-start" class="text" type="date" data-j="start_date" value="${esc(d.start_date)}"></div>
+    <fieldset class="fs block"><legend class="lbl">เพศผู้ดูแลที่ต้องการ</legend>${radioRow('j-pcg', { any: 'ไม่จำกัด', female: 'หญิง', male: 'ชาย' }, d.preferred_caregiver_gender, 'fam')}</fieldset>
+    <div class="field block"><span class="lbl">รูปผู้ป่วยหรือสภาพห้อง <span class="opt-l">(ไม่บังคับ สูงสุด 3 รูป)</span></span>
+      <label class="drop" style="margin-top:4px"><input type="file" id="j-photo" accept="image/*" multiple class="sr">${ICON.upload}<b>แตะเพื่อถ่ายรูปหรือเลือกรูป</b><small class="muted">ช่วยให้ผู้ดูแลเห็นภาพงานชัดขึ้น</small></label>
+      <div class="thumbs" id="j-thumbs">${photoThumbs()}</div></div>`;
+  $('#j-cancel').textContent = openJobs().length ? 'กลับ' : 'ยกเลิก';
+  $('#famBody .step-h').focus({ preventScroll: true });
+}
+let detT;
+$('#famBody').addEventListener('input', e => {
+  const t = e.target, d = jd();
+  if (!t.dataset.j || t.tagName === 'SELECT') return;
+  d[t.dataset.j] = 'num' in t.dataset ? num(t.value) : t.value;
+  if ('num' in t.dataset) t.value = d[t.dataset.j];
+  if (t.id === 'j-text') {
+    if (t.value.trim()) $('#e-text').hidden = true;
+    clearTimeout(detT);
+    detT = setTimeout(() => { detectNeeds(); $('#j-needs').innerHTML = needChipsHTML(); $('#j-arrwrap').innerHTML = arrOptsHTML(); save(); }, 250);
+  }
+  if (t.id === 'j-title' && t.value.trim()) $('#e-title').hidden = true;
+  save();
+});
+$('#famBody').addEventListener('change', e => {
+  const t = e.target, d = jd();
+  if (t.tagName === 'SELECT' && t.dataset.j) { d[t.dataset.j] = t.value; if (t.dataset.j === 'district') { d.province = (districtOf(t.value) || {}).p || ''; $('#e-dist2').hidden = !!t.value; } }
+  if (t.name === 'j-arr') { d.work_arrangement = t.value; d.arrTouched = true; $('#e-arr2').hidden = true; }
+  if (t.name === 'j-unit') d.wage_unit = t.value;
+  if (t.name === 'j-pcg') d.preferred_caregiver_gender = t.value;
+  if (t.id === 'j-photo') { addPhotos([...t.files]); t.value = ''; }
+  save();
+});
+$('#famBody').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const d = jd();
+  if (b.id === 'j-example') {
+    Object.assign(d, { title: d.title || SAMPLE_JOB.title, patient_description: SAMPLE_JOB.text, patient_age: d.patient_age || 78, patient_gender: d.patient_gender || 'female', touched: [], needs: {}, arrTouched: false });
+    detectNeeds(); save(); renderFamPost();
+  }
+  if (b.dataset.need) {
+    const k = b.dataset.need, s = d.needs[k];
+    if (!s) d.needs[k] = 'req'; else if (s === 'req') d.needs[k] = 'opt'; else delete d.needs[k];
+    d.touched = [...new Set([...d.touched, k])];
+    $('#j-needs').innerHTML = needChipsHTML();
+    const nb = $(`#j-needs [data-need="${k}"]`); if (nb) nb.focus();
+    if (Object.keys(d.needs).length) $('#e-needs').hidden = true;
+    save();
+  }
+  if ('rmphoto' in b.dataset) { d.photos.splice(Number(b.dataset.rmphoto), 1); $('#j-thumbs').innerHTML = photoThumbs(); save(); }
+});
+async function addPhotos(files) {
+  const d = jd(), room = 3 - d.photos.length;
+  if (room <= 0) { toast('แนบได้สูงสุด 3 รูป ลบรูปเดิมก่อนเพิ่มใหม่'); return; }
+  if (files.length > room) toast(`แนบเพิ่มได้อีก ${room} รูป ระบบเลือก ${room} รูปแรกให้`);
+  for (const f of files.slice(0, room)) {
+    if (!f.type.startsWith('image/')) continue;
+    try { d.photos.push(await shrink(f)); } catch (e) { toast('เปิดรูปนี้ไม่ได้ ลองเลือกรูปอื่น'); }
+  }
+  $('#j-thumbs').innerHTML = photoThumbs(); save();
+}
+$('#j-cancel').addEventListener('click', () => { S.jobDraft = null; save(); go(openJobs().length ? 'fam-deck' : 'home'); });
+$('#j-submit').addEventListener('click', () => {
+  const d = jd();
+  const fail = (id, focusSel) => { $('#' + id).hidden = false; const el = $(focusSel); if (el) { el.focus(); el.scrollIntoView({ block: 'center' }); } return true; };
+  if (!d.title.trim() && fail('e-title', '#j-title')) return;
+  if (!d.patient_description.trim() && fail('e-text', '#j-text')) return;
+  if (!Object.keys(d.needs).length && fail('e-needs', '#j-needs .chip')) return;
+  if (!d.work_arrangement && fail('e-arr2', 'input[name="j-arr"]')) return;
+  if (!d.district && fail('e-dist2', '#j-dist')) return;
+  if (d.wage_min !== '' && d.wage_max !== '' && d.wage_max < d.wage_min && fail('e-wage2', '#j-wmax')) return;
+  const fields = { title: d.title.trim(), patient_description: d.patient_description.trim(), patient_age: d.patient_age || null, patient_gender: d.patient_gender || null,
+    work_arrangement: d.work_arrangement, province: d.province, district: d.district, start_date: d.start_date || null, wage_min: d.wage_min || null, wage_max: d.wage_max || null,
+    wage_unit: d.wage_unit, preferred_caregiver_gender: d.preferred_caregiver_gender, needs: Object.entries(d.needs).map(([code, s]) => ({ code, is_required: s === 'req' })), photos: d.photos };
+  let job;
+  if (d.editingId) { job = S.jobs.find(j => j.id === d.editingId); Object.assign(job, fields, { updated_at: nowISO() }); toast('บันทึกการแก้ไขแล้ว'); }
+  else {
+    job = Object.assign({ id: uid(), status: 'open', expires_at: new Date(Date.now() + 30 * 864e5).toISOString(), created_at: nowISO() }, fields);
+    S.jobs.unshift(job);
+    /* จำลอง: ผู้ดูแลตัวอย่างบางคนกดสนใจงานใหม่ทันที → trigger matches_after_write สร้าง notification 'interest_received' */
+    api.candidateCaregivers(job.id, null).filter(c => c.caregiver_liked && c.sample).forEach(c =>
+      notify('family', 'interest_received', 'มีผู้ดูแลสนใจงานของคุณ', `คุณ${c.display_name} สนใจงาน "${job.title}"`));
+    toast('ประกาศงานแล้ว');
+  }
+  S.activeJobId = job.id; S.jobDraft = null; save();
+  go('fam-deck');
+});
+
+/* ======================================================================
+   FAMILY DECK
+   ====================================================================== */
+let famKm = null;
+const activeJob = () => { const js = openJobs(); return js.find(j => j.id === S.activeJobId) || js[0] || null; };
+function scoreHTML(s) { return `<div class="score" aria-label="ความเหมาะสม ${s}%"><b>${s}%</b><small>เหมาะสม</small><span class="bar"><span style="width:${s}%"></span></span></div>`; }
+function cgCardHTML(c, i, cls = '') {
+  const f = c.fit, av = ['', 'b', 'c'][i % 3];
+  const verified = c.certs.some(x => x.verification_status === 'verified');
+  return `<article class="swcard ${cls}" data-id="${c.id}" aria-label="ผู้ดูแล คุณ${esc(c.display_name)} ความเหมาะสม ${f.score}%">
+    <span class="sw-stamp like" aria-hidden="true">สนใจ</span><span class="sw-stamp pass" aria-hidden="true">ผ่าน</span>
+    ${c.caregiver_liked ? `<span class="flag">${ICON.heart} สนใจงานของคุณแล้ว</span>` : ''}
+    <div class="cgc-top"><span class="av ${av}">${esc(initials(c.display_name))}</span>
+      <div class="who"><div class="nm">คุณ${esc(c.display_name)}</div><div class="muted small">${c.care_roles.map(r => CARE_ROLES[r].label).join(', ')}, ${yearsText(c.years_experience)}</div></div>
+      ${scoreHTML(f.score)}</div>
+    <div class="meta"><span>${ICON.pin}${esc(c.home_district)}${c.distance_km != null ? ' · ' + kmText(c.distance_km) : ''}</span><span>${ICON.home}${c.work_arrangements.map(a => ARR[a].label).join(', ')}</span></div>
+    <div class="tags"><span class="tag n">${wageText(c.expected_wage_min, c.expected_wage_max, c.wage_unit)}</span>${c.certs.length ? `<span class="tag ${verified ? '' : 'g'}">${ICON.shield} ${verified ? 'มีใบรับรอง' : 'ใบรับรองรอตรวจสอบ'}</span>` : ''}${c.sample ? '<span class="tag n">ข้อมูลตัวอย่าง</span>' : ''}${c.mine ? '<span class="tag f">โปรไฟล์ของคุณเอง</span>' : ''}</div>
+    <div class="ai-box"><span class="ai-l">${ICON.spark} สรุปโดย AI</span><p>${esc(c.summary)}</p></div>
+    ${f.pros.length ? `<div><h3>ทำไมถึงเหมาะ</h3><ul class="checks">${f.pros.slice(0, 3).map(p => `<li>${ICON.tick}<span>${esc(p)}</span></li>`).join('')}</ul></div>` : ''}
+    <p class="canline">ทำได้ ${f.met.length} จาก ${f.req.length} ข้อที่จำเป็น</p>
+    <button type="button" class="linkbtn" data-cgdetail="${c.id}" style="align-self:flex-start">ดูรายละเอียดทั้งหมด</button>
+  </article>`;
+}
+function renderFamDeck() {
+  const job = activeJob(); if (!job) { go('fam-post'); return; }
+  S.activeJobId = job.id;
+  const js = openJobs();
+  $('#deckHead').innerHTML = `
+    ${js.length > 1 ? `<label><span class="sr">เลือกประกาศงาน</span><select id="jobSel" class="select">${js.map(j => `<option value="${j.id}" ${j.id === job.id ? 'selected' : ''}>${esc(j.title)}</option>`).join('')}</select></label>` : ''}
+    <h1 id="deckTitle" tabindex="-1">${esc(job.title)}</h1>
+    <div class="tags">${job.needs.map(n => `<span class="tag ${n.is_required ? 'f' : 'o'}">${CT[n.code].short}</span>`).join('')}<span class="tag f">${ARR[job.work_arrangement].label}</span><span class="tag n">${ICON.pin}${esc(job.district)}</span></div>
+    <div class="deck-tools">
+      <span class="muted small" id="famCount"></span>
+      <span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <label><span class="sr">ระยะทางสูงสุด</span><select id="famKm" class="select">${[[null, 'ทุกระยะทาง'], [5, 'ไม่เกิน 5 กม.'], [10, 'ไม่เกิน 10 กม.'], [20, 'ไม่เกิน 20 กม.'], [30, 'ไม่เกิน 30 กม.']].map(([v, l]) => `<option value="${v ?? ''}" ${String(v ?? '') === String(famKm ?? '') ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+        <button type="button" class="linkbtn" id="editJob">${ICON.pen} แก้ไขงาน</button>
+      </span>
+    </div>
+    <p class="fine">หมดอายุ ${fmtDate(job.expires_at)} · คนที่ไม่ตรงรูปแบบงาน เพศที่ต้องการ หรือค่าจ้างเกินงบมาก จะถูกคัดออกให้อัตโนมัติ</p>`;
+  const rows = api.candidateCaregivers(job.id, famKm);
+  $('#famCount').textContent = rows.length ? `เหลือ ${rows.length} คน` : '';
+  $('#famDeck').innerHTML = rows.length
+    ? [rows[1] && cgCardHTML(rows[1], 1, 'next'), cgCardHTML(rows[0], 0)].filter(Boolean).join('')
+    : `<div class="empty"><b>ดูผู้ดูแลครบแล้ว</b><span>${famKm ? 'ลองขยายระยะทางเพื่อดูผู้ดูแลเพิ่ม' : 'เราจะแจ้งเตือนเมื่อมีผู้ดูแลใหม่ในพื้นที่หรือมีคนสนใจงานของคุณ'}</span><span style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">${famKm ? '<button type="button" class="btn btn-o" id="widenKm">ดูทุกระยะทาง</button>' : ''}<button type="button" class="btn btn-o" data-go="matches">ดูรายการที่จับคู่แล้ว</button></span></div>`;
+  $$('#famActions .rbtn').forEach(b => b.disabled = !rows.length);
+  $('#famHint').hidden = !rows.length;
+  const fav = $('#famActions [data-act="fav"]');
+  const topId = rows[0] && rows[0].id;
+  fav.setAttribute('aria-pressed', !!topId && S.favorites.includes(topId));
+  const top = $('#famDeck .swcard:not(.next)');
+  if (top) attachSwipe(top, d => flyOut(top, d, () => onFamDecide(top.dataset.id, d)));
+  save();
+}
+function onFamDecide(cgId, d) {
+  const job = activeJob();
+  const m = api.swipe('family', job.id, cgId, d);
+  const c = allCaregivers().find(x => x.id === cgId);
+  if (m.matched_at) showMatch(`คุณกับคุณ${c.display_name}สนใจกัน ดูเบอร์โทรและ LINE แล้วคุยรายละเอียดกันต่อได้เลย`);
+  else if (d === 'like') toast(`ส่งความสนใจถึงคุณ${c.display_name}แล้ว`);
+  renderFamDeck(); renderNav(current);
+}
+$('#famActions').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  if (b.dataset.act === 'fav') {
+    const top = $('#famDeck .swcard:not(.next)'); if (!top) return;
+    const id = top.dataset.id, on = !S.favorites.includes(id);
+    S.favorites = on ? [...S.favorites, id] : S.favorites.filter(x => x !== id);   // favorites (family_id, caregiver_id)
+    b.setAttribute('aria-pressed', on); save();
+    toast(on ? 'บันทึกในรายการโปรดแล้ว' : 'เอาออกจากรายการโปรดแล้ว');
+    return;
+  }
+  decideTop('#famDeck', b.dataset.act, onFamDecide);
+});
+$('#deckHead').addEventListener('change', e => {
+  if (e.target.id === 'jobSel') { S.activeJobId = e.target.value; famKm = null; renderFamDeck(); }
+  if (e.target.id === 'famKm') { famKm = e.target.value === '' ? null : Number(e.target.value); renderFamDeck(); }
+});
+$('#s-fam-deck').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.id === 'editJob') {
+    const j = activeJob();
+    S.jobDraft = Object.assign(blankJob(), j, { needs: Object.fromEntries(j.needs.map(n => [n.code, n.is_required ? 'req' : 'opt'])), touched: j.needs.map(n => n.code), arrTouched: true, editingId: j.id,
+      patient_age: j.patient_age || '', wage_min: j.wage_min || '', wage_max: j.wage_max || '', start_date: j.start_date || '', patient_gender: j.patient_gender || '' });
+    save(); go('fam-post');
+  }
+  if (b.id === 'widenKm') { famKm = null; renderFamDeck(); }
+  if (b.dataset.cgdetail) openCgDetail(b.dataset.cgdetail);
+});
+function openCgDetail(cgId) {
+  const job = activeJob();
+  const base = allCaregivers().find(x => x.id === cgId); if (!base) return;
+  const f = fitFor(base, job), c = Object.assign({}, base, { fit: f, summary: mockSummary(base, job, f) });
+  const lv = l => { const ks = codesAt(c.skills, [l]); return ks.length ? `<p class="small muted" style="margin:8px 0 6px">${COMFORT[l].label}</p><div class="tags">${ks.map(k => `<span class="tag ${l === 'experienced' ? '' : l === 'trained' ? 'n' : 'o'}">${CT[k].short}</span>`).join('')}</div>` : ''; };
+  openDetail(`คุณ${c.display_name}`, `
+    <div class="cgc-top"><span class="av">${esc(initials(c.display_name))}</span><div class="who"><div class="nm">คุณ${esc(c.display_name)}</div><div class="muted small">${c.care_roles.map(r => CARE_ROLES[r].label).join(', ')}, ${yearsText(c.years_experience)}</div></div>${scoreHTML(f.score)}</div>
+    <div class="ai-box"><span class="ai-l">${ICON.spark} สรุปโดย AI</span><p>${esc(c.summary)}</p></div>
+    <section><h3>ทำไมถึงเหมาะกับงานนี้</h3><ul class="checks">${(f.pros.length ? f.pros : ['ยังไม่พบจุดที่ตรงกับความต้องการที่ระบุ']).map(p => `<li>${ICON.tick}<span>${esc(p)}</span></li>`).join('')}</ul></section>
+    ${f.cons.length ? `<div class="warn">${ICON.info}<div><b>ควรสอบถามเพิ่ม</b><ul>${f.cons.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>` : ''}
+    ${(c.profile_text || c.sample) ? `<section><h3>โปรไฟล์</h3><p style="line-height:1.8;color:var(--body)">${esc(c.profile_text || mockWorkerProfile(c))}</p></section>` : ''}
+    <section><h3>กรณีที่ดูแลได้</h3>${lv('experienced')}${lv('trained')}${lv('willing_to_learn')}</section>
+    <section><h3>ข้อมูลอื่น</h3><div class="kv">
+      <div><span class="k">พื้นที่</span><span class="v">${esc(c.home_district)}${f.distance_km != null ? ' · ' + kmText(f.distance_km) : ''}</span></div>
+      <div><span class="k">รูปแบบงาน</span><span class="v">${c.work_arrangements.map(a => ARR[a].label).join(', ')}</span></div>
+      <div><span class="k">ค่าจ้างที่คาดหวัง</span><span class="v">${wageText(c.expected_wage_min, c.expected_wage_max, c.wage_unit)}</span></div>
+      <div><span class="k">ใบรับรอง</span><span class="v">${c.certs.length ? c.certs.map(x => `${esc(x.title)} (${x.verification_status === 'verified' ? 'ยืนยันแล้ว' : 'รอตรวจสอบ'})`).join(', ') : 'ยังไม่มี'}</span></div>
+    </div></section>
+    <div id="fbWrap"><button type="button" class="linkbtn" id="fbOpen">สรุปนี้ไม่ตรงกับข้อมูล? แจ้งเรา</button></div>
+    <p class="fine">คะแนนและสรุปสร้างอัตโนมัติเพื่อช่วยตัดสินใจ โปรดพูดคุยและตรวจสอบข้อมูลก่อนจ้างงาน</p>`);
+  $('#fbOpen').onclick = () => {
+    $('#fbWrap').innerHTML = `<div class="panel" style="margin-top:0"><span class="lbl">สรุปนี้ช่วยคุณได้แค่ไหน</span>${rateHTML('fb-rate', null)}
+      <div class="field" style="margin-top:14px"><label for="fb-text">อะไรไม่ถูกต้อง <span class="opt-l">(ไม่บังคับ)</span></label><textarea id="fb-text" class="text" rows="3" style="min-height:96px"></textarea></div>
+      <button type="button" class="btn btn-p" id="fbSend" style="margin-top:12px">ส่งความคิดเห็น</button></div>`;
+    $('#fbSend').onclick = () => {
+      const r = ($('input[name="fb-rate"]:checked') || {}).value, t = $('#fb-text').value.trim();
+      if (!r && !t) { toast('ให้คะแนนหรือพิมพ์ความคิดเห็นก่อนส่ง'); return; }
+      S.feedback.push({ id: uid(), role: 'family', target_type: 'applicant_summary', target_caregiver: cgId, original_text: c.summary, rating: r ? Number(r) : null, comment: t || null, created_at: nowISO() });
+      save(); $('#fbWrap').innerHTML = `<p class="small" style="color:var(--p-d);font-weight:600">${ICON.tick} ขอบคุณสำหรับความคิดเห็น</p>`;
+    };
+  };
+}
+
+/* ======================================================================
+   MATCHES
+   ====================================================================== */
+function contactHTML(ct) {
+  if (!ct) return '';
+  return `<div class="contact">${ct.phone ? `<a class="btn btn-p" href="tel:${esc(ct.phone.replace(/[^\d+]/g, ''))}">${ICON.phone} โทร ${esc(ct.phone)}</a>` : ''}${ct.line_id ? `<span class="btn btn-o" style="cursor:default">${ICON.chat} LINE: ${esc(ct.line_id)}</span>` : ''}${!ct.phone && !ct.line_id ? '<span class="muted small">อีกฝ่ายยังไม่ได้ใส่ช่องทางติดต่อ</span>' : ''}</div>`;
+}
+function renderMatches() {
+  const side = S.role;
+  const mine = S.matches.filter(m => m.side === side);
+  const matched = mine.filter(m => m.matched_at).sort((a, b) => b.matched_at.localeCompare(a.matched_at));
+  const pending = mine.filter(m => !m.matched_at && (side === 'family' ? m.family_decision : m.caregiver_decision) === 'like');
+  const jobOf = m => side === 'family' ? S.jobs.find(j => j.id === m.job_post_id) : SEED_JOBS.find(j => j.id === m.job_post_id);
+  const cgOf = m => allCaregivers().find(c => c.id === m.caregiver_id) || {};
+  const name = m => side === 'family' ? 'คุณ' + cgOf(m).display_name : (jobOf(m) || {}).family.display_name;
+  const card = (m, hl) => { const j = jobOf(m) || {}; return `<article class="mcard ${hl ? 'hl' : ''}">
+      <div class="mrow"><div class="person"><span class="av ${side === 'family' ? '' : 'b'}">${esc(initials(name(m).replace(/^คุณ/, '')))}</span><div><div class="nm" style="font-size:18px">${esc(name(m))}</div><div class="muted small">งาน: ${esc(j.title || '')}</div></div></div>
+      ${hl ? `<span class="tag">${ICON.heart} จับคู่ ${fmtDate(m.matched_at)}</span>` : '<span class="tag n">รออีกฝ่ายตอบ</span>'}</div>
+      ${hl ? contactHTML(api.getMatchContact(m)) : ''}
+    </article>`; };
+  const favs = side === 'family' ? allCaregivers().filter(c => S.favorites.includes(c.id)) : [];
+  $('#matchBody').innerHTML = `
+    <h1 tabindex="-1">จับคู่แล้ว</h1>
+    <p class="muted" style="margin-top:6px">สนใจกันทั้งสองฝ่ายแล้วจะเห็นเบอร์โทรและ LINE คุย ตกลงงาน และค่าจ้างกันเองนอกแพลตฟอร์ม</p>
+    <h2>จับคู่สำเร็จ (${matched.length})</h2>
+    ${matched.length ? `<div class="mlist">${matched.map(m => card(m, true)).join('')}</div>` : `<div class="empty"><b>ยังไม่มีการจับคู่</b><span>${side === 'family' ? 'ปัดขวาผู้ดูแลที่สนใจ ถ้าเขาสนใจงานคุณด้วย จะขึ้นที่นี่' : 'ปัดขวางานที่สนใจ ถ้าครอบครัวสนใจคุณด้วย จะขึ้นที่นี่'}</span><button type="button" class="btn btn-o" data-go="${side === 'family' ? 'fam-deck' : 'cg-feed'}">${side === 'family' ? 'ดูผู้ดูแล' : 'ดูงาน'}</button></div>`}
+    ${pending.length ? `<h2>รอ${side === 'family' ? 'ผู้ดูแล' : 'ครอบครัว'}ตอบรับ (${pending.length})</h2><div class="mlist">${pending.map(m => card(m, false)).join('')}</div>` : ''}
+    ${side === 'family' ? `<h2>รายการโปรด (${favs.length})</h2>${favs.length ? `<div class="mlist">${favs.map(c => `<article class="mcard"><div class="mrow"><div class="person"><span class="av c">${esc(initials(c.display_name))}</span><div><div class="nm" style="font-size:18px">คุณ${esc(c.display_name)}</div><div class="muted small">${c.care_roles.map(r => CARE_ROLES[r].label).join(', ')}, ${esc(c.home_district)}</div></div></div><button type="button" class="linkbtn" data-unfav="${c.id}">เอาออก</button></div></article>`).join('')}</div>` : '<p class="muted">กดดาวบนการ์ดผู้ดูแลเพื่อเก็บไว้ดูทีหลัง</p>'}` : ''}
+    <div class="cta-card"><div><b>ใช้งานเป็นอย่างไรบ้าง</b><p class="muted small">ให้คะแนนสั้นๆ 3 ข้อ ช่วยให้เราปรับปรุงได้</p></div><button type="button" class="btn btn-p" id="revFromMatch">${S.reviews[side] ? 'แก้ไขคะแนน' : 'ให้คะแนน'}</button></div>`;
+  $('#matchBody h1').focus({ preventScroll: true });
+}
+$('#matchBody').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.unfav) { S.favorites = S.favorites.filter(x => x !== b.dataset.unfav); save(); renderMatches(); }
+  if (b.id === 'revFromMatch') openReview();
+});
+
+/* ======================================================================
+   DIALOGS: detail, notifications, platform review
+   ====================================================================== */
+function openDetail(title, html) { $('#detTitle').textContent = title; $('#detBody').innerHTML = html; $('#dlgDetail').showModal(); }
+$$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target.closest('[data-close]') || e.target === d) d.close(); }));
+$('#detBody').addEventListener('click', e => { if (e.target.closest('[data-go]')) $('#dlgDetail').close(); });
+
+$('#bellBtn').addEventListener('click', () => {
+  const ns = S.notifications.filter(n => n.role === S.role);
+  $('#notifBody').innerHTML = ns.length ? `<ul class="nlist">${ns.map(n => `<li class="${n.read_at ? '' : 'unread'}"><b>${esc(n.title)}</b><span class="small" style="color:var(--body)">${esc(n.body)}</span><span class="small muted">${new Date(n.created_at).toLocaleString('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span></li>`).join('')}</ul>${ns.some(n => n.type === 'match') ? '<button type="button" class="btn btn-p" data-go="matches">ดูรายการที่จับคู่แล้ว</button>' : ''}`
+    : '<p class="muted">ยังไม่มีการแจ้งเตือน</p>';
+  $('#dlgNotif').showModal();
+  ns.forEach(n => { if (!n.read_at) n.read_at = nowISO(); });   // notifications.read_at
+  save(); renderNav(current);
+});
+$('#notifBody').addEventListener('click', e => { if (e.target.closest('[data-go]')) $('#dlgNotif').close(); });
+
+const rateHTML = (name, sel) => `<div class="rate" role="radiogroup">${[1, 2, 3, 4, 5].map(v => `<label><input type="radio" name="${name}" value="${v}" ${Number(sel) === v ? 'checked' : ''}><span>${v}</span></label>`).join('')}</div><div class="rate-k"><span>น้อยที่สุด</span><span>มากที่สุด</span></div>`;
+function openReview() {
+  const r = S.reviews[S.role] || {};
+  const q = [['ease_of_use', 'ใช้งานง่ายแค่ไหน'], ['ui_design', 'หน้าตาแอปดูเข้าใจง่ายแค่ไหน'], ['ai_summary_quality', S.role === 'family' ? 'สรุปผู้ดูแลโดย AI มีประโยชน์แค่ไหน' : 'โปรไฟล์ที่ระบบสร้างให้ตรงกับตัวคุณแค่ไหน']];
+  $('#revBody').innerHTML = `${q.map(([k, l]) => `<fieldset class="fs"><legend class="lbl">${l}</legend>${rateHTML('rv-' + k, r[k])}</fieldset>`).join('')}
+    <div class="field" style="margin-top:0"><label for="rv-c">อยากบอกอะไรเพิ่ม <span class="opt-l">(ไม่บังคับ)</span></label><textarea id="rv-c" class="text" rows="3" maxlength="1000" style="min-height:96px">${esc(r.comment || '')}</textarea></div>
+    <p class="err" id="e-rv" hidden>ให้คะแนนให้ครบทั้ง 3 ข้อ</p>
+    <div class="dlg-actions"><button type="button" class="btn btn-o" data-close>ไว้ทีหลัง</button><button type="button" class="btn btn-p" id="rvSave">ส่งคะแนน</button></div>`;
+  $('#dlgReview').showModal();
+  $('#rvSave').onclick = () => {
+    const v = Object.fromEntries(q.map(([k]) => [k, Number(($(`input[name="rv-${k}"]:checked`) || {}).value || 0)]));
+    if (Object.values(v).some(x => !x)) { $('#e-rv').hidden = false; return; }
+    S.reviews[S.role] = Object.assign(v, { comment: $('#rv-c').value.trim() || null, updated_at: nowISO() });   // platform_reviews (1 แถวต่อผู้ใช้)
+    save(); $('#dlgReview').close(); toast('ขอบคุณสำหรับคะแนน');
+    if (current === 'matches') renderMatches();
+  };
+}
+$('#openReview').addEventListener('click', openReview);
+
+/* ---------- demo controls ---------- */
+$('#switchRole').addEventListener('click', () => {
+  const other = S.role === 'family' ? 'caregiver' : 'family';
+  if (S.users[other]) { S.role = other; save(); go(homeFor()); toast(`สลับเป็นฝั่ง${other === 'family' ? 'ครอบครัว' : 'ผู้ดูแล'}แล้ว`); }
+  else { pendingRole = other; go('signup'); }
 });
 $('#resetDemo').addEventListener('click', () => {
-  ['jg_cg_draft', 'jg_my_profile', 'jg_caregivers', 'jg_job', 'jg_msgs'].forEach(store.del);
-  cg = { name: '', phone: '', area: '', role: 'na', years: 1, cases: [], work: 'live', certs: [], noCert: false };
-  job = { text: '', area: '', budget: '', start: '', needs: [], work: '', posted: false, add: [], remove: [], manualWork: '' };
-  cmp.clear(); selId = null; step = 1;
+  if (!confirm('ล้างข้อมูลทดลองทั้งหมดในเบราว์เซอร์นี้?')) return;
+  store.clear(); S = blankState(); cgStep = 1; feedKm = null; famKm = null;
   go('home'); toast('ล้างข้อมูลทดลองแล้ว');
 });
+
 show();
 </script>
 </body>

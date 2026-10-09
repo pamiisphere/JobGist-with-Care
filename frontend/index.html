@@ -163,6 +163,15 @@ textarea.text{padding:14px 16px;line-height:1.7;resize:vertical;min-height:150px
 .chip .ck{display:none}
 .chip[aria-pressed="true"]{background:var(--p);border-color:var(--p);color:#fff}
 .chip[aria-pressed="true"] .ck{display:inline}
+.cgroup{margin-top:22px}
+.cgroup .chips{margin-top:10px}
+.field.other{margin-top:26px;padding-top:20px;border-top:1px dashed var(--line-2)}
+.field.other .muted{margin-top:-2px}
+.cg-h{font-size:14px;font-weight:700;color:var(--muted);letter-spacing:.01em}
+.chip.learn[aria-pressed="true"]{background:var(--p-soft);border-color:var(--p);border-style:dashed;color:var(--p-d)}
+.learnbox{margin-top:30px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 18px 18px}
+.learnbox summary{cursor:pointer;font-weight:600;min-height:48px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-top:12px;list-style-position:inside}
+.learnbox summary:focus-visible{outline:3px solid var(--lilac);outline-offset:2px;border-radius:8px}
 .chip.fam:hover{border-color:var(--f)}
 .chip.fam.req{background:var(--f);border-color:var(--f);color:#fff}
 .chip.fam.opt{background:var(--f-soft);border-color:var(--f);border-style:dashed;color:var(--f-ink)}
@@ -656,19 +665,44 @@ const ICON = {
 /* ======================================================================
    คำศัพท์กลาง — ตรงกับ check constraint และตาราง case_types ใน schema
    ====================================================================== */
+/* แบ่ง 3 หมวดให้หาง่าย — 12 รหัสแรกมีอยู่แล้วใน schema
+   รหัสที่มี (ใหม่) ต้อง insert เพิ่มในตาราง case_types ก่อนต่อของจริง */
+const CASE_GROUPS = [
+  { id: 'daily',     label: 'กิจวัตรประจำวัน' },
+  { id: 'condition', label: 'ผู้ป่วยเฉพาะโรคหรือภาวะ' },
+  { id: 'medical',   label: 'งานพยาบาลและหัตถการ' }
+];
 const CASE_TYPES = [
-  { code: 'general_elderly',  label: 'ดูแลผู้สูงอายุทั่วไป / เป็นเพื่อน', short: 'ผู้สูงอายุทั่วไป',     verb: 'ดูแลผู้สูงอายุทั่วไป',             kw: ['ผู้สูงอายุ', 'สูงวัย', 'เป็นเพื่อน', 'อยู่คนเดียว'] },
-  { code: 'mobility_assist',  label: 'ช่วยพยุงเดิน / เคลื่อนย้าย',       short: 'พยุงเดิน / เคลื่อนย้าย', verb: 'ช่วยพยุงเดินและเคลื่อนย้าย',        kw: ['พยุง', 'เดินไม่ค่อยได้', 'เคลื่อนย้าย', 'วีลแชร์', 'รถเข็น', 'ล้มบ่อย'] },
-  { code: 'bedridden',        label: 'ผู้ป่วยติดเตียง',                  short: 'ผู้ป่วยติดเตียง',       verb: 'ดูแลผู้ป่วยติดเตียง',               kw: ['ติดเตียง', 'ลุกไม่ได้', 'พลิกตัว', 'นอนตลอด'] },
-  { code: 'feeding_tube',     label: 'ให้อาหารทางสายยาง',               short: 'ให้อาหารทางสายยาง',     verb: 'ให้อาหารทางสายยาง',                 kw: ['สายยาง', 'ทางสาย', 'ฟีดอาหาร', 'ฟีดนม', 'ให้อาหารทางสาย'] },
-  { code: 'dementia',         label: 'ภาวะสมองเสื่อม / อัลไซเมอร์',      short: 'ภาวะสมองเสื่อม',        verb: 'ดูแลผู้มีภาวะสมองเสื่อม',           kw: ['สมองเสื่อม', 'อัลไซเมอร์', 'หลงลืม', 'จำไม่ได้', 'ความจำ'] },
-  { code: 'stroke_rehab',     label: 'ฟื้นฟูผู้ป่วยหลอดเลือดสมอง',       short: 'ฟื้นฟูหลอดเลือดสมอง',   verb: 'ฟื้นฟูผู้ป่วยหลอดเลือดสมอง',        kw: ['เส้นเลือดในสมอง', 'หลอดเลือดสมอง', 'สโตรก', 'stroke', 'อัมพาต', 'อัมพฤกษ์', 'กายภาพ'] },
-  { code: 'wound_care',       label: 'ทำแผล / ดูแลแผลกดทับ',            short: 'ทำแผล / แผลกดทับ',      verb: 'ทำแผลและดูแลแผลกดทับ',             kw: ['แผลกดทับ', 'ทำแผล', 'ล้างแผล'] },
-  { code: 'suction',          label: 'ดูดเสมหะ',                        short: 'ดูดเสมหะ',              verb: 'ดูดเสมหะ',                          kw: ['ดูดเสมหะ', 'เสมหะ'] },
-  { code: 'urinary_catheter', label: 'ดูแลสายสวนปัสสาวะ',               short: 'สายสวนปัสสาวะ',         verb: 'ดูแลสายสวนปัสสาวะ',                 kw: ['สายสวน', 'สวนปัสสาวะ'] },
-  { code: 'medication',       label: 'จัดยา / ดูแลการทานยา',             short: 'จัดยา / ดูแลการทานยา',  verb: 'จัดยาและดูแลการทานยา',             kw: ['จัดยา', 'ทานยา', 'กินยา', 'ป้อนยา'] },
-  { code: 'diabetes_care',    label: 'ดูแลผู้ป่วยเบาหวาน / เจาะน้ำตาล',  short: 'เบาหวาน / เจาะน้ำตาล',  verb: 'ดูแลผู้ป่วยเบาหวานและเจาะน้ำตาล',   kw: ['เบาหวาน', 'เจาะน้ำตาล', 'อินซูลิน'] },
-  { code: 'palliative',       label: 'ดูแลผู้ป่วยระยะท้าย',              short: 'ผู้ป่วยระยะท้าย',       verb: 'ดูแลผู้ป่วยระยะท้าย',               kw: ['ระยะท้าย', 'ระยะสุดท้าย', 'ประคับประคอง'] }
+  // กิจวัตรประจำวัน
+  { g: 'daily', code: 'general_elderly',  label: 'ดูแลผู้สูงอายุทั่วไป / เป็นเพื่อน', short: 'ผู้สูงอายุทั่วไป / เป็นเพื่อน', verb: 'ดูแลผู้สูงอายุทั่วไป', kw: ['ผู้สูงอายุ', 'สูงวัย', 'เป็นเพื่อน', 'อยู่คนเดียว'] },
+  { g: 'daily', code: 'personal_hygiene', label: 'อาบน้ำ / เช็ดตัว / แต่งตัว', short: 'อาบน้ำ เช็ดตัว แต่งตัว', verb: 'ช่วยอาบน้ำ เช็ดตัว และแต่งตัว', kw: ['อาบน้ำ', 'เช็ดตัว', 'แต่งตัว', 'สระผม'] },  // ใหม่
+  { g: 'daily', code: 'toileting',        label: 'พาเข้าห้องน้ำ / เปลี่ยนผ้าอ้อม', short: 'เข้าห้องน้ำ / เปลี่ยนผ้าอ้อม', verb: 'พาเข้าห้องน้ำและเปลี่ยนผ้าอ้อม', kw: ['ผ้าอ้อม', 'แพมเพิส', 'ขับถ่าย', 'เข้าห้องน้ำ'] },  // ใหม่
+  { g: 'daily', code: 'feeding_assist',   label: 'ป้อนอาหาร', short: 'ป้อนอาหาร', verb: 'ป้อนอาหาร', kw: ['ป้อนข้าว', 'ป้อนอาหาร', 'กลืนลำบาก'] },  // ใหม่
+  { g: 'daily', code: 'meal_prep',        label: 'ทำอาหารสำหรับผู้ป่วย', short: 'ทำอาหารสำหรับผู้ป่วย', verb: 'ทำอาหารสำหรับผู้ป่วย', kw: ['ทำอาหาร', 'ทำกับข้าว', 'อาหารอ่อน', 'อาหารปั่น'] },  // ใหม่
+  { g: 'daily', code: 'mobility_assist',  label: 'ช่วยพยุงเดิน / เคลื่อนย้าย', short: 'พยุงเดิน / เคลื่อนย้าย', verb: 'ช่วยพยุงเดินและเคลื่อนย้าย', kw: ['พยุง', 'เดินไม่ค่อยได้', 'เคลื่อนย้าย', 'วีลแชร์', 'รถเข็น', 'ล้มบ่อย'] },
+  { g: 'daily', code: 'doctor_escort',    label: 'พาไปพบแพทย์', short: 'พาไปพบแพทย์', verb: 'พาผู้ป่วยไปพบแพทย์', kw: ['หาหมอ', 'พบแพทย์', 'พบหมอ', 'นัดหมอ', 'โรงพยาบาล'] },  // ใหม่
+  { g: 'daily', code: 'night_care',       label: 'เฝ้าไข้ช่วงกลางคืน', short: 'เฝ้าไข้กลางคืน', verb: 'เฝ้าไข้ช่วงกลางคืน', kw: ['กลางคืน', 'เฝ้าไข้', 'ตอนดึก'] },  // ใหม่
+  { g: 'daily', code: 'light_housework',  label: 'งานบ้านเบาๆ ในห้องผู้ป่วย', short: 'งานบ้านเบาๆ', verb: 'ทำงานบ้านเบาๆ ในห้องผู้ป่วย', kw: ['ซักผ้า', 'ทำความสะอาด', 'งานบ้าน'] },  // ใหม่
+  // ผู้ป่วยเฉพาะโรคหรือภาวะ
+  { g: 'condition', code: 'bedridden',     label: 'ผู้ป่วยติดเตียง', short: 'ผู้ป่วยติดเตียง', verb: 'ดูแลผู้ป่วยติดเตียง', kw: ['ติดเตียง', 'ลุกไม่ได้', 'พลิกตัว', 'นอนตลอด'] },
+  { g: 'condition', code: 'dementia',      label: 'ภาวะสมองเสื่อม / อัลไซเมอร์', short: 'สมองเสื่อม / อัลไซเมอร์', verb: 'ดูแลผู้มีภาวะสมองเสื่อม', kw: ['สมองเสื่อม', 'อัลไซเมอร์', 'หลงลืม', 'จำไม่ได้', 'ความจำ'] },
+  { g: 'condition', code: 'stroke_rehab',  label: 'ฟื้นฟูผู้ป่วยหลอดเลือดสมอง', short: 'หลอดเลือดสมอง (สโตรก)', verb: 'ฟื้นฟูผู้ป่วยหลอดเลือดสมอง', kw: ['เส้นเลือดในสมอง', 'หลอดเลือดสมอง', 'สโตรก', 'stroke', 'อัมพาต', 'อัมพฤกษ์'] },
+  { g: 'condition', code: 'parkinson',     label: 'ผู้ป่วยพาร์กินสัน', short: 'พาร์กินสัน', verb: 'ดูแลผู้ป่วยพาร์กินสัน', kw: ['พาร์กินสัน', 'มือสั่น'] },  // ใหม่
+  { g: 'condition', code: 'post_surgery',  label: 'ดูแลหลังผ่าตัด', short: 'ดูแลหลังผ่าตัด', verb: 'ดูแลผู้ป่วยหลังผ่าตัด', kw: ['ผ่าตัด', 'หลังผ่า'] },  // ใหม่
+  { g: 'condition', code: 'diabetes_care', label: 'ดูแลผู้ป่วยเบาหวาน / เจาะน้ำตาล', short: 'เบาหวาน / เจาะน้ำตาล', verb: 'ดูแลผู้ป่วยเบาหวานและเจาะน้ำตาล', kw: ['เบาหวาน', 'เจาะน้ำตาล', 'อินซูลิน'] },
+  { g: 'condition', code: 'kidney_care',   label: 'ผู้ป่วยโรคไต / ล้างไตทางหน้าท้อง', short: 'โรคไต / ล้างไต', verb: 'ดูแลผู้ป่วยโรคไตและล้างไตทางหน้าท้อง', kw: ['ล้างไต', 'ฟอกไต', 'โรคไต'] },  // ใหม่
+  { g: 'condition', code: 'cancer_care',   label: 'ผู้ป่วยมะเร็ง', short: 'ผู้ป่วยมะเร็ง', verb: 'ดูแลผู้ป่วยมะเร็ง', kw: ['มะเร็ง', 'คีโม', 'ฉายแสง'] },  // ใหม่
+  { g: 'condition', code: 'palliative',    label: 'ดูแลผู้ป่วยระยะท้าย', short: 'ผู้ป่วยระยะท้าย', verb: 'ดูแลผู้ป่วยระยะท้าย', kw: ['ระยะท้าย', 'ระยะสุดท้าย', 'ประคับประคอง'] },
+  // งานพยาบาลและหัตถการ
+  { g: 'medical', code: 'medication',       label: 'จัดยา / ดูแลการทานยา', short: 'จัดยา / ดูแลการทานยา', verb: 'จัดยาและดูแลการทานยา', kw: ['จัดยา', 'ทานยา', 'กินยา', 'ป้อนยา'] },
+  { g: 'medical', code: 'vital_signs',      label: 'วัดความดัน / ชีพจร / ไข้', short: 'วัดความดัน ชีพจร ไข้', verb: 'วัดความดัน ชีพจร และไข้', kw: ['วัดความดัน', 'ความดัน', 'วัดไข้', 'ชีพจร'] },  // ใหม่
+  { g: 'medical', code: 'physio_assist',    label: 'ช่วยทำกายภาพบำบัด', short: 'ช่วยทำกายภาพ', verb: 'ช่วยทำกายภาพบำบัด', kw: ['กายภาพ', 'ออกกำลังกาย', 'ยืดเหยียด'] },  // ใหม่
+  { g: 'medical', code: 'feeding_tube',     label: 'ให้อาหารทางสายยาง', short: 'ให้อาหารทางสายยาง', verb: 'ให้อาหารทางสายยาง', kw: ['สายยาง', 'ทางสาย', 'ฟีดอาหาร', 'ฟีดนม', 'ให้อาหารทางสาย'] },
+  { g: 'medical', code: 'wound_care',       label: 'ทำแผล / ดูแลแผลกดทับ', short: 'ทำแผล / แผลกดทับ', verb: 'ทำแผลและดูแลแผลกดทับ', kw: ['แผลกดทับ', 'ทำแผล', 'ล้างแผล'] },
+  { g: 'medical', code: 'suction',          label: 'ดูดเสมหะ', short: 'ดูดเสมหะ', verb: 'ดูดเสมหะ', kw: ['ดูดเสมหะ', 'เสมหะ'] },
+  { g: 'medical', code: 'urinary_catheter', label: 'ดูแลสายสวนปัสสาวะ', short: 'สายสวนปัสสาวะ', verb: 'ดูแลสายสวนปัสสาวะ', kw: ['สายสวน', 'สวนปัสสาวะ'] },
+  { g: 'medical', code: 'oxygen_therapy',   label: 'ดูแลผู้ใช้ออกซิเจน', short: 'ดูแลผู้ใช้ออกซิเจน', verb: 'ดูแลผู้ป่วยที่ใช้ออกซิเจน', kw: ['ออกซิเจน'] },  // ใหม่
+  { g: 'medical', code: 'tracheostomy',     label: 'ดูแลท่อเจาะคอ', short: 'ท่อเจาะคอ', verb: 'ดูแลท่อเจาะคอ', kw: ['เจาะคอ', 'ท่อหลอดลม'] }  // ใหม่
 ];
 const CT = Object.fromEntries(CASE_TYPES.map(c => [c.code, c]));
 const COMFORT = {
@@ -749,6 +783,7 @@ function initials(name) {
   const first = w => { const m = w.replace(/^[เแโใไ]+/, ''); return m.charAt(0) || w.charAt(0); };
   return String(name || '').trim().split(/\s+/).slice(0, 2).map(first).join('') || '?';
 }
+const otherTags = txt => String(txt || '').split(/[,،、\n]+/).map(x => x.trim()).filter(Boolean);
 const codesAt = (skills, lvls) => CASE_TYPES.filter(c => lvls.includes(skills[c.code])).map(c => c.code);
 function hashStr(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(16); }
 
@@ -762,8 +797,8 @@ const store = {
   clear() { try { localStorage.removeItem(LS); } catch (e) {} }
 };
 const blankState = () => ({ role: null, users: {}, cg: null, profile: null, jobs: [], jobDraft: null, activeJobId: null, matches: [], favorites: [], notifications: [], feedback: [], reviews: {} });
-const blankCg = () => ({ gender: '', birth_year: '', care_roles: [], years_experience: 1, skills: {}, work_arrangements: [], home_province: '', home_district: '', max_travel_km: 15, expected_wage_min: '', expected_wage_max: '', wage_unit: 'month', available_from: '', certs: [] });
-const blankJob = () => ({ title: '', patient_description: '', patient_age: '', patient_gender: '', work_arrangement: '', province: '', district: '', start_date: '', wage_min: '', wage_max: '', wage_unit: 'month', preferred_caregiver_gender: 'any', needs: {}, touched: [], arrTouched: false, photos: [], editingId: null });
+const blankCg = () => ({ gender: '', birth_year: '', care_roles: [], years_experience: 1, skills: {}, work_arrangements: [], home_province: '', home_district: '', max_travel_km: 15, expected_wage_min: '', expected_wage_max: '', wage_unit: 'month', available_from: '', certs: [], other_skills: '' });
+const blankJob = () => ({ title: '', patient_description: '', patient_age: '', patient_gender: '', work_arrangement: '', province: '', district: '', start_date: '', wage_min: '', wage_max: '', wage_unit: 'month', preferred_caregiver_gender: 'any', needs: {}, touched: [], arrTouched: false, photos: [], other_needs: '', editingId: null });
 let S = Object.assign(blankState(), store.load() || {});
 const save = () => store.save(S);
 const me = () => S.users[S.role] || {};
@@ -773,19 +808,19 @@ const me = () => S.users[S.role] || {};
    ====================================================================== */
 const SEED_CG = [
   { id: 'cg-s1', display_name: 'สมศรี ใจดี', gender: 'female', birth_year: 1978, care_roles: ['nurse_aide'], years_experience: 6, work_arrangements: ['live_in'], home_district: 'บางกะปิ', max_travel_km: 20, expected_wage_min: 15000, expected_wage_max: 18000, wage_unit: 'month',
-    skills: { bedridden: 'experienced', feeding_tube: 'experienced', dementia: 'trained', wound_care: 'experienced', mobility_assist: 'experienced', medication: 'trained' },
+    skills: { personal_hygiene: 'experienced', toileting: 'experienced', vital_signs: 'experienced', bedridden: 'experienced', feeding_tube: 'experienced', dementia: 'trained', wound_care: 'experienced', mobility_assist: 'experienced', medication: 'trained' },
     certs: [{ cert_type: 'nurse_aide', title: CERT_TYPES.nurse_aide, verification_status: 'verified' }], phone: '080-000-0101', line_id: 'demo_somsri', likesNewJobs: true },
   { id: 'cg-s2', display_name: 'วิไล ทองดี', gender: 'female', birth_year: 1975, care_roles: ['practical_nurse'], years_experience: 9, work_arrangements: ['daily'], home_district: 'ลาดพร้าว', max_travel_km: 15, expected_wage_min: 800, expected_wage_max: 1000, wage_unit: 'day',
     skills: { wound_care: 'experienced', suction: 'experienced', urinary_catheter: 'experienced', feeding_tube: 'experienced', medication: 'experienced', diabetes_care: 'experienced' },
     certs: [{ cert_type: 'practical_nurse', title: CERT_TYPES.practical_nurse, verification_status: 'verified' }], phone: '080-000-0102', line_id: 'demo_wilai', likesNewJobs: false },
   { id: 'cg-s3', display_name: 'ประยูร แก้วมณี', gender: 'male', birth_year: 1982, care_roles: ['informal'], years_experience: 3, work_arrangements: ['live_in', 'daily'], home_district: 'บึงกุ่ม', max_travel_km: 15, expected_wage_min: 12000, expected_wage_max: 15000, wage_unit: 'month',
-    skills: { general_elderly: 'experienced', mobility_assist: 'experienced', bedridden: 'trained', palliative: 'willing_to_learn' },
+    skills: { general_elderly: 'experienced', mobility_assist: 'experienced', personal_hygiene: 'experienced', doctor_escort: 'experienced', meal_prep: 'experienced', bedridden: 'trained', palliative: 'willing_to_learn' },
     certs: [], phone: '080-000-0103', line_id: 'demo_prayoon', likesNewJobs: true },
   { id: 'cg-s4', display_name: 'อรุณี ศรีสุข', gender: 'female', birth_year: 1988, care_roles: ['caregiver'], years_experience: 4, work_arrangements: ['live_in'], home_district: 'ห้วยขวาง', max_travel_km: 25, expected_wage_min: 14000, expected_wage_max: 16000, wage_unit: 'month',
-    skills: { stroke_rehab: 'experienced', bedridden: 'experienced', mobility_assist: 'experienced', feeding_tube: 'trained', general_elderly: 'experienced' },
+    skills: { stroke_rehab: 'experienced', physio_assist: 'experienced', bedridden: 'experienced', mobility_assist: 'experienced', feeding_tube: 'trained', general_elderly: 'experienced' },
     certs: [{ cert_type: 'caregiver_training', title: CERT_TYPES.caregiver_training, verification_status: 'verified' }], phone: '080-000-0104', line_id: 'demo_arunee', likesNewJobs: false },
   { id: 'cg-s5', display_name: 'มาลัย บุญมา', gender: 'female', birth_year: 1970, care_roles: ['caregiver'], years_experience: 12, work_arrangements: ['live_in'], home_district: 'บางนา', max_travel_km: 30, expected_wage_min: 16000, expected_wage_max: 20000, wage_unit: 'month',
-    skills: { dementia: 'experienced', general_elderly: 'experienced', medication: 'experienced', palliative: 'trained', diabetes_care: 'trained', bedridden: 'trained' },
+    skills: { dementia: 'experienced', night_care: 'experienced', general_elderly: 'experienced', medication: 'experienced', palliative: 'trained', diabetes_care: 'trained', bedridden: 'trained' },
     certs: [{ cert_type: 'caregiver_training', title: CERT_TYPES.caregiver_training, verification_status: 'verified' }, { cert_type: 'first_aid', title: CERT_TYPES.first_aid, verification_status: 'pending' }], phone: '080-000-0105', line_id: 'demo_malai', likesNewJobs: false },
   { id: 'cg-s6', display_name: 'กมล สุขใจ', gender: 'male', birth_year: 1992, care_roles: ['nurse_aide'], years_experience: 2, work_arrangements: ['daily'], home_district: 'จตุจักร', max_travel_km: 10, expected_wage_min: 700, expected_wage_max: 900, wage_unit: 'day',
     skills: { mobility_assist: 'experienced', stroke_rehab: 'trained', general_elderly: 'experienced', wound_care: 'willing_to_learn' },
@@ -798,7 +833,7 @@ const SEED_JOBS = [
     patient_description: 'คุณแม่อายุ 78 ปี ติดเตียงหลังผ่าตัดสะโพก ให้อาหารทางสายยางวันละ 4 มื้อ ต้องพลิกตัวทุก 2 ชั่วโมง มีแผลกดทับเล็กน้อยที่ก้นกบ',
     family_liked: true, family: { display_name: 'คุณนภา', phone: '080-000-0201', line_id: 'demo_napa' } },
   { id: 'job-s2', title: 'ช่วยฟื้นฟูคุณพ่อหลังเป็นสโตรก', district: 'ลาดพร้าว', work_arrangement: 'daily', wage_min: 900, wage_max: 1100, wage_unit: 'day', start: 3, patient_age: 70, patient_gender: 'male', preferred_caregiver_gender: 'any',
-    needs: [{ code: 'stroke_rehab', is_required: true }, { code: 'mobility_assist', is_required: true }, { code: 'medication', is_required: false }],
+    needs: [{ code: 'stroke_rehab', is_required: true }, { code: 'mobility_assist', is_required: true }, { code: 'physio_assist', is_required: false }, { code: 'medication', is_required: false }],
     patient_description: 'คุณพ่ออายุ 70 ปี เป็นเส้นเลือดในสมองตีบ แขนขาซีกขวาอ่อนแรง ต้องการคนช่วยพยุงเดินและทำกายภาพตามที่นักกายภาพสอน เช้าไปเย็นกลับ',
     family_liked: false, family: { display_name: 'คุณธีระ', phone: '080-000-0202', line_id: 'demo_teera' } },
   { id: 'job-s3', title: 'ดูแลคุณยายที่มีภาวะสมองเสื่อม', district: 'บางกะปิ', work_arrangement: 'live_in', wage_min: 15000, wage_max: 17000, wage_unit: 'month', start: 14, patient_age: 85, patient_gender: 'female', preferred_caregiver_gender: 'female',
@@ -834,6 +869,7 @@ function mockWorkerProfile(c) {
   if (wl.length) parts.push(`และยินดีเรียนรู้การ${thaiJoin(wl)}`);
   const arr = c.work_arrangements.map(a => ARR[a].label).join('หรือ');
   if (arr) parts.push(`สะดวกทำงานแบบ${arr}${c.home_district ? ` ในย่าน${c.home_district} รัศมีไม่เกิน ${c.max_travel_km} กม.` : ''}`);
+  if (String(c.other_skills || '').trim()) parts.push(`ทำได้เพิ่มเติม ได้แก่ ${String(c.other_skills).trim()}`);
   if (c.certs.length) parts.push(`มี${thaiJoin(c.certs.map(x => CERT_TYPES[x.cert_type]))}แนบไว้เป็นหลักฐาน`);
   if (c.available_from) parts.push(`พร้อมเริ่มงานตั้งแต่ ${fmtDate(c.available_from)}`);
   return parts.join(' ');
@@ -843,7 +879,8 @@ function inputSnapshot(c) {   // = ai_worker_profiles.input_snapshot (ไม่�
   return { display_name: u.display_name, gender: c.gender, birth_year: c.birth_year, care_roles: c.care_roles, years_experience: c.years_experience, skills: c.skills,
     work_arrangements: c.work_arrangements, home_province: c.home_province, home_district: c.home_district, max_travel_km: c.max_travel_km,
     expected_wage_min: c.expected_wage_min, expected_wage_max: c.expected_wage_max, wage_unit: c.wage_unit, available_from: c.available_from,
-    certificates: c.certs.map(x => x.cert_type) };
+    certificates: c.certs.map(x => x.cert_type),
+    extra_answers: { other_skills: String(c.other_skills || '').trim() || undefined } };
 }
 async function callAPI(path, body) {
   if (!CONFIG.API_BASE) return null;
@@ -1087,7 +1124,27 @@ const beYears = () => { let o = '<option value="">เลือกปี พ.ศ.
 const radioRow = (name, map, sel, cls = '') => `<div class="opts row ${cls}">${Object.entries(map).map(([k, v]) => `<label class="opt"><input type="radio" name="${name}" value="${k}" ${sel === k ? 'checked' : ''}><b>${typeof v === 'string' ? v : v.label}</b></label>`).join('')}</div>`;
 const rv = (k, v, s) => `<div class="rv"><div><div class="k">${k}</div><div class="v">${v}</div></div><button type="button" class="linkbtn" data-goto="${s}" aria-label="แก้ไข${k}">แก้ไข</button></div>`;
 const certThumbs = () => S.cg.certs.map((x, i) => `<div class="thumb">${x.preview ? `<img src="${x.preview}" alt="${esc(x.title)}">` : ''}<span class="cap">${esc(x.title)}</span><button type="button" class="rm" data-rmcert="${i}" aria-label="ลบ ${esc(x.title)}">×</button></div>`).join('');
-const skillCount = () => codesAt(S.cg.skills, ['experienced', 'trained', 'willing_to_learn']).length;
+const skillCount = () => codesAt(S.cg.skills, CAN).length;
+/* ชิปแบ่งหมวด — mode 'can' = ทำได้ (experienced), 'learn' = ยินดีเรียนรู้ (willing_to_learn) */
+function skillChipsHTML(mode) {
+  const sk = S.cg.skills;
+  return CASE_GROUPS.map(g => {
+    const items = CASE_TYPES.filter(c => c.g === g.id && (mode === 'can' || !CAN.includes(sk[c.code])));
+    if (!items.length) return '';
+    return `<div class="cgroup"><p class="cg-h" id="cg-${mode}-${g.id}">${g.label}</p>
+      <div class="chips" role="group" aria-labelledby="cg-${mode}-${g.id}">${items.map(c => {
+        const on = mode === 'can' ? CAN.includes(sk[c.code]) : sk[c.code] === 'willing_to_learn';
+        return `<button type="button" class="chip ${mode === 'learn' ? 'learn' : ''}" data-skill="${c.code}" data-mode="${mode}" aria-pressed="${on}">${ICON.check}${c.short}</button>`;
+      }).join('')}</div></div>`;
+  }).join('');
+}
+function refreshSkillChips(focusSel) {
+  $('#canChips').innerHTML = skillChipsHTML('can');
+  $('#learnChips').innerHTML = skillChipsHTML('learn');
+  $('#skillCount').textContent = skillCount();
+  $('#learnCount').textContent = codesAt(S.cg.skills, ['willing_to_learn']).length;
+  if (focusSel) { const el = $(focusSel); if (el) el.focus(); }
+}
 
 const STEPS = {
   1: () => { const u = S.users.caregiver || {}; const c = S.cg; return `<h1 class="step-h" tabindex="-1">เริ่มจากข้อมูลของคุณ</h1>
@@ -1105,10 +1162,18 @@ const STEPS = {
     <p class="err" id="e-roles" hidden>เลือกอย่างน้อย 1 บทบาท</p>
     <div class="field block"><span class="lbl" id="yrs-l">ทำงานดูแลมาแล้วกี่ปี</span>
     <div class="stepper" role="group" aria-labelledby="yrs-l"><button type="button" class="sbtn" data-stepf="years_experience" data-d="-1" data-min="0" data-max="60" aria-label="ลดจำนวนปี">−</button><output id="out-years_experience" aria-live="polite">${yearsText(S.cg.years_experience)}</output><button type="button" class="sbtn" data-stepf="years_experience" data-d="1" data-min="0" data-max="60" aria-label="เพิ่มจำนวนปี">+</button></div></div>`,
-  3: () => `<h1 class="step-h" tabindex="-1">คุณดูแลกรณีเหล่านี้ได้แค่ไหน</h1>
-    <p class="step-sub">ตอบเฉพาะข้อที่เกี่ยวกับคุณ ข้อที่ข้ามไปถือว่ายังไม่ได้ระบุ (ตอบแล้ว <b id="skillCount">${skillCount()}</b> ข้อ)</p>
-    <div class="skills">${CASE_TYPES.map(c => `<fieldset class="sk"><legend>${c.label}</legend><div class="seg">${Object.entries(COMFORT).map(([lv, o]) => `<label><input type="radio" name="sk:${c.code}" value="${lv}" ${S.cg.skills[c.code] === lv ? 'checked' : ''}><span>${o.label}</span></label>`).join('')}</div></fieldset>`).join('')}</div>
-    <p class="err" id="e-skills" hidden>ตอบอย่างน้อย 1 ข้อว่ามีประสบการณ์ เคยอบรม หรือยินดีเรียนรู้</p>`,
+  3: () => { const nLearn = codesAt(S.cg.skills, ['willing_to_learn']).length; return `<h1 class="step-h" tabindex="-1">คุณดูแลอะไรได้บ้าง</h1>
+    <p class="step-sub">แตะเลือกทุกข้อที่เคยทำหรือทำได้ เลือกได้หลายข้อ (เลือกแล้ว <b id="skillCount">${skillCount()}</b> ข้อ)</p>
+    <div id="canChips">${skillChipsHTML('can')}</div>
+    <div class="field other"><label for="f-other">อื่นๆ ที่ทำได้ <span class="opt-l">(พิมพ์เอง ไม่บังคับ)</span></label>
+      <input id="f-other" class="text" data-f="other_skills" maxlength="200" placeholder="เช่น ดูแลผู้ป่วยโรคหัวใจ, ขับรถพาไปโรงพยาบาลได้" value="${esc(S.cg.other_skills || '')}" aria-describedby="other-h">
+      <p class="muted small" id="other-h">ถ้ามีหลายอย่าง คั่นด้วยเครื่องหมายจุลภาค ( , )</p></div>
+    <p class="err" id="e-skills" hidden>เลือกอย่างน้อย 1 ข้อ หรือพิมพ์ในช่องอื่นๆ เพื่อให้ครอบครัวรู้ว่าคุณดูแลอะไรได้</p>
+    <details class="learnbox" ${nLearn ? 'open' : ''}>
+      <summary>มีงานที่ยังไม่เคยทำ แต่อยากเรียนรู้ไหม? <span class="opt-l">(ไม่บังคับ, เลือกแล้ว <span id="learnCount">${nLearn}</span> ข้อ)</span></summary>
+      <p class="muted small" style="margin-top:8px">ครอบครัวบางบ้านยินดีสอนงานให้ ถ้าคุณเปิดรับ จะมีโอกาสได้งานมากขึ้น</p>
+      <div id="learnChips">${skillChipsHTML('learn')}</div>
+    </details>`; },
   4: () => `<h1 class="step-h" tabindex="-1">รูปแบบงานและพื้นที่</h1>
     <p class="step-sub">ครอบครัวจะเห็นแค่เขตที่คุณอยู่และระยะทาง ไม่เห็นที่อยู่</p>
     <fieldset class="fs block" style="margin-top:22px"><legend class="lbl">รูปแบบงานที่สะดวก <span class="opt-l">(เลือกได้ทั้งสองแบบ)</span></legend>
@@ -1144,6 +1209,7 @@ const STEPS = {
       ${sk('trained') ? rv('เคยอบรม', sk('trained'), 3) : ''}
       ${sk('willing_to_learn') ? rv('ยินดีเรียนรู้', sk('willing_to_learn'), 3) : ''}
       ${rv('รูปแบบงานและพื้นที่', `${c.work_arrangements.map(a => ARR[a].label).join(', ')}, ${esc(c.home_district)} ในรัศมี ${c.max_travel_km} กม.`, 4)}
+      ${String(c.other_skills || '').trim() ? rv('อื่นๆ ที่ทำได้', esc(c.other_skills), 3) : ''}
       ${rv('ค่าจ้าง', wageText(c.expected_wage_min, c.expected_wage_max, c.wage_unit), 5)}
       ${rv('ใบรับรอง', c.certs.length ? `แนบแล้ว ${c.certs.length} ใบ` : 'ยังไม่ได้แนบ', 6)}
     </div>
@@ -1170,12 +1236,12 @@ $('#cgBody').addEventListener('input', e => {
   if (t.dataset.u) { (S.users.caregiver = S.users.caregiver || {})[t.dataset.u] = t.value; if (t.id === 'f-name' && t.value.trim()) { $('#e-name').hidden = true; t.removeAttribute('aria-invalid'); } }
   else if (t.dataset.f) S.cg[t.dataset.f] = 'num' in t.dataset ? num(t.value) : t.value;
   if ('num' in t.dataset) t.value = S.cg[t.dataset.f];
+  if (t.id === 'f-other' && t.value.trim()) $('#e-skills').hidden = true;
   save();
 });
 $('#cgBody').addEventListener('change', e => {
   const t = e.target;
-  if (t.name && t.name.startsWith('sk:')) { S.cg.skills[t.name.slice(3)] = t.value; $('#skillCount').textContent = skillCount(); if (skillCount()) $('#e-skills').hidden = true; }
-  else if (t.dataset.multi) { const f = t.dataset.multi; S.cg[f] = t.checked ? [...new Set([...S.cg[f], t.value])] : S.cg[f].filter(x => x !== t.value); $('#e-roles') && ($('#e-roles').hidden = true); $('#e-arr') && ($('#e-arr').hidden = true); }
+  if (t.dataset.multi) { const f = t.dataset.multi; S.cg[f] = t.checked ? [...new Set([...S.cg[f], t.value])] : S.cg[f].filter(x => x !== t.value); $('#e-roles') && ($('#e-roles').hidden = true); $('#e-arr') && ($('#e-arr').hidden = true); }
   else if (t.type === 'radio') S.cg[t.name] = t.value;
   else if (t.tagName === 'SELECT' && t.dataset.f) {
     S.cg[t.dataset.f] = t.dataset.f === 'birth_year' ? num(t.value) : t.value;
@@ -1186,6 +1252,14 @@ $('#cgBody').addEventListener('change', e => {
 });
 $('#cgBody').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.skill) {
+    const k = b.dataset.skill, sk = S.cg.skills;
+    if (b.dataset.mode === 'can') { if (CAN.includes(sk[k])) delete sk[k]; else sk[k] = 'experienced'; }
+    else { if (sk[k] === 'willing_to_learn') delete sk[k]; else sk[k] = 'willing_to_learn'; }
+    refreshSkillChips(`#cgBody [data-skill="${k}"][data-mode="${b.dataset.mode}"]`);
+    if (skillCount()) $('#e-skills').hidden = true;
+    save();
+  }
   if (b.dataset.stepf) {
     const f = b.dataset.stepf, v = Math.max(+b.dataset.min, Math.min(+b.dataset.max, Number(S.cg[f]) + Number(b.dataset.d)));
     S.cg[f] = v; $('#out-' + f).textContent = f === 'max_travel_km' ? `${v} กม.` : yearsText(v); save();
@@ -1228,7 +1302,7 @@ $('#fNext').addEventListener('click', async () => {
   const c = S.cg, u = S.users.caregiver || {};
   if (cgStep === 1 && !String(u.display_name || '').trim()) { $('#e-name').hidden = false; const n = $('#f-name'); n.setAttribute('aria-invalid', 'true'); n.focus(); return; }
   if (cgStep === 2 && showErr('e-roles', !c.care_roles.length)) return;
-  if (cgStep === 3 && showErr('e-skills', !skillCount())) return;
+  if (cgStep === 3 && showErr('e-skills', !skillCount() && !String(c.other_skills || '').trim())) return;
   if (cgStep === 4) { if (showErr('e-arr', !c.work_arrangements.length)) return; if (showErr('e-dist', !c.home_district)) return; }
   if (cgStep === 5 && showErr('e-wage', c.expected_wage_min !== '' && c.expected_wage_max !== '' && c.expected_wage_max < c.expected_wage_min)) return;
   if (cgStep < TOTAL) { cgStep++; renderStep(); return; }
@@ -1278,7 +1352,7 @@ function renderProfile() {
         <div class="sec-row"><h3>เกี่ยวกับฉัน</h3><button type="button" class="linkbtn" id="pfEdit">${ICON.pen} แก้ไขข้อความ</button></div>
         <div id="pfAboutWrap"><p class="about">${esc(p.output_text)}</p></div>
       </section>
-      <section><h3>กรณีที่ดูแลได้</h3><div style="display:flex;flex-direction:column;gap:12px">${lvRow('experienced')}${lvRow('trained')}${lvRow('willing_to_learn')}</div></section>
+      <section><h3>กรณีที่ดูแลได้</h3><div style="display:flex;flex-direction:column;gap:12px">${lvRow('experienced')}${lvRow('trained')}${otherTags(c.other_skills).length ? `<div><p class="small muted" style="margin-bottom:6px">อื่นๆ (พิมพ์เอง)</p><div class="tags">${otherTags(c.other_skills).map(x => `<span class="tag n">${esc(x)}</span>`).join('')}</div></div>` : ''}${lvRow('willing_to_learn')}</div></section>
       <section><h3>รูปแบบงานและค่าจ้าง</h3><div class="kv">
         <div><span class="k">รูปแบบงาน</span><span class="v">${c.work_arrangements.map(a => ARR[a].label).join(', ')}</span></div>
         <div><span class="k">ค่าจ้างที่ต้องการ</span><span class="v">${wageText(c.expected_wage_min, c.expected_wage_max, c.wage_unit)}</span></div>
@@ -1380,6 +1454,7 @@ function jobCardHTML(j, cls = '') {
     <div class="meta"><span>${ICON.pin}${esc(j.district)}${j.distance_km != null ? ' · ' + kmText(j.distance_km) : ''}</span><span>${ICON.home}${ARR[j.work_arrangement].label}</span>${j.start_date ? `<span>${ICON.cal}เริ่ม ${fmtDate(j.start_date)}</span>` : ''}</div>
     <div class="meta"><span>${ICON.user}ผู้ป่วย${GENDER[j.patient_gender] || ''} ${j.patient_age ? j.patient_age + ' ปี' : ''}</span></div>
     <div><h3>งานที่ต้องทำ</h3><ul class="tasks">${j.needs.map(n => { const ok = CAN.includes(c.skills[n.code]); return `<li><span class="${ok ? 'ok' : 'no'}">${ok ? ICON.tick : ICON.dot}</span><span>${CT[n.code].label}${n.is_required ? '' : ' <small>(ถ้าทำได้ก็ดี)</small>'}</span></li>`; }).join('')}</ul></div>
+    ${j.other_needs ? `<p class="small" style="color:var(--body)"><b>อื่นๆ:</b> ${esc(j.other_needs)}</p>` : ''}
     <p class="canline">คุณทำได้ ${j.needs_i_can_do} จาก ${j.needs_required} ข้อที่จำเป็น</p>
     <button type="button" class="linkbtn" data-jobdetail="${j.id}" style="align-self:flex-start">ดูรายละเอียดงาน</button>
   </article>`;
@@ -1415,6 +1490,7 @@ $('#feedDeck').addEventListener('click', e => {
     <div class="meta"><span>${ICON.pin}${esc(j.district)}, ${esc(j.province)}${j.distance_km != null ? ' · ' + kmText(j.distance_km) : ''}</span><span>${ICON.home}${ARR[j.work_arrangement].label}</span></div>
     <section><h3>ค่าจ้าง</h3><p>${wageText(j.wage_min, j.wage_max, j.wage_unit)}</p></section>
     <section><h3>เกี่ยวกับผู้ป่วย</h3><p style="line-height:1.8;color:var(--body)">${esc(j.patient_description)}</p></section>
+    ${j.other_needs ? `<section><h3>ความต้องการอื่นๆ</h3><div class="tags">${otherTags(j.other_needs).map(x => `<span class="tag n">${esc(x)}</span>`).join('')}</div></section>` : ''}
     <section><h3>ความต้องการ เทียบกับคำตอบของคุณ</h3><ul class="tasks">${j.needs.map(n => { const lv = S.cg.skills[n.code]; return `<li><span class="${CAN.includes(lv) ? 'ok' : 'no'}">${CAN.includes(lv) ? ICON.tick : ICON.dot}</span><span>${CT[n.code].label}${n.is_required ? '' : ' <small>(ถ้าทำได้ก็ดี)</small>'}<br><small>คุณตอบว่า: ${lv ? COMFORT[lv].label : 'ยังไม่ได้ระบุ'}</small></span></li>`; }).join('')}</ul></section>
     ${j.preferred_caregiver_gender !== 'any' ? `<p class="small muted">ครอบครัวต้องการผู้ดูแลเพศ${GENDER[j.preferred_caregiver_gender]}</p>` : ''}
     <p class="fine">ที่อยู่ละเอียดจะแสดงหลังจับคู่สำเร็จ และคุยตกลงกับครอบครัวโดยตรง</p>`);
@@ -1436,8 +1512,9 @@ function detectNeeds() {
 }
 function needChipsHTML() {
   const d = jd();
-  return CASE_TYPES.map(c => { const s = d.needs[c.code];
-    return `<button type="button" class="chip fam ${s || ''}" data-need="${c.code}" aria-label="${c.label}: ${s === 'req' ? 'จำเป็น' : s === 'opt' ? 'ถ้าทำได้ก็ดี' : 'ไม่ต้องการ'} แตะเพื่อเปลี่ยน">${ICON.check}${c.short}${s ? `<span class="st">${s === 'req' ? 'จำเป็น' : 'ถ้าได้ก็ดี'}</span>` : ''}</button>`; }).join('');
+  const chip = c => { const s = d.needs[c.code];
+    return `<button type="button" class="chip fam ${s || ''}" data-need="${c.code}" aria-label="${c.label}: ${s === 'req' ? 'จำเป็น' : s === 'opt' ? 'ถ้าทำได้ก็ดี' : 'ไม่ต้องการ'} แตะเพื่อเปลี่ยน">${ICON.check}${c.short}${s ? `<span class="st">${s === 'req' ? 'จำเป็น' : 'ถ้าได้ก็ดี'}</span>` : ''}</button>`; };
+  return CASE_GROUPS.map(g => `<div class="cgroup"><p class="cg-h" id="ng-${g.id}">${g.label}</p><div class="chips" role="group" aria-labelledby="ng-${g.id}">${CASE_TYPES.filter(c => c.g === g.id).map(chip).join('')}</div></div>`).join('');
 }
 const arrOptsHTML = () => radioRow('j-arr', ARR, jd().work_arrangement, 'fam');
 const photoThumbs = () => jd().photos.map((src, i) => `<div class="thumb"><img src="${src}" alt="รูปที่ ${i + 1}"><button type="button" class="rm" data-rmphoto="${i}" aria-label="ลบรูปที่ ${i + 1}">×</button></div>`).join('');
@@ -1457,8 +1534,10 @@ function renderFamPost() {
       <p class="panel-h">${ICON.spark}สิ่งที่ระบบเข้าใจจากข้อความ</p>
       <p class="muted small">ระบบเลือกให้จากสิ่งที่คุณเขียน แตะเพื่อเปลี่ยน: จำเป็น → ถ้าได้ก็ดี → เอาออก</p>
       <div class="legend"><span><i style="background:var(--f)"></i>จำเป็น</span><span><i style="background:var(--f-soft);border:1.5px dashed var(--f)"></i>ถ้าทำได้ก็ดี</span></div>
-      <div class="chips" id="j-needs" role="group" aria-label="ความต้องการในการดูแล">${needChipsHTML()}</div>
-      <p class="err" id="e-needs" hidden>เลือกอย่างน้อย 1 ข้อ เพื่อให้ระบบหาผู้ดูแลที่ตรงกับงาน</p>
+      <div id="j-needs">${needChipsHTML()}</div>
+      <div class="field other"><label for="j-other">ความต้องการอื่นๆ <span class="opt-l">(พิมพ์เอง ไม่บังคับ)</span></label>
+        <input id="j-other" class="text" data-j="other_needs" maxlength="200" placeholder="เช่น ดูแลน้องหมาของคุณแม่ด้วย, พูดภาษาจีนได้" value="${esc(d.other_needs || '')}"></div>
+      <p class="err" id="e-needs" hidden>เลือกอย่างน้อย 1 ข้อ หรือพิมพ์ในช่องความต้องการอื่นๆ</p>
       <fieldset class="fs" style="margin-top:20px"><legend class="lbl">รูปแบบงาน</legend><div id="j-arrwrap">${arrOptsHTML()}</div></fieldset>
       <p class="err" id="e-arr2" hidden>เลือกรูปแบบงาน</p>
     </div>
@@ -1539,13 +1618,14 @@ $('#j-submit').addEventListener('click', () => {
   const fail = (id, focusSel) => { $('#' + id).hidden = false; const el = $(focusSel); if (el) { el.focus(); el.scrollIntoView({ block: 'center' }); } return true; };
   if (!d.title.trim() && fail('e-title', '#j-title')) return;
   if (!d.patient_description.trim() && fail('e-text', '#j-text')) return;
-  if (!Object.keys(d.needs).length && fail('e-needs', '#j-needs .chip')) return;
+  if (!Object.keys(d.needs).length && !String(d.other_needs || '').trim() && fail('e-needs', '#j-needs .chip')) return;
   if (!d.work_arrangement && fail('e-arr2', 'input[name="j-arr"]')) return;
   if (!d.district && fail('e-dist2', '#j-dist')) return;
   if (d.wage_min !== '' && d.wage_max !== '' && d.wage_max < d.wage_min && fail('e-wage2', '#j-wmax')) return;
   const fields = { title: d.title.trim(), patient_description: d.patient_description.trim(), patient_age: d.patient_age || null, patient_gender: d.patient_gender || null,
     work_arrangement: d.work_arrangement, province: d.province, district: d.district, start_date: d.start_date || null, wage_min: d.wage_min || null, wage_max: d.wage_max || null,
-    wage_unit: d.wage_unit, preferred_caregiver_gender: d.preferred_caregiver_gender, needs: Object.entries(d.needs).map(([code, s]) => ({ code, is_required: s === 'req' })), photos: d.photos };
+    wage_unit: d.wage_unit, preferred_caregiver_gender: d.preferred_caregiver_gender, needs: Object.entries(d.needs).map(([code, s]) => ({ code, is_required: s === 'req' })), photos: d.photos,
+    other_needs: String(d.other_needs || '').trim() };
   let job;
   if (d.editingId) { job = S.jobs.find(j => j.id === d.editingId); Object.assign(job, fields, { updated_at: nowISO() }); toast('บันทึกการแก้ไขแล้ว'); }
   else {
@@ -1590,7 +1670,7 @@ function renderFamDeck() {
   $('#deckHead').innerHTML = `
     ${js.length > 1 ? `<label><span class="sr">เลือกประกาศงาน</span><select id="jobSel" class="select">${js.map(j => `<option value="${j.id}" ${j.id === job.id ? 'selected' : ''}>${esc(j.title)}</option>`).join('')}</select></label>` : ''}
     <h1 id="deckTitle" tabindex="-1">${esc(job.title)}</h1>
-    <div class="tags">${job.needs.map(n => `<span class="tag ${n.is_required ? 'f' : 'o'}">${CT[n.code].short}</span>`).join('')}<span class="tag f">${ARR[job.work_arrangement].label}</span><span class="tag n">${ICON.pin}${esc(job.district)}</span></div>
+    <div class="tags">${job.needs.map(n => `<span class="tag ${n.is_required ? 'f' : 'o'}">${CT[n.code].short}</span>`).join('')}${otherTags(job.other_needs).map(x => `<span class="tag o">${esc(x)}</span>`).join('')}<span class="tag f">${ARR[job.work_arrangement].label}</span><span class="tag n">${ICON.pin}${esc(job.district)}</span></div>
     <div class="deck-tools">
       <span class="muted small" id="famCount"></span>
       <span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
@@ -1659,7 +1739,7 @@ function openCgDetail(cgId) {
     <section><h3>ทำไมถึงเหมาะกับงานนี้</h3><ul class="checks">${(f.pros.length ? f.pros : ['ยังไม่พบจุดที่ตรงกับความต้องการที่ระบุ']).map(p => `<li>${ICON.tick}<span>${esc(p)}</span></li>`).join('')}</ul></section>
     ${f.cons.length ? `<div class="warn">${ICON.info}<div><b>ควรสอบถามเพิ่ม</b><ul>${f.cons.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>` : ''}
     ${(c.profile_text || c.sample) ? `<section><h3>โปรไฟล์</h3><p style="line-height:1.8;color:var(--body)">${esc(c.profile_text || mockWorkerProfile(c))}</p></section>` : ''}
-    <section><h3>กรณีที่ดูแลได้</h3>${lv('experienced')}${lv('trained')}${lv('willing_to_learn')}</section>
+    <section><h3>กรณีที่ดูแลได้</h3>${lv('experienced')}${lv('trained')}${otherTags(c.other_skills).length ? `<p class="small muted" style="margin:8px 0 6px">อื่นๆ (ผู้ดูแลพิมพ์เอง)</p><div class="tags">${otherTags(c.other_skills).map(x => `<span class="tag n">${esc(x)}</span>`).join('')}</div>` : ''}${lv('willing_to_learn')}</section>
     <section><h3>ข้อมูลอื่น</h3><div class="kv">
       <div><span class="k">พื้นที่</span><span class="v">${esc(c.home_district)}${f.distance_km != null ? ' · ' + kmText(f.distance_km) : ''}</span></div>
       <div><span class="k">รูปแบบงาน</span><span class="v">${c.work_arrangements.map(a => ARR[a].label).join(', ')}</span></div>

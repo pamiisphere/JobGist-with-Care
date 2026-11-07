@@ -43,5 +43,7 @@ def score_match(job: dict, cg: dict) -> dict:
         "general": general, "experience": experience}.items()}
     missing = [n for n in spec_needs
                if LEVEL_CREDIT.get(cg["skills"].get(n, ""), 0) < LEVEL_CREDIT["trained"]]
+    missing_general = [n for n in gen_needs
+                       if LEVEL_CREDIT.get(cg["skills"].get(n, ""), 0) < LEVEL_CREDIT["trained"]]
     return {"total": round(sum(breakdown.values()), 1), "breakdown": breakdown,
-            "missing_specialized": missing}
+            "missing_specialized": missing, "missing_general": missing_general}

@@ -13,3 +13,12 @@ LEVEL_CREDIT = {"experienced": 1.0, "trained": 0.8, "willing_to_learn": 0.2, "no
 
 DISTANCE_ZERO_KM = 30     # at or beyond this distance, distance score = 0
 EXPERIENCE_FULL_YEARS = 5
+
+# Diagnosis tags: AI may suggest these ONLY if the quoted evidence names the disease.
+DIAGNOSIS_KEYWORDS = {
+    "parkinson":     ["พาร์กินสัน", "parkinson"],
+    "dementia":      ["สมองเสื่อม", "อัลไซเมอร์", "alzheimer", "dementia"],
+    "stroke_rehab":  ["หลอดเลือดสมอง", "เส้นเลือดในสมอง", "stroke", "อัมพฤกษ์", "อัมพาต"],
+    "diabetes_care": ["เบาหวาน", "diabetes"],
+    "palliative":    ["ระยะท้าย", "ระยะสุดท้าย", "ประคับประคอง"],
+}

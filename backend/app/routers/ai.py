@@ -35,3 +35,24 @@ def worker_profile(user: CurrentUser = Depends(require_role("caregiver"))):
 @router.post("/applicant-summaries", response_model=SummariesOut)
 def applicant_summaries(body: SummariesIn, user: CurrentUser = Depends(require_role("family"))):
     return {"summaries": generate_summaries(user.id, body.job_post_id, body.caregiver_ids)}
+
+
+from app.services.suggest_needs import suggest_needs
+
+class SuggestIn(BaseModel):
+    text: str = Field(min_length=1, max_length=1000)
+    already_selected: list[str] = []
+
+class Suggestion(BaseModel):
+    code: str
+    label_th: str
+    evidence: str          # exact words from the family's text
+
+class SuggestOut(BaseModel):
+    suggestions: list[Suggestion]
+    source: str            # 'ai' | 'unavailable'
+    cached: bool
+
+@router.post("/suggest-needs", response_model=SuggestOut)
+def suggest_needs_endpoint(body: SuggestIn, user: CurrentUser = Depends(require_role("family"))):
+    return suggest_needs(body.text, body.already_selected)

@@ -16,7 +16,8 @@ def _public(d, drop):
 
 def _result(cid, sc, text, source, cached):
     return {"caregiver_id": cid, "fit_score": float(sc["total"]), "breakdown": sc["breakdown"],
-            "missing_specialized": sc["missing_specialized"], "summary_text": text,
+            "missing_specialized": sc["missing_specialized"],
+            "missing_general": sc.get("missing_general", []), "summary_text": text,
             "source": source, "cached": cached}
 
 def _save(job_post_id, cid, provider, model, snap, h, text, sc, log_id):

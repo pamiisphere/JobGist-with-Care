@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from app.auth import CurrentUser, require_role
@@ -12,14 +13,15 @@ class WorkerProfileOut(BaseModel):
     cached: bool
 
 class SummariesIn(BaseModel):
-    job_post_id: str
-    caregiver_ids: list[str] = Field(min_length=1, max_length=20)
+    job_post_id: UUID
+    caregiver_ids: list[UUID] = Field(min_length=1, max_length=20)
 
 class SummaryOut(BaseModel):
     caregiver_id: str
     fit_score: float
     breakdown: dict
     missing_specialized: list[str]
+    missing_general: list[str] = []
     summary_text: str | None      # None when AI failed → show score only
     source: str                   # 'ai' | 'rule_only'
     cached: bool
@@ -34,7 +36,7 @@ def worker_profile(user: CurrentUser = Depends(require_role("caregiver"))):
 
 @router.post("/applicant-summaries", response_model=SummariesOut)
 def applicant_summaries(body: SummariesIn, user: CurrentUser = Depends(require_role("family"))):
-    return {"summaries": generate_summaries(user.id, body.job_post_id, body.caregiver_ids)}
+    return {"summaries": generate_summaries(user.id, str(body.job_post_id), [str(c) for c in body.caregiver_ids])}
 
 
 from app.services.suggest_needs import suggest_needs

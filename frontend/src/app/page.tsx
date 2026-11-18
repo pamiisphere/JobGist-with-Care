@@ -12,7 +12,6 @@ import {
 } from '@/components/Icons';
 
 export default function LandingPage() {
-  const [interactiveTab, setInteractiveTab] = useState<'fit' | 'profile'>('fit');
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-[#1E1B4B]">
@@ -28,7 +27,7 @@ export default function LandingPage() {
           {/* Left Column: Headline & Value Proposition */}
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border-2 border-indigo-950 riso-shadow-sm">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#D946EF] animate-ping" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#D946EF]" />
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-indigo-950">
                 สองฝั่ง หนึ่งแพลตฟอร์ม • ไม่มีค่านายหน้า
               </span>
@@ -71,8 +70,8 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Right Column: Interactive Risograph Preview Card */}
-          <div className="lg:col-span-5">
+          {/* Right Column: Preview Card (Display Only / Non-interactive) */}
+          <div className="lg:col-span-5 pointer-events-none select-none">
             <div className="bg-white border-2 border-indigo-950 riso-shadow-xl p-5 md:p-6 space-y-4 relative">
               {/* Top Card Bar */}
               <div className="flex items-center justify-between border-b-2 border-indigo-950 pb-3">
@@ -82,147 +81,84 @@ export default function LandingPage() {
                   <span className="w-3 h-3 rounded-full bg-emerald-500 border border-indigo-950" />
                 </div>
 
-                {/* Interactive Preview Switcher */}
+                {/* Preview Switcher (Static Badges) */}
                 <div className="flex border border-indigo-950">
-                  <button
-                    onClick={() => setInteractiveTab('fit')}
-                    className={`px-3 py-1 text-xs font-mono font-bold transition-colors ${
-                      interactiveTab === 'fit'
-                        ? 'bg-indigo-950 text-white'
-                        : 'bg-white text-indigo-950 hover:bg-stone-100'
-                    }`}
-                  >
+                  <div className="px-3 py-1 text-xs font-mono font-bold bg-indigo-950 text-white">
                     AI Fit Score
-                  </button>
-                  <button
-                    onClick={() => setInteractiveTab('profile')}
-                    className={`px-3 py-1 text-xs font-mono font-bold transition-colors ${
-                      interactiveTab === 'profile'
-                        ? 'bg-[#D946EF] text-white'
-                        : 'bg-white text-indigo-950 hover:bg-stone-100'
-                    }`}
-                  >
+                  </div>
+                  <div className="px-3 py-1 text-xs font-mono font-bold bg-white text-indigo-950">
                     โปรไฟล์ตัวอย่าง
-                  </button>
+                  </div>
                 </div>
               </div>
 
-              {interactiveTab === 'fit' ? (
-                /* 92% AI Fit Score Simulation */
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between bg-[#FAF9F6] border-2 border-indigo-950 p-4 riso-shadow-sm">
-                    <div>
-                      <span className="text-xs font-mono font-bold text-stone-600 uppercase block">
-                        คะแนนความเหมาะสม (AI Fit)
-                      </span>
-                      <h3 className="font-extrabold text-xl text-indigo-950">พี่วิมล ชัยชนะ (PN)</h3>
-                      <p className="text-xs text-stone-600 font-mono">งานดูแลผู้ป่วยสโตรกติดเตียง • ลาดพร้าว (4.2 กม.)</p>
-                    </div>
-
-                    <div className="flex flex-col items-center justify-center w-20 h-20 bg-[#D946EF] border-2 border-indigo-950 text-white font-mono shrink-0 riso-shadow-sm">
-                      <span className="text-2xl font-black leading-none">92%</span>
-                      <span className="text-[10px] font-bold tracking-tighter uppercase mt-0.5">FIT SCORE</span>
-                    </div>
-                  </div>
-
-                  {/* Why this match fits (Structured pros/cons) */}
-                  <div className="space-y-2">
-                    <span className="text-xs font-bold text-indigo-950 flex items-center gap-1 font-mono uppercase">
-                      <SparklesIcon className="w-4 h-4 text-[#D946EF]" />
-                      เหตุผลที่เหมาะสมกับงานนี้:
+              {/* 92% AI Fit Score Simulation */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between bg-[#FAF9F6] border-2 border-indigo-950 p-4 riso-shadow-sm">
+                  <div>
+                    <span className="text-xs font-mono font-bold text-stone-600 uppercase block">
+                      คะแนนความเหมาะสม (AI Fit)
                     </span>
-                    <ul className="space-y-1.5 text-xs">
-                      <li className="flex items-start gap-2 bg-emerald-50 border border-emerald-900/30 p-2 text-emerald-950">
-                        <CheckIcon className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                        <span>
-                          <strong>ตรงทักษะสำคัญครบถ้วน:</strong> ผู้ป่วยติดเตียง, ดูดเสมหะเจาะคอ, อาหารทางสายยาง และล้างแผลกดทับ
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-2 bg-emerald-50 border border-emerald-900/30 p-2 text-emerald-950">
-                        <CheckIcon className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                        <span>
-                          <strong>มีใบประกาศนียบัตร PN 1 ปี</strong> และผ่านการอบรมหัตถการเฉพาะทาง ตรวจสอบแล้ว
-                        </span>
-                      </li>
-                    </ul>
+                    <h3 className="font-extrabold text-xl text-indigo-950">คุณวิมล ชัยชนะ (PN)</h3>
+                    <p className="text-xs text-stone-600 font-mono">งานดูแลผู้ป่วยสโตรกติดเตียง • ลาดพร้าว (4.2 กม.)</p>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-bold text-amber-900 flex items-center gap-1 font-mono uppercase">
-                      ⚠️ จุดที่ควรสอบถามเพิ่มเติม:
-                    </span>
-                    <div className="text-xs bg-amber-50 border border-amber-900/30 p-2 text-amber-950">
-                      ตกลงเรื่องรอบเวลาพลิกตัวช่วงกลางคืน และรายละเอียดวันหยุดประจำสัปดาห์
-                    </div>
+                  <div className="flex flex-col items-center justify-center w-20 h-20 bg-[#D946EF] border-2 border-indigo-950 text-white font-mono shrink-0 riso-shadow-sm">
+                    <span className="text-2xl font-black leading-none">92%</span>
+                    <span className="text-[10px] font-bold tracking-tighter uppercase mt-0.5">FIT SCORE</span>
                   </div>
-
-                  <Link
-                    href="/family/applicants"
-                    className="block text-center w-full min-h-[44px] py-2.5 font-bold text-xs bg-white text-indigo-950 border-2 border-indigo-950 riso-shadow-sm hover:bg-stone-50"
-                  >
-                    ทดลองเปิดหน้าผู้สมัครทั้งหมด (Family Feed) →
-                  </Link>
                 </div>
-              ) : (
-                /* Profile Card Simulation */
-                <div className="space-y-3.5">
-                  <div className="flex items-start gap-3">
-                    <div className="w-14 h-14 bg-indigo-950 text-white font-mono font-bold text-xl flex items-center justify-center border-2 border-indigo-950 shrink-0 riso-shadow-sm">
-                      วิ
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-black text-lg">พี่วิมล ชัยชนะ</h3>
-                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-900 text-[10px] font-bold">
-                          ยืนยันใบรับรองแล้ว
-                        </span>
-                      </div>
-                      <p className="text-xs text-stone-600 font-mono">
-                        ผู้ช่วยพยาบาล (PN) • ประสบการณ์ 8 ปี • จตุจักร กทม.
-                      </p>
-                      <p className="text-xs font-mono font-bold text-[#D946EF] mt-0.5">
-                        ฿24,000 - 28,000 / เดือน (อยู่ประจำ / ไป-กลับ)
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="bg-[#FAF9F6] border border-indigo-950 p-3 text-xs leading-relaxed text-stone-800">
-                    <span className="font-bold block text-indigo-950 mb-1 font-mono">ข้อความที่ AI สรุปให้:</span>
-                    &ldquo;ดิฉันเป็นผู้ช่วยพยาบาล (PN) ประสบการณ์ 8 ปี เชี่ยวชาญการดูแลผู้ป่วยติดเตียงขั้นสูง ดูดเสมหะเจาะคอ ฟีดสายยาง NG tube และล้างแผลกดทับปลอดเชื้อ ใจเย็น อ่อนโยน และเคารพความเป็นส่วนตัว...&rdquo;
-                  </div>
-
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {['ติดเตียง', 'สายยาง', 'เจาะคอ/ดูดเสมหะ', 'ทำแผล', 'ฉีดอินซูลิน'].map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-0.5 text-[11px] font-bold bg-white border border-indigo-950 text-indigo-950"
-                      >
-                        ✓ {tag}
+                {/* Why this match fits (Structured pros/cons) */}
+                <div className="space-y-2">
+                  <span className="text-xs font-bold text-indigo-950 flex items-center gap-1 font-mono uppercase">
+                    <SparklesIcon className="w-4 h-4 text-[#D946EF]" />
+                    เหตุผลที่เหมาะสมกับงานนี้:
+                  </span>
+                  <ul className="space-y-1.5 text-xs">
+                    <li className="flex items-start gap-2 bg-emerald-50 border border-emerald-900/30 p-2 text-emerald-950">
+                      <CheckIcon className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                      <span>
+                        <strong>ตรงทักษะสำคัญครบถ้วน:</strong> ผู้ป่วยติดเตียง, ดูดเสมหะเจาะคอ, อาหารทางสายยาง และล้างแผลกดทับ
                       </span>
-                    ))}
-                  </div>
-
-                  <Link
-                    href="/caregiver/onboarding"
-                    className="block text-center w-full min-h-[44px] py-2.5 font-bold text-xs bg-[#D946EF] text-white border-2 border-indigo-950 riso-shadow-sm hover:bg-[#c026d3]"
-                  >
-                    ลองสร้างโปรไฟล์ของตัวเอง (5 ขั้นตอน) →
-                  </Link>
+                    </li>
+                    <li className="flex items-start gap-2 bg-emerald-50 border border-emerald-900/30 p-2 text-emerald-950">
+                      <CheckIcon className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                      <span>
+                        <strong>มีใบประกาศนียบัตร PN 1 ปี</strong> และผ่านการอบรมหัตถการเฉพาะทาง ตรวจสอบแล้ว
+                      </span>
+                    </li>
+                  </ul>
                 </div>
-              )}
+
+                <div className="space-y-1.5">
+                  <span className="text-xs font-bold text-amber-900 flex items-center gap-1 font-mono uppercase">
+                    ⚠️ จุดที่ควรสอบถามเพิ่มเติม:
+                  </span>
+                  <div className="text-xs bg-amber-50 border border-amber-900/30 p-2 text-amber-950">
+                    ตกลงเรื่องรอบเวลาพลิกตัวช่วงกลางคืน และรายละเอียดวันหยุดประจำสัปดาห์
+                  </div>
+                </div>
+
+                <div
+                  className="block text-center w-full min-h-[44px] py-2.5 font-bold text-xs bg-white text-indigo-950 border-2 border-indigo-950 riso-shadow-sm"
+                >
+                  ทดลองเปิดหน้าผู้สมัครทั้งหมด (Family Feed) →
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* 4-Step How It Works Section (Full Screen) */}
-      <section className="min-h-[calc(100vh-65px)] flex items-center bg-white border-b-2 border-indigo-950 px-4 md:px-8 py-10 md:py-16">
+      <section className="min-h-[calc(100vh-65px)] flex items-center bg-[#735095] border-b-2 border-indigo-950 px-4 md:px-8 py-10 md:py-16">
         <div className="max-w-6xl mx-auto w-full space-y-10">
           <div className="text-center space-y-2">
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-indigo-950">
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-white/90">
               STEP-BY-STEP PROCESS
             </span>
-            <h2 className="text-2xl sm:text-4xl font-black text-indigo-950">ใช้งานอย่างไร ให้เริ่มงานได้ไวและปลอดภัย</h2>
+            <h2 className="text-2xl sm:text-4xl font-black text-white">ใช้งานอย่างไร ให้เริ่มงานได้ไวและปลอดภัย</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

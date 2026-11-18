@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Topbar from '@/components/Topbar';
@@ -11,6 +11,10 @@ import {
   swipeCaregiver,
   toggleFavorite,
   getCurrentUser,
+  setCurrentUser,
+  initSeedData,
+  getNameInitial,
+  getEffectiveFamilyJob,
 } from '@/services/api';
 import { useToast } from '@/components/Toast';
 import {
@@ -20,726 +24,579 @@ import {
   StarIcon,
   CheckIcon,
   ChevronRightIcon,
-  MessageSquareIcon,
+  ShieldCheckIcon,
+  BriefcaseIcon,
+  MapPinIcon,
 } from '@/components/Icons';
 
 function ApplicantsContent() {
   const searchParams = useSearchParams();
-  const jobId = searchParams.get('jobId') || 'job-1-wanwimon';
+  const cur = getCurrentUser();
+  const effJob = getEffectiveFamilyJob(cur.role === 'family' ? cur.id : undefined);
+  const jobId = searchParams.get('jobId') || effJob.id;
+  const caregiverParam = searchParams.get('caregiverId') || undefined;
 
-  const [candidates, setCandidates] = useState<CandidateCaregiverCard[]>(() => {
-    return candidateCaregivers(jobId, 50);
-  });
-  const [selectedCandidate, setSelectedCandidate] = useState<CandidateCaregiverCard | null>(() => {
-    const list = candidateCaregivers(jobId, 50);
-    return list[0] || null;
-  });
-  const [compareIds, setCompareIds] = useState<string[]>([]);
-  const { showToast } = useToast();
-  const [showCompareModal, setShowCompareModal] = useState(false);
-  const [sortBy, setSortBy] = useState<'fit' | 'experience'>('fit');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [matchNotice, setMatchNotice] = useState<{
-    show: boolean;
-    name: string;
-  }>({ show: false, name: '' });
-
-  // Direct Message Dialog state (Features by page)
-  const [messageTarget, setMessageTarget] = useState<CandidateCaregiverCard | null>(null);
-  const [messageText, setMessageText] = useState('');
-
-  const openSendMessage = (candidate: CandidateCaregiverCard) => {
-    setMessageTarget(candidate);
-    const matched = candidate.matched_cases.map((mc) => CASE_TYPES_V3[mc]?.short_label_th).join(', ');
-    setMessageText(
-      `สวัสดีค่ะ สนใจสอบถามงานดูแลผู้ป่วย ${matched ? `เคส${matched}` : ''} สะดวกคุยรายละเอียดเพิ่มเติมหรือเริ่มงานช่วงไหนคะ?`
-    );
-  };
-
-  const handleSendMessage = () => {
-    if (!messageTarget || !messageText.trim()) return;
-    try {
-      const msgs = JSON.parse(localStorage.getItem('jg_msgs') || '[]');
-      msgs.push({
-        id: Date.now(),
-        to: messageTarget.caregiver_id,
-        caregiver_name: messageTarget.display_name,
-        text: messageText,
-        sent_at: new Date().toISOString(),
-      });
-      localStorage.setItem('jg_msgs', JSON.stringify(msgs));
-      showToast('ส่งข้อความสำเร็จ', `ส่งข้อความหา ${messageTarget.display_name} เรียบร้อยแล้ว`);
-    } catch {
-      showToast('ส่งข้อความสำเร็จ', `ส่งข้อความหา ${messageTarget.display_name} เรียบร้อยแล้ว`);
-    }
-    setMessageTarget(null);
-  };
-
-  // Handle Swipe actions (Like or Pass)
-  const handleDecision = (candidate: CandidateCaregiverCard, decision: 'like' | 'pass') => {
-    const { isMatch } = swipeCaregiver(jobId, candidate.caregiver_id, decision);
-
-    if (decision === 'like') {
-      if (isMatch) {
-        setMatchNotice({ show: true, name: candidate.display_name });
-        showToast('จับคู่สำเร็จ!', `คุณและ ${candidate.display_name} กดถูกใจตรงกันแล้ว`, 'match');
-      } else {
-        showToast('บันทึกความสนใจ', `กดถูกใจ ${candidate.display_name} เรียบร้อยแล้ว`);
-      }
-    } else {
-      showToast('ข้ามผู้สมัคร', `ข้าม ${candidate.display_name} แล้ว`, 'info');
-    }
-
-    // Remove candidate from list
-    setCandidates((prev) => prev.filter((c) => c.caregiver_id !== candidate.caregiver_id));
-    if (selectedCandidate?.caregiver_id === candidate.caregiver_id) {
-      const remaining = candidates.filter((c) => c.caregiver_id !== candidate.caregiver_id);
-      setSelectedCandidate(remaining[0] || null);
-    }
-    setCompareIds((prev) => prev.filter((id) => id !== candidate.caregiver_id));
-  };
-
-  // Toggle Favorite
-  const handleToggleFavorite = (candidateId: string) => {
+  const [currentUser, setCurrentUserState] = useState(() => {
+    initSeedData();
     const cur = getCurrentUser();
-    const isFav = toggleFavorite(cur.id, candidateId);
-    showToast(isFav ? 'บันทึกในรายการโปรด' : 'นำออกจากรายการโปรด');
+    if (cur.role !== 'family' && !cur.id.startsWith('fam-')) {
+      const famSession = {
+        id: 'fam-1-wanwimon',
+        role: 'family' as const,
+        display_name: 'คุณวรรณวิมล วัฒนกุล',
+        phone: '0829991122',
+        line_id: 'wanwimon_family',
+      };
+      setCurrentUser(famSession);
+      return famSession;
+    }
+    return cur;
+  });
+
+  const [mounted, setMounted] = useState(false);
+  const [candidates, setCandidates] = useState<CandidateCaregiverCard[]>(() => {
+    initSeedData();
+    return candidateCaregivers(jobId, 50, caregiverParam);
+  });
+
+  React.useEffect(() => {
+    initSeedData();
+    const cur = getCurrentUser();
+    if (cur.role !== 'family' && !cur.id.startsWith('fam-')) {
+      const famSession = {
+        id: 'fam-1-wanwimon',
+        role: 'family' as const,
+        display_name: 'คุณวรรณวิมล วัฒนกุล',
+        phone: '0829991122',
+        line_id: 'wanwimon_family',
+      };
+      setCurrentUser(famSession);
+      setCurrentUserState(famSession);
+    }
+    setMounted(true);
+    setCandidates(candidateCaregivers(jobId, 50, caregiverParam));
+  }, [jobId, caregiverParam]);
+
+  const { showToast } = useToast();
+  const [matchCelebration, setMatchCelebration] = useState<{
+    show: boolean;
+    candidate: CandidateCaregiverCard | null;
+  }>({ show: false, candidate: null });
+
+  // Swipe Gesture State
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [swipeExit, setSwipeExit] = useState<'left' | 'right' | null>(null);
+  const dragStartRef = useRef({ x: 0, y: 0 });
+
+  const currentCandidate = candidates[0] || null;
+  const nextCandidate = candidates[1] || null;
+
+  // Handle Decision (Swipe Like or Pass)
+  const handleDecision = (candidate: CandidateCaregiverCard, decision: 'like' | 'pass') => {
+    if (swipeExit) return;
+
+    setSwipeExit(decision === 'like' ? 'right' : 'left');
+
+    setTimeout(() => {
+      const { isMatch } = swipeCaregiver(jobId, candidate.caregiver_id, decision);
+
+      // ถ้าปัดขวาแล้ว match ถึงจะแสดง Match Celebration
+      // ถ้ายังไม่ match ให้ปัดผ่านไปอย่างเงียบๆ และลื่นไหล ไม่ต้องเด้งข้อความแจ้งเตือนใดๆ
+      if (decision === 'like' && isMatch) {
+        setMatchCelebration({ show: true, candidate });
+        showToast('จับคู่สำเร็จ!', `คุณและ ${candidate.display_name} กดถูกใจตรงกันแล้ว`, 'match');
+      }
+
+      // Remove decided candidate cleanly by ID
+      setCandidates((prev) => prev.filter((c) => c.caregiver_id !== candidate.caregiver_id));
+      setDragOffset({ x: 0, y: 0 });
+      setSwipeExit(null);
+      setIsDragging(false);
+    }, 240);
+  };
+
+  const handleToggleFavorite = (candidateId: string) => {
+    const curUser = getCurrentUser();
+    const effectiveFamilyId = curUser.role === 'family' ? curUser.id : effJob.family_id;
+    const isFav = toggleFavorite(effectiveFamilyId, candidateId);
     setCandidates((prev) =>
       prev.map((c) => (c.caregiver_id === candidateId ? { ...c, is_favorite: isFav } : c))
     );
-    if (selectedCandidate?.caregiver_id === candidateId) {
-      setSelectedCandidate((prev) => (prev ? { ...prev, is_favorite: isFav } : null));
-    }
   };
 
-  // Toggle comparison selection (max 3)
-  const handleToggleCompare = (id: string) => {
-    if (compareIds.includes(id)) {
-      setCompareIds(compareIds.filter((item) => item !== id));
+  // Touch and Mouse Drag Gestures
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (!currentCandidate || swipeExit) return;
+    // Don't drag if clicking buttons or interactive elements
+    if ((e.target as HTMLElement).closest('button, a, input, select')) return;
+    setIsDragging(true);
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging || !currentCandidate || swipeExit) return;
+    const deltaX = e.clientX - dragStartRef.current.x;
+    const deltaY = (e.clientY - dragStartRef.current.y) * 0.2;
+    setDragOffset({ x: deltaX, y: deltaY });
+  };
+
+  const handlePointerUp = () => {
+    if (!isDragging || !currentCandidate || swipeExit) return;
+    setIsDragging(false);
+
+    const threshold = 60; // 60px threshold for easy swipe in both directions
+    if (dragOffset.x > threshold) {
+      handleDecision(currentCandidate, 'like');
+    } else if (dragOffset.x < -threshold) {
+      handleDecision(currentCandidate, 'pass');
     } else {
-      if (compareIds.length >= 3) {
-        alert('สามารถเลือกเปรียบเทียบได้สูงสุด 3 คน');
-        return;
-      }
-      setCompareIds([...compareIds, id]);
+      setDragOffset({ x: 0, y: 0 });
     }
   };
-
-  // Filter & Sort
-  const filteredCandidates = candidates
-    .filter((c) => {
-      const q = searchQuery.toLowerCase();
-      const matchName = c.display_name.toLowerCase().includes(q);
-      const matchDistrict = c.home_district.toLowerCase().includes(q);
-      const matchSkills = c.matched_cases.some((m) =>
-        CASE_TYPES_V3[m]?.title_th.toLowerCase().includes(q)
-      );
-      return matchName || matchDistrict || matchSkills;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'fit') {
-        if (a.caregiver_liked !== b.caregiver_liked) return a.caregiver_liked ? -1 : 1;
-        return b.fit_score - a.fit_score;
-      } else {
-        return b.years_experience - a.years_experience;
-      }
-    });
-
-  const comparedCaregivers = candidates.filter((c) => compareIds.includes(c.caregiver_id));
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-[#1E1B4B]">
+    <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-[#1E1B4B] overflow-x-hidden">
       <Topbar />
 
-      <main className="flex-1 px-4 py-8 max-w-7xl mx-auto w-full space-y-6">
-        {/* Top Summary Bar */}
-        <div className="bg-white border-2 border-indigo-950 p-6 riso-shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#D946EF] px-2 py-0.5 bg-[#FAF9F6] border border-indigo-950">
+      <div className="flex-1 bg-[#735095] py-8 px-4 overflow-hidden">
+        <main className="max-w-4xl mx-auto w-full space-y-6">
+          {/* Header Bar */}
+          <div className="bg-white border-2 border-indigo-950 p-6 riso-shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#D946EF] block">
                 RPC CANDIDATE_CAREGIVERS • COST-FIRST AI
               </span>
-              <span className="text-xs font-mono text-stone-500">
-                พบผู้สมัคร {candidates.length} คน
+              <h1 className="text-2xl sm:text-3xl font-black text-indigo-950">
+                หาผู้ดูแลที่ตรงใจ (Swipe UI)
+              </h1>
+              <p className="text-xs sm:text-sm text-stone-600">
+                ปัดซ้ายเพื่อข้าม • ปัดขวาเพื่อถูกใจ คัดเลือกจากคะแนน Fit Score และทักษะที่ตรงกับคุณ
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="font-mono text-xs px-3 py-1.5 bg-[#FAF9F6] border-2 border-indigo-950 font-bold" suppressHydrationWarning>
+                เหลือ {candidates.length} คน
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-indigo-950">
-              ผู้สมัครที่ตรงกับความต้องการของคุณ
-            </h1>
-            <p className="text-xs sm:text-sm text-stone-600">
-              จัดอันดับด้วย AI Fit Score (เต็ม 99) และวิเคราะห์ข้อดี-จุดที่ควรสอบถามก่อนจ้างงานจริง
-            </p>
           </div>
 
-          {/* Search & Sort Controls */}
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
-            <input
-              type="text"
-              placeholder="ค้นหาชื่อ, เขต, ทักษะ..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="min-h-[44px] px-3.5 text-xs bg-[#FAF9F6] border-2 border-indigo-950 focus:outline-none"
-            />
-
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'fit' | 'experience')}
-              className="min-h-[44px] px-3 text-xs font-mono font-bold bg-white border-2 border-indigo-950"
-            >
-              <option value="fit">เรียงตาม: ความเหมาะสม (Fit Score)</option>
-              <option value="experience">เรียงตาม: ประสบการณ์ (ปี)</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Mutual Match Banner */}
-        {matchNotice.show && (
-          <div className="bg-pink-100 border-2 border-[#D946EF] p-4 text-center riso-shadow-sm space-y-2 animate-in fade-in zoom-in-95">
-            <h3 className="font-black text-lg text-pink-950">
-              🎉 ยินดีด้วย! คุณและ {matchNotice.name} จับคู่สำเร็จ (Mutual Match)
-            </h3>
-            <p className="text-xs text-pink-900 font-medium">
-              ระบบปลดล็อกเบอร์โทรศัพท์และ LINE ID เรียบร้อยแล้ว สามารถดูได้ที่ศูนย์การจับคู่
-            </p>
-            <div className="pt-1">
-              <Link
-                href="/matches"
-                className="inline-block min-h-[40px] px-4 py-2 bg-indigo-950 text-white font-bold text-xs border border-indigo-950 riso-shadow-sm hover:bg-[#2E1065]"
-              >
-                ไปที่ศูนย์การจับคู่ (Matches Center) →
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* 2-Column Layout: Left Candidate List & Right Sticky Detail Panel */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Candidate Cards */}
-          <div className="lg:col-span-7 space-y-4">
-            {filteredCandidates.length > 0 ? (
-              filteredCandidates.map((c) => {
-                const isSelected = selectedCandidate?.caregiver_id === c.caregiver_id;
-                const isComparing = compareIds.includes(c.caregiver_id);
-
-                return (
-                  <div
-                    key={c.caregiver_id}
-                    onClick={() => setSelectedCandidate(c)}
-                    className={`bg-white border-2 border-indigo-950 p-5 riso-shadow cursor-pointer transition-all ${
-                      isSelected
-                        ? 'ring-2 ring-[#D946EF] translate-x-[2px] translate-y-[2px] riso-shadow-none'
-                        : 'hover:bg-stone-50'
-                    }`}
-                  >
-                    {/* Top Row: Liked by Caregiver Badge & Compare Checkbox */}
-                    <div className="flex items-center justify-between pb-3 border-b border-stone-200">
-                      <div className="flex items-center gap-2">
-                        {c.caregiver_liked && (
-                          <span className="px-2 py-0.5 bg-pink-100 text-[#D946EF] border border-[#D946EF] font-mono text-[11px] font-bold flex items-center gap-1">
-                            <SparklesIcon className="w-3 h-3" />
-                            ผู้ดูแลกดสนใจงานคุณแล้ว
+          {/* Swipe Container Stack */}
+          {currentCandidate ? (
+            <div className="relative w-full min-h-[640px]">
+              {/* Background Card Preview (Next Candidate) */}
+              {nextCandidate && (
+                <div className="absolute inset-0 z-0 pointer-events-none">
+                  <div className="w-full h-full min-h-[640px] bg-white border-2 border-indigo-950 p-6 riso-shadow flex flex-col justify-between opacity-95">
+                    <div className="space-y-4">
+                      {/* Top Row: Liked by Caregiver Banner */}
+                      {nextCandidate.caregiver_liked && (
+                        <div className="bg-pink-100 border border-[#D946EF] px-2.5 py-1 flex items-center justify-between text-[11px] font-bold text-pink-950 -mt-2">
+                          <span className="flex items-center gap-1 font-mono">
+                            <SparklesIcon className="w-3.5 h-3.5 text-[#D946EF]" />
+                            ผู้ดูแลท่านนี้เคยกดสนใจงานคุณแล้ว! ปัดขวาเพื่อ Match ทันที
                           </span>
-                        )}
-                        <span className="text-xs font-mono text-stone-500">
-                          ห่าง {c.distance_km} กม.
-                        </span>
-                      </div>
-
-                      {/* Compare Checkbox */}
-                      <label
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1.5 text-xs font-mono font-bold cursor-pointer select-none text-indigo-950"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isComparing}
-                          onChange={() => handleToggleCompare(c.caregiver_id)}
-                          className="w-4 h-4 accent-[#D946EF]"
-                        />
-                        <span>เปรียบเทียบ</span>
-                      </label>
-                    </div>
-
-                    {/* Middle Row: Avatar, Name, Score */}
-                    <div className="flex items-start justify-between gap-3 pt-3">
-                      <div className="flex items-start gap-3">
-                        <div className="w-13 h-13 bg-indigo-950 text-white font-mono font-bold text-lg flex items-center justify-center border-2 border-indigo-950 shrink-0">
-                          {c.display_name.slice(0, 2)}
+                          <span className="font-mono text-[9px] bg-[#D946EF] text-white px-1.5 py-0.5">
+                            MUTUAL READY
+                          </span>
                         </div>
+                      )}
 
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-extrabold text-lg text-indigo-950">
-                              {c.display_name}
-                            </h3>
-                            {c.has_certificates && (
-                              <span className="px-1.5 py-0.2 bg-emerald-100 text-emerald-900 border border-emerald-900 text-[10px] font-bold">
-                                มีใบรับรอง
-                              </span>
-                            )}
+                      {/* Header Row */}
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between border-b-2 border-indigo-950 pb-4 gap-4">
+                        <div className="flex items-start gap-4">
+                          {nextCandidate.avatar_url ? (
+                            <img
+                              src={nextCandidate.avatar_url}
+                              alt={nextCandidate.display_name}
+                              className="w-28 h-28 sm:w-32 sm:h-32 object-cover border-2 border-indigo-950 shrink-0 bg-white riso-shadow-sm"
+                            />
+                          ) : (
+                            <div className="w-28 h-28 sm:w-32 sm:h-32 bg-indigo-950 text-white font-mono font-black text-4xl sm:text-5xl flex items-center justify-center border-2 border-indigo-950 shrink-0 riso-shadow-sm">
+                              {getNameInitial(nextCandidate.display_name, 'ผ')}
+                            </div>
+                          )}
+                          <div className="space-y-1.5 flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h3 className="text-2xl sm:text-3xl font-black text-indigo-950 leading-tight">
+                                {nextCandidate.display_name}
+                              </h3>
+                              {nextCandidate.gender && (
+                                <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[10px] sm:text-xs font-mono font-bold">
+                                  {nextCandidate.gender === 'female' ? 'เพศหญิง' : 'เพศชาย'}
+                                </span>
+                              )}
+                              {typeof nextCandidate.age === 'number' && nextCandidate.age > 0 && (
+                                <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[10px] sm:text-xs font-mono font-bold">
+                                  อายุ {nextCandidate.age} ปี
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm sm:text-base font-bold text-stone-800 leading-snug">
+                              {nextCandidate.care_roles.map((r) => CARE_ROLES_META[r]?.label_th || r).join(' • ')}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-mono font-semibold text-stone-600 pt-0.5">
+                              <span>ประสบการณ์ {nextCandidate.years_experience} ปี</span>
+                              <span>•</span>
+                              <span>เขต{nextCandidate.home_district} (ห่าง {nextCandidate.distance_km} กม.)</span>
+                            </div>
                           </div>
-                          <p className="text-xs text-stone-600 font-mono">
-                            {c.care_roles.map((r) => CARE_ROLES_META[r]?.abbr || r).join(', ')} • ประสบการณ์ {c.years_experience} ปี • {c.home_district}
-                          </p>
-                          <p className="text-xs font-mono font-bold text-[#D946EF] mt-0.5">
-                            ฿{c.expected_wage_min.toLocaleString()} - {c.expected_wage_max.toLocaleString()} /
-                            {c.wage_unit === 'month' ? 'เดือน' : c.wage_unit === 'day' ? 'วัน' : 'ชม.'}
-                          </p>
                         </div>
-                      </div>
 
-                      {/* Score Circle / Badge */}
-                      <div className="flex flex-col items-center justify-center w-16 h-16 bg-[#FAF9F6] border-2 border-indigo-950 text-indigo-950 shrink-0 riso-shadow-sm">
-                        <span className="text-xl font-black font-mono leading-none text-[#D946EF]">
-                          {c.fit_score}%
-                        </span>
-                        <span className="text-[9px] font-mono font-bold text-stone-500 uppercase mt-0.5">
-                          FIT SCORE
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* AI Short Summary */}
-                    <p className="text-xs text-stone-700 leading-relaxed pt-2.5 line-clamp-2">
-                      {c.ai_summary}
-                    </p>
-
-                    {/* Matched Case Chips */}
-                    <div className="flex flex-wrap gap-1.5 pt-3">
-                      {c.matched_cases.map((mc) => (
-                        <span
-                          key={mc}
-                          className="px-2 py-0.5 bg-emerald-50 text-emerald-900 border border-emerald-900 text-[11px] font-bold"
-                        >
-                          ✓ {CASE_TYPES_V3[mc]?.short_label_th || mc}
-                        </span>
-                      ))}
-                      {c.missing_cases.slice(0, 2).map((missing) => (
-                        <span
-                          key={missing}
-                          className="px-2 py-0.5 bg-stone-100 text-stone-500 border border-stone-300 text-[11px]"
-                        >
-                          ? {CASE_TYPES_V3[missing]?.short_label_th || missing}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Bottom Action Controls */}
-                    <div className="flex items-center justify-between border-t border-stone-200 mt-4 pt-3">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleFavorite(c.caregiver_id);
-                        }}
-                        className="text-xs font-mono font-bold flex items-center gap-1 text-stone-600 hover:text-indigo-950"
-                      >
-                        <StarIcon
-                          className={`w-4 h-4 ${c.is_favorite ? 'text-amber-500 fill-amber-500' : ''}`}
-                        />
-                        <span>{c.is_favorite ? 'บันทึกแล้ว' : 'บันทึก'}</span>
-                      </button>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openSendMessage(c);
-                          }}
-                          className="min-h-[38px] px-3 py-1 text-xs font-bold bg-white text-indigo-950 border border-indigo-950 hover:bg-stone-50 riso-shadow-sm riso-btn-active flex items-center gap-1"
-                        >
-                          <MessageSquareIcon className="w-3.5 h-3.5 text-indigo-950" />
-                          <span>ส่งข้อความ</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDecision(c, 'pass');
-                          }}
-                          className="min-h-[38px] px-3.5 py-1 text-xs font-bold bg-white text-stone-600 border border-indigo-950 hover:bg-stone-100 riso-btn-active"
-                        >
-                          ข้าม (Pass)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDecision(c, 'like');
-                          }}
-                          className="min-h-[38px] px-4 py-1 text-xs font-black bg-[#D946EF] text-white border border-indigo-950 hover:bg-[#c026d3] riso-shadow-sm riso-btn-active flex items-center gap-1"
-                        >
-                          <HeartIcon className="w-3.5 h-3.5" />
-                          <span>สนใจ (Like)</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="bg-white border-2 border-indigo-950 p-12 text-center riso-shadow space-y-3">
-                <p className="text-stone-600 text-sm">ไม่พบผู้สมัครที่ตรงกับเงื่อนไขการค้นหา</p>
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="px-4 py-2 bg-indigo-950 text-white font-bold text-xs border border-indigo-950"
-                >
-                  ล้างตัวกรอง
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Right Column: Sticky Candidate Detail Drawer */}
-          <div className="lg:col-span-5 sticky top-20">
-            {selectedCandidate ? (
-              <div className="bg-white border-2 border-indigo-950 p-6 riso-shadow-xl space-y-5">
-                {/* Header Row */}
-                <div className="flex items-start justify-between border-b-2 border-indigo-950 pb-4">
-                  <div>
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#D946EF] block">
-                      CANDIDATE SPEC SHEET
-                    </span>
-                    <h2 className="text-xl font-black text-indigo-950">
-                      {selectedCandidate.display_name}
-                    </h2>
-                    <p className="text-xs text-stone-600 font-mono">
-                      {selectedCandidate.home_district}, {selectedCandidate.home_province} (ห่าง {selectedCandidate.distance_km} กม.)
-                    </p>
-                  </div>
-
-                  <div className="text-center bg-[#FAF9F6] border-2 border-indigo-950 p-2.5 shrink-0">
-                    <span className="text-2xl font-black font-mono text-[#D946EF] block">
-                      {selectedCandidate.fit_score}%
-                    </span>
-                    <span className="text-[9px] font-mono font-bold text-stone-500 uppercase block">
-                      FIT SCORE
-                    </span>
-                  </div>
-                </div>
-
-                {/* AI Summary Breakdown */}
-                <div className="space-y-1.5">
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-indigo-950 block">
-                    บทวิเคราะห์ความเหมาะสม (AI Fit Analysis)
-                  </span>
-                  <p className="text-xs text-stone-800 leading-relaxed bg-[#FAF9F6] border border-indigo-950 p-3">
-                    {selectedCandidate.ai_summary}
-                  </p>
-                </div>
-
-                {/* Pros */}
-                <div className="space-y-1.5">
-                  <span className="text-xs font-bold text-emerald-900 flex items-center gap-1 font-mono uppercase">
-                    <CheckIcon className="w-4 h-4 text-emerald-700" />
-                    ข้อดีที่ตรงกับงานนี้:
-                  </span>
-                  <ul className="space-y-1 text-xs">
-                    {selectedCandidate.pros.map((pro, i) => (
-                      <li key={i} className="p-2 bg-emerald-50 border border-emerald-900/30 text-emerald-950">
-                        {pro}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Points to Verify */}
-                <div className="space-y-1.5">
-                  <span className="text-xs font-bold text-amber-900 flex items-center gap-1 font-mono uppercase">
-                    ⚠️ ประเด็นที่ควรสอบถามเพิ่มเติม:
-                  </span>
-                  <ul className="space-y-1 text-xs">
-                    {selectedCandidate.to_verify.map((item, i) => (
-                      <li key={i} className="p-2 bg-amber-50 border border-amber-900/30 text-amber-950">
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Certificates */}
-                {selectedCandidate.certificates.length > 0 && (
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-indigo-950 block">
-                      ใบรับรองที่ผ่านการตรวจสอบ:
-                    </span>
-                    <div className="space-y-1">
-                      {selectedCandidate.certificates.map((cert) => (
-                        <div
-                          key={cert.id}
-                          className="p-2 bg-white border border-indigo-950 text-xs flex items-center justify-between"
-                        >
-                          <span className="truncate font-bold text-indigo-950">{cert.file_name}</span>
-                          <span className="text-[10px] font-mono text-emerald-800 bg-emerald-100 px-1.5 py-0.2 shrink-0">
-                            ✓ {cert.verification_status}
+                        {/* Fit Score Badge */}
+                        <div className="bg-[#FAF9F6] border-2 border-indigo-950 px-3 py-1 text-center shrink-0">
+                          <span className="text-[9px] font-mono text-stone-500 block uppercase leading-tight">AI Fit Score</span>
+                          <span className="text-lg sm:text-xl font-mono font-black text-[#D946EF] block leading-none">
+                            {nextCandidate.fit_score}%
                           </span>
                         </div>
-                      ))}
+                      </div>
                     </div>
+
+                    {/* Dummy Action Circle Buttons (Bottom Corners) */}
+                    <div className="flex items-center justify-between border-t-2 border-indigo-950 pt-4 px-2">
+                      <div className="w-12 h-12 rounded-full bg-white text-stone-600 border-2 border-indigo-950 flex items-center justify-center riso-shadow-sm">
+                        <CloseIcon className="w-6 h-6 text-stone-600" />
+                      </div>
+                      <div className="w-12 h-12 rounded-full bg-[#10B981] text-white border-2 border-indigo-950 flex items-center justify-center riso-shadow-sm">
+                        <CheckIcon className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Active Foreground Card with Swipe Gestures */}
+              <div
+                key={currentCandidate.caregiver_id}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+                style={{
+                  transform: swipeExit
+                    ? `translate3d(${swipeExit === 'right' ? '120vw' : '-120vw'}, ${dragOffset.y}px, 0) rotate(${
+                        swipeExit === 'right' ? 25 : -25
+                      }deg)`
+                    : isDragging
+                    ? `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0) rotate(${dragOffset.x * 0.06}deg)`
+                    : 'none',
+                  transition: swipeExit
+                    ? 'transform 0.22s ease-out'
+                    : isDragging
+                    ? 'none'
+                    : 'none',
+                  touchAction: 'none',
+                }}
+                className="relative z-10 w-full min-h-[640px] bg-white border-2 border-indigo-950 p-6 riso-shadow-xl flex flex-col justify-between cursor-grab active:cursor-grabbing select-none"
+              >
+                {/* Stamp Overlays */}
+                {dragOffset.x > 35 && (
+                  <div
+                    style={{ opacity: Math.min(1, (dragOffset.x - 35) / 75) }}
+                    className="absolute top-8 left-8 z-30 border-4 border-[#D946EF] text-[#D946EF] font-black text-2xl sm:text-3xl px-4 py-1.5 rotate-[-15deg] uppercase tracking-wider bg-white/90 riso-shadow pointer-events-none"
+                  >
+                    LIKE สนใจ ❤️
+                  </div>
+                )}
+                {dragOffset.x < -35 && (
+                  <div
+                    style={{ opacity: Math.min(1, (-dragOffset.x - 35) / 75) }}
+                    className="absolute top-8 right-8 z-30 border-4 border-stone-700 text-stone-700 font-black text-2xl sm:text-3xl px-4 py-1.5 rotate-[15deg] uppercase tracking-wider bg-white/90 riso-shadow pointer-events-none"
+                  >
+                    PASS ข้าม ✕
                   </div>
                 )}
 
-                {/* Big Action Buttons */}
-                <div className="space-y-2 border-t-2 border-indigo-950 pt-4">
+                <div className="space-y-4">
+                  {/* Highlight Badge if Caregiver Liked First */}
+                  {currentCandidate.caregiver_liked && (
+                    <div className="bg-pink-100 border border-[#D946EF] px-2.5 py-1 flex items-center justify-between text-[11px] font-bold text-pink-950 -mt-2">
+                      <span className="flex items-center gap-1 font-mono">
+                        <SparklesIcon className="w-3.5 h-3.5 text-[#D946EF]" />
+                        ผู้ดูแลท่านนี้เคยกดสนใจงานคุณแล้ว! ปัดขวาเพื่อ Match ทันที
+                      </span>
+                      <span className="font-mono text-[9px] bg-[#D946EF] text-white px-1.5 py-0.5">
+                        MUTUAL READY
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Top Row: Name, Avatar, Wage & Fit Score */}
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between border-b-2 border-indigo-950 pb-4 gap-4">
+                    <div className="flex items-start gap-4">
+                      {currentCandidate.avatar_url ? (
+                        <img
+                          src={currentCandidate.avatar_url}
+                          alt={currentCandidate.display_name}
+                          draggable={false}
+                          className="w-28 h-28 sm:w-32 sm:h-32 object-cover border-2 border-indigo-950 shrink-0 bg-white riso-shadow-sm pointer-events-none select-none"
+                        />
+                      ) : (
+                        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-indigo-950 text-white font-mono font-black text-4xl sm:text-5xl flex items-center justify-center border-2 border-indigo-950 shrink-0 riso-shadow-sm">
+                          {getNameInitial(currentCandidate.display_name, 'ผ')}
+                        </div>
+                      )}
+
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h2 className="text-2xl sm:text-3xl font-black text-indigo-950 leading-tight">
+                            {currentCandidate.display_name}
+                          </h2>
+                          {currentCandidate.gender && (
+                            <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[10px] sm:text-xs font-mono font-bold">
+                              {currentCandidate.gender === 'female' ? 'เพศหญิง' : 'เพศชาย'}
+                            </span>
+                          )}
+                          {typeof currentCandidate.age === 'number' && currentCandidate.age > 0 && (
+                            <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[10px] sm:text-xs font-mono font-bold">
+                              อายุ {currentCandidate.age} ปี
+                            </span>
+                          )}
+                          {currentCandidate.certificates.length > 0 && (
+                            <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-900 text-[10px] sm:text-xs font-bold flex items-center gap-1">
+                              <ShieldCheckIcon className="w-3.5 h-3.5" />
+                              มีใบรับรอง ({currentCandidate.certificates.length})
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-sm sm:text-base font-bold text-stone-800 leading-snug">
+                          {currentCandidate.care_roles.map((r) => CARE_ROLES_META[r]?.label_th || r).join(' • ')}
+                        </p>
+
+                        <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-mono font-semibold text-stone-600 pt-0.5">
+                          <span className="flex items-center gap-1.5">
+                            <BriefcaseIcon className="w-4 h-4 text-stone-600 shrink-0" />
+                            ประสบการณ์ {currentCandidate.years_experience} ปี
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1.5">
+                            <MapPinIcon className="w-4 h-4 text-stone-600 shrink-0" />
+                            เขต{currentCandidate.home_district} (ห่าง {currentCandidate.distance_km} กม.)
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Wage, Fit Score & Favorite Button */}
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
+                      <div className="flex sm:flex-col items-center sm:items-end gap-2">
+                        <div className="bg-[#FAF9F6] border-2 border-indigo-950 px-3 py-1 text-center sm:text-right">
+                          <span className="text-[9px] font-mono font-bold text-stone-600 block uppercase leading-tight">AI Fit Score</span>
+                          <span className="text-lg sm:text-xl font-mono font-black text-[#D946EF] block leading-none">
+                            {currentCandidate.fit_score}%
+                          </span>
+                        </div>
+
+                        <div className="text-right">
+                          <span className="text-xs sm:text-sm font-mono font-black text-indigo-950 block leading-tight">
+                            ฿{currentCandidate.expected_wage_min.toLocaleString()} - {currentCandidate.expected_wage_max.toLocaleString()}
+                          </span>
+                          <span className="text-[10px] font-mono text-stone-500">
+                            /{currentCandidate.wage_unit === 'month' ? 'เดือน' : currentCandidate.wage_unit === 'day' ? 'วัน' : 'ชม.'} (
+                            {currentCandidate.work_arrangements.map((a) => (a === 'live_in' ? 'อยู่ประจำ' : 'ไป-กลับ')).join('/')})
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Favorite Button */}
+                      <button
+                        type="button"
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleFavorite(currentCandidate.caregiver_id);
+                        }}
+                        className={`mt-1 sm:self-end inline-flex items-center justify-center gap-1.5 px-2.5 py-1 text-xs font-bold border-2 border-indigo-950 riso-shadow-sm riso-btn-active cursor-pointer transition-all ${
+                          currentCandidate.is_favorite
+                            ? 'bg-indigo-950 text-white'
+                            : 'bg-white text-indigo-950 hover:bg-stone-50'
+                        }`}
+                      >
+                        <StarIcon
+                          className={`w-3.5 h-3.5 shrink-0 ${
+                            currentCandidate.is_favorite ? 'text-amber-400 fill-amber-400' : 'text-stone-400'
+                          }`}
+                        />
+                        <span>{currentCandidate.is_favorite ? 'เพิ่มในรายการโปรดแล้ว' : 'เพิ่มลงรายการโปรด'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* AI Fit Analysis & Narrative */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-indigo-950 block">
+                      บทวิเคราะห์ความเหมาะสม (AI FIT ANALYSIS):
+                    </span>
+                    <p className="text-xs sm:text-sm text-stone-800 leading-relaxed bg-[#FAF9F6] border border-indigo-950 p-3.5">
+                      {currentCandidate.ai_summary}
+                    </p>
+                  </div>
+
+                  {/* Key Strengths (ข้อดีที่ตรงกับงานนี้) */}
+                  {currentCandidate.pros && currentCandidate.pros.length > 0 && (
+                    <div className="space-y-1.5">
+                      <span className="text-xs font-mono font-bold text-emerald-800 flex items-center gap-1">
+                        <CheckIcon className="w-3.5 h-3.5 text-emerald-700" />
+                        ข้อดีที่ตรงกับเคสนี้:
+                      </span>
+                      <div className="space-y-1">
+                        {currentCandidate.pros.map((pos, idx) => (
+                          <div
+                            key={idx}
+                            className="text-xs bg-emerald-50 border border-emerald-700 text-emerald-950 px-2.5 py-1 font-medium"
+                          >
+                            ✓ {pos}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Matched Case Badges */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-mono font-bold text-indigo-950 block">
+                      ทักษะการดูแลที่ตรงกัน ({currentCandidate.matched_cases.length} ข้อ):
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {currentCandidate.matched_cases.map((c) => (
+                        <span
+                          key={c}
+                          className="px-2 py-0.5 text-xs font-bold bg-[#FAF9F6] border border-indigo-950 text-indigo-950 flex items-center gap-1"
+                        >
+                          <CheckIcon className="w-3 h-3 text-emerald-700" />
+                          {CASE_TYPES_V3[c]?.title_th || c}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Actions & Circle Buttons (Corner Left & Right) */}
+                <div className="pt-3">
+                  <div className="flex items-center justify-center text-[11px] font-mono text-stone-500 border-t border-stone-200 py-2">
+                    <span>👈 ปัดซ้ายข้าม (Pass) | ปัดขวาถูกใจ (Like) 👉</span>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t-2 border-indigo-950 pt-3 px-2">
+                    {/* ขอบซ้ายล่าง: ปุ่มวงกลมกากบาท (ผิด/ข้าม) */}
+                    <button
+                      type="button"
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDecision(currentCandidate, 'pass');
+                      }}
+                      title="ข้ามผู้ดูแลคนนี้ (Pass)"
+                      aria-label="ข้าม"
+                      className="w-12 h-12 rounded-full bg-white text-stone-600 hover:text-red-600 border-2 border-indigo-950 riso-shadow-sm riso-btn-active flex items-center justify-center cursor-pointer transition-all hover:border-red-600 hover:bg-red-50 z-20"
+                    >
+                      <CloseIcon className="w-6 h-6 shrink-0" />
+                    </button>
+
+                    <span className="text-[11px] font-mono text-stone-400">
+                      คลิกปุ่มหรือลากการ์ดเพื่อตัดสินใจ
+                    </span>
+
+                    {/* ขอบขวาล่าง: ปุ่มวงกลมติ๊กถูก (ถูก/สนใจ) */}
+                    <button
+                      type="button"
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDecision(currentCandidate, 'like');
+                      }}
+                      title="สนใจผู้ดูแลคนนี้ (Like)"
+                      aria-label="สนใจ"
+                      className="w-12 h-12 rounded-full bg-[#10B981] hover:bg-[#059669] text-white border-2 border-indigo-950 riso-shadow-sm riso-btn-active flex items-center justify-center cursor-pointer transition-all hover:scale-105 z-20"
+                    >
+                      <CheckIcon className="w-6 h-6 shrink-0 text-white" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white border-2 border-indigo-950 p-12 text-center riso-shadow-xl space-y-4">
+              <div className="w-16 h-16 mx-auto bg-stone-100 border-2 border-indigo-950 flex items-center justify-center">
+                <CheckIcon className="w-8 h-8 text-stone-400" />
+              </div>
+              <h3 className="text-xl font-bold text-indigo-950">ดูรายชื่อผู้สมัครครบแล้ว</h3>
+              <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto">
+                คุณได้พิจารณาผู้ดูแลทั้งหมดที่ตรงกับความต้องการแล้ว ระบบจะแจ้งเตือนเมื่อมีผู้ดูแลท่านใหม่ลงทะเบียนหรือกดสนใจงานของคุณ
+              </p>
+              <div className="pt-2 flex justify-center gap-3">
+                <Link
+                  href="/matches"
+                  className="min-h-[44px] px-5 py-2.5 bg-indigo-950 text-white font-bold text-xs border border-indigo-950 riso-shadow-sm hover:bg-[#2E1065] flex items-center gap-2"
+                >
+                  <span>ไปดูรายการที่จับคู่สำเร็จ (ศูนย์การจับคู่)</span>
+                  <ChevronRightIcon className="w-4 h-4 text-[#D946EF]" />
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Mutual Match Celebration Modal */}
+          {matchCelebration.show && matchCelebration.candidate && (
+            <div className="fixed inset-0 bg-indigo-950/70 z-50 flex items-center justify-center p-4">
+              <div className="bg-white border-4 border-indigo-950 p-6 sm:p-8 max-w-md w-full riso-shadow-xl text-center space-y-5 animate-in fade-in zoom-in-95 duration-200">
+                <div className="w-20 h-20 mx-auto bg-[#D946EF] text-white flex items-center justify-center border-2 border-indigo-950 riso-shadow-lg">
+                  <HeartIcon className="w-10 h-10 animate-pulse" />
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#D946EF]">
+                    IT&apos;S A MATCH!
+                  </span>
+                  <h3 className="text-2xl font-black text-indigo-950">จับคู่สำเร็จแล้ว!</h3>
+                  <p className="text-xs sm:text-sm text-stone-700 leading-relaxed">
+                    คุณและ <strong>{matchCelebration.candidate.display_name}</strong> ได้กดถูกใจซึ่งกันและกันแล้ว
+                    ระบบปลดล็อกข้อมูลติดต่อ (เบอร์โทรและ LINE) ให้เรียบร้อย
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-2.5 pt-2">
+                  <Link
+                    href="/matches"
+                    className="min-h-[48px] px-6 py-3 bg-indigo-950 text-white font-black text-sm border-2 border-indigo-950 riso-shadow hover:bg-[#2E1065] flex items-center justify-center gap-2"
+                  >
+                    <span>เปิดดูข้อมูลติดต่อทันที (Matches Center)</span>
+                    <ChevronRightIcon className="w-4 h-4 text-[#D946EF]" />
+                  </Link>
+
                   <button
                     type="button"
-                    onClick={() => openSendMessage(selectedCandidate)}
-                    className="w-full min-h-[44px] bg-white text-indigo-950 border-2 border-indigo-950 font-black text-xs hover:bg-stone-50 riso-shadow-sm riso-btn-active flex items-center justify-center gap-1.5"
+                    onClick={() => setMatchCelebration({ show: false, candidate: null })}
+                    className="min-h-[44px] px-4 py-2 bg-white text-indigo-950 font-bold text-xs border border-indigo-950 hover:bg-stone-50"
                   >
-                    <MessageSquareIcon className="w-4 h-4 text-indigo-950" />
-                    <span>ส่งข้อความนัดคุยรายละเอียด (Send Message)</span>
+                    ไว้ดูภายหลัง (ดูผู้ดูแลคนถัดไป)
                   </button>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => handleDecision(selectedCandidate, 'pass')}
-                      className="min-h-[48px] bg-white text-stone-700 border-2 border-indigo-950 font-bold text-xs hover:bg-stone-50 riso-shadow-sm riso-btn-active"
-                    >
-                      ข้ามผู้สมัครนี้
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDecision(selectedCandidate, 'like')}
-                      className="min-h-[48px] bg-[#D946EF] text-white border-2 border-indigo-950 font-black text-xs hover:bg-[#c026d3] riso-shadow riso-btn-active flex items-center justify-center gap-1.5"
-                    >
-                      <HeartIcon className="w-4 h-4 text-white" />
-                      <span>สนใจผู้ดูแลคนนี้</span>
-                    </button>
-                  </div>
                 </div>
               </div>
-            ) : (
-              <div className="bg-white border-2 border-indigo-950 p-8 text-center text-xs text-stone-500 riso-shadow">
-                เลือกผู้สมัครทางซ้ายเพื่อดูรายละเอียดเชิงลึก
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Floating Bottom Comparison Bar */}
-        {compareIds.length > 0 && (
-          <div className="fixed bottom-4 left-4 right-4 max-w-xl mx-auto bg-indigo-950 text-white p-4 border-2 border-white riso-shadow-xl z-40 flex items-center justify-between animate-in slide-in-from-bottom-3">
-            <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-[#D946EF] font-mono font-bold text-xs flex items-center justify-center text-white">
-                {compareIds.length}
-              </span>
-              <span className="text-xs sm:text-sm font-bold">
-                เลือกผู้สมัครไว้ {compareIds.length} คน (สูงสุด 3 คน)
-              </span>
             </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setCompareIds([])}
-                className="text-xs underline text-stone-300 hover:text-white px-2 py-1"
-              >
-                ล้าง
-              </button>
-              <button
-                type="button"
-                disabled={compareIds.length < 2}
-                onClick={() => setShowCompareModal(true)}
-                className={`min-h-[44px] px-4 py-2 font-black text-xs border border-white riso-shadow-sm flex items-center gap-1.5 ${
-                  compareIds.length >= 2
-                    ? 'bg-[#D946EF] text-white hover:bg-[#c026d3] riso-btn-active'
-                    : 'bg-stone-600 opacity-50 cursor-not-allowed'
-                }`}
-              >
-                <span>เปิดตารางเปรียบเทียบ</span>
-                <ChevronRightIcon className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Comparison Modal */}
-        {showCompareModal && (
-          <div className="fixed inset-0 bg-indigo-950/70 z-50 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white border-4 border-indigo-950 p-6 sm:p-8 max-w-4xl w-full riso-shadow-xl space-y-6 my-8">
-              <div className="flex items-center justify-between border-b-2 border-indigo-950 pb-4">
-                <div>
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#D946EF]">
-                    SIDE-BY-SIDE SPEC COMPARISON
-                  </span>
-                  <h3 className="text-2xl font-black text-indigo-950">
-                    ตารางเปรียบเทียบผู้สมัคร ({comparedCaregivers.length} คน)
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowCompareModal(false)}
-                  className="w-10 h-10 border-2 border-indigo-950 bg-white hover:bg-stone-100 flex items-center justify-center riso-shadow-sm"
-                >
-                  <CloseIcon className="w-5 h-5 text-indigo-950" />
-                </button>
-              </div>
-
-              {/* Spec Comparison Table */}
-              <div className="overflow-x-auto border-2 border-indigo-950">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-[#FAF9F6] border-b-2 border-indigo-950">
-                      <th className="p-3 font-mono font-bold border-r border-indigo-950 w-36">
-                        หัวข้อเปรียบเทียบ
-                      </th>
-                      {comparedCaregivers.map((c) => (
-                        <th key={c.caregiver_id} className="p-3 font-bold border-r border-indigo-950 min-w-[200px]">
-                          <span className="text-base font-black text-indigo-950 block">
-                            {c.display_name}
-                          </span>
-                          <span className="text-[11px] font-mono text-[#D946EF] font-bold">
-                            Fit Score: {c.fit_score}%
-                          </span>
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-indigo-950/30">
-                    <tr>
-                      <td className="p-3 font-bold bg-[#FAF9F6] border-r border-indigo-950">บทบาท</td>
-                      {comparedCaregivers.map((c) => (
-                        <td key={c.caregiver_id} className="p-3 border-r border-indigo-950">
-                          {c.care_roles.map((r) => CARE_ROLES_META[r]?.label_th || r).join(', ')}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr>
-                      <td className="p-3 font-bold bg-[#FAF9F6] border-r border-indigo-950">ประสบการณ์</td>
-                      {comparedCaregivers.map((c) => (
-                        <td key={c.caregiver_id} className="p-3 border-r border-indigo-950 font-mono font-bold">
-                          {c.years_experience} ปี
-                        </td>
-                      ))}
-                    </tr>
-                    <tr>
-                      <td className="p-3 font-bold bg-[#FAF9F6] border-r border-indigo-950">พื้นที่ & ระยะทาง</td>
-                      {comparedCaregivers.map((c) => (
-                        <td key={c.caregiver_id} className="p-3 border-r border-indigo-950 font-mono">
-                          {c.home_district} (ห่าง {c.distance_km} กม.)
-                        </td>
-                      ))}
-                    </tr>
-                    <tr>
-                      <td className="p-3 font-bold bg-[#FAF9F6] border-r border-indigo-950">ค่าจ้างคาดหวัง</td>
-                      {comparedCaregivers.map((c) => (
-                        <td key={c.caregiver_id} className="p-3 border-r border-indigo-950 font-mono font-bold text-[#D946EF]">
-                          ฿{c.expected_wage_min.toLocaleString()} - {c.expected_wage_max.toLocaleString()}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr>
-                      <td className="p-3 font-bold bg-[#FAF9F6] border-r border-indigo-950">ทักษะที่ตรงกัน</td>
-                      {comparedCaregivers.map((c) => (
-                        <td key={c.caregiver_id} className="p-3 border-r border-indigo-950">
-                          {c.matched_cases.map((mc) => CASE_TYPES_V3[mc]?.short_label_th).join(', ') || '-'}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr>
-                      <td className="p-3 font-bold bg-[#FAF9F6] border-r border-indigo-950">ใบรับรอง</td>
-                      {comparedCaregivers.map((c) => (
-                        <td key={c.caregiver_id} className="p-3 border-r border-indigo-950">
-                          {c.has_certificates ? `มี (${c.certificates.length} ฉบับ)` : 'ยังไม่มี'}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr>
-                      <td className="p-3 font-bold bg-[#FAF9F6] border-r border-indigo-950">การตัดสินใจ</td>
-                      {comparedCaregivers.map((c) => (
-                        <td key={c.caregiver_id} className="p-3 border-r border-indigo-950">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              handleDecision(c, 'like');
-                              setShowCompareModal(false);
-                            }}
-                            className="min-h-[44px] w-full px-3 py-1.5 bg-[#D946EF] text-white font-bold text-xs border border-indigo-950 riso-shadow-sm hover:bg-[#c026d3]"
-                          >
-                            สนใจคนนี้ (Like)
-                          </button>
-                        </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Direct Message Dialog Modal (Features by page) */}
-        {messageTarget && (
-          <div className="fixed inset-0 bg-indigo-950/70 z-50 flex items-center justify-center p-4">
-            <div className="bg-white border-4 border-indigo-950 p-6 sm:p-8 max-w-lg w-full riso-shadow-xl space-y-5 animate-in fade-in zoom-in-95">
-              <div className="flex items-center justify-between border-b-2 border-indigo-950 pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-[#D946EF] flex items-center justify-center text-white">
-                    <MessageSquareIcon className="w-3.5 h-3.5" />
-                  </div>
-                  <h3 className="font-black text-lg text-indigo-950">
-                    ส่งข้อความหา {messageTarget.display_name}
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setMessageTarget(null)}
-                  className="w-8 h-8 border border-indigo-950 bg-white hover:bg-stone-100 flex items-center justify-center"
-                >
-                  <CloseIcon className="w-4 h-4 text-indigo-950" />
-                </button>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-indigo-950 block font-mono">
-                  ข้อความเริ่มต้น (สร้างจากความต้องการของงาน สามารถแก้ไขได้):
-                </label>
-                <textarea
-                  rows={4}
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  className="w-full p-3 text-xs bg-white border-2 border-indigo-950 focus:outline-none focus:ring-2 focus:ring-[#D946EF] leading-relaxed"
-                />
-              </div>
-
-              <p className="text-[11px] text-stone-500 font-mono">
-                * บันทึกข้อความลงในเครื่อง (localStorage) สำหรับโหมดทดลองใช้งาน
-              </p>
-
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-200">
-                <button
-                  type="button"
-                  onClick={() => setMessageTarget(null)}
-                  className="min-h-[44px] px-4 py-2 text-xs font-bold border border-indigo-950 bg-white hover:bg-stone-50"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSendMessage}
-                  className="min-h-[44px] px-6 py-2 text-xs font-black bg-indigo-950 text-white border border-indigo-950 riso-shadow-sm hover:bg-[#2E1065] flex items-center gap-1.5 riso-btn-active"
-                >
-                  <span>ส่งข้อความ</span>
-                  <ChevronRightIcon className="w-4 h-4 text-[#D946EF]" />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
+          )}
+        </main>
+      </div>
 
       <Footer />
     </div>
   );
 }
 
-export default function FamilyApplicantsPage() {
+export default function ApplicantsPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center font-mono">กำลังโหลดรายการผู้สมัคร...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex flex-col bg-[#FAF9F6]">
+          <Topbar />
+          <div className="flex-1 p-8 text-center font-mono">กำลังโหลดรายชื่อผู้สมัคร...</div>
+          <Footer />
+        </div>
+      }
+    >
       <ApplicantsContent />
     </Suspense>
   );

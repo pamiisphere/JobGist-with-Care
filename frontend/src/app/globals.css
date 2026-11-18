@@ -2,7 +2,7 @@
 
 @theme {
   --font-sans: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-mono: 'Noto Sans Thai', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --color-paper: #FAF9F6;
   --color-paper-muted: #F4F4F0;
@@ -31,10 +31,17 @@ html {
   scroll-behavior: smooth;
 }
 
+html, body {
+  font-family: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+*, ::before, ::after {
+  font-family: inherit;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Risograph tactile shadow utilities */

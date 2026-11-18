@@ -5,15 +5,17 @@ import { useRouter } from 'next/navigation';
 import Topbar from '@/components/Topbar';
 import Footer from '@/components/Footer';
 import { ChevronRightIcon } from '@/components/Icons';
-import { getCurrentUser, updateUserAccountRole } from '@/services/api';
+import { getCurrentUser, updateUserAccountRole, startFreshRegistration } from '@/services/api';
 
 export default function RegisterRoleSelectionPage() {
   const router = useRouter();
 
   const handleSelectRole = (role: 'caregiver' | 'family', destination: string) => {
     const cur = getCurrentUser();
-    if (cur?.id) {
+    if (cur?.id && cur.id !== 'fam-1-wanwimon' && cur.id !== 'cg-1-wimon') {
       updateUserAccountRole(cur.id, role);
+    } else {
+      startFreshRegistration(role);
     }
     router.push(destination);
   };

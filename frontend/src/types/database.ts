@@ -201,10 +201,14 @@ export const COMFORT_LEVEL_META: Record<ComfortLevel, { label_th: string; is_qua
 
 // Database Tables
 
+export type CaregiverGender = 'male' | 'female' | 'unspecified';
+
 export interface Profile {
   id: string; // uuid
   role: UserRole;
   display_name: string;
+  avatar_url?: string | null;
+  gender?: CaregiverGender;
   created_at: string;
   updated_at: string;
 }
@@ -229,6 +233,9 @@ export interface CaregiverDetails {
   home_province: string;
   home_district: string;
   max_travel_km: number;
+  gender?: CaregiverGender;
+  age?: number | null;
+  avatar_url?: string | null;
   extra_answers: Record<string, unknown>;
   is_visible: boolean;
   created_at: string;
@@ -269,6 +276,8 @@ export interface JobPost {
   id: string;
   family_id: string;
   patient_description: string;
+  patient_gender?: string | null;
+  patient_age?: number | null;
   work_arrangement: WorkArrangement;
   province: string;
   district: string;
@@ -359,7 +368,7 @@ export interface FeedbackCorrection {
   user_id: string;
   original_ai_text: string;
   corrected_text: string;
-  correction_type: 'worker_profile' | 'applicant_summary';
+  correction_type: 'worker_profile' | 'applicant_summary' | 'job_post';
   rating: number | null;
   created_at: string;
 }
@@ -390,6 +399,9 @@ export interface NotificationRow {
 export interface CandidateCaregiverCard {
   caregiver_id: string;
   display_name: string;
+  avatar_url?: string | null;
+  gender?: CaregiverGender;
+  age?: number | null;
   care_roles: CareRole[];
   work_arrangements: WorkArrangement[];
   years_experience: number;
@@ -417,7 +429,11 @@ export interface CandidateCaregiverCard {
 export interface JobFeedCard {
   job_post_id: string;
   family_id: string;
+  family_name?: string;
+  family_avatar_url?: string | null;
   patient_description: string;
+  patient_gender?: string | null;
+  patient_age?: number | null;
   work_arrangement: WorkArrangement;
   province: string;
   district: string;
@@ -427,7 +443,9 @@ export interface JobFeedCard {
   distance_km: number;
   needs_i_can_do: number;
   needs_required: number;
+  fit_score?: number;
   family_liked: boolean;
+  is_favorite?: boolean;
   required_cases: CaseTypeCode[];
   status: JobStatus;
   created_at: string;

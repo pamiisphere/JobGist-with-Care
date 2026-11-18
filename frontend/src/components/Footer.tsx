@@ -2,17 +2,21 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { resetPlatformData } from '@/services/api';
 
 export default function Footer() {
+  const router = useRouter();
   const [resetSuccess, setResetSuccess] = useState(false);
 
   const handleReset = () => {
     if (confirm('คุณต้องการรีเซ็ตข้อมูลทดลองทั้งหมดกลับสู่ค่าเริ่มต้นใช่หรือไม่?')) {
       resetPlatformData();
       setResetSuccess(true);
-      setTimeout(() => setResetSuccess(false), 3000);
-      window.location.reload();
+      setTimeout(() => {
+        setResetSuccess(false);
+        window.location.href = '/';
+      }, 300);
     }
   };
 

@@ -16,13 +16,17 @@ import {
   getFamilyDraft,
   createJobPost,
   detectCasesFromText,
+  getFamilyProfileBundle,
+  getCurrentUser,
   PostJobPayload,
 } from '@/services/api';
 import {
   SparklesIcon,
   ChevronRightIcon,
+  ChevronLeftIcon,
   ShieldCheckIcon,
 } from '@/components/Icons';
+import { THAI_PROVINCES, getDistrictsByProvince } from '@/data/thaiLocations';
 
 const SAMPLE_TEXTS = [
   {
@@ -39,66 +43,114 @@ const SAMPLE_TEXTS = [
   },
 ];
 
+// Helper to get initial data from draft or fallback to existing family job post
+function getInitialFamilyJobData(): Partial<PostJobPayload> | null {
+  if (typeof window === 'undefined') return null;
+  const draft = getFamilyDraft();
+  if (draft && draft.patient_description) return draft;
+
+  const cur = getCurrentUser();
+  // Do NOT prefill mock job data if creating fresh account
+  if (cur.id !== 'fam-1-wanwimon') {
+    return null;
+  }
+
+  const familyId = 'fam-1-wanwimon';
+  const bundle = getFamilyProfileBundle(familyId);
+  const activeJob = bundle.jobPost || getFamilyProfileBundle('fam-1-wanwimon').jobPost;
+
+  if (activeJob) {
+    const loc = bundle.location || getFamilyProfileBundle('fam-1-wanwimon').location;
+    const needs = bundle.caseNeeds?.length ? bundle.caseNeeds : getFamilyProfileBundle('fam-1-wanwimon').caseNeeds;
+    return {
+      patient_description: activeJob.patient_description || '',
+      work_arrangement: activeJob.work_arrangement || 'live_in',
+      province: activeJob.province || '',
+      district: activeJob.district || '',
+      address_text: loc?.address_text || '',
+      preferred_caregiver_gender: activeJob.preferred_caregiver_gender || 'female',
+      expected_wage: activeJob.expected_wage ?? 25000,
+      wage_unit: activeJob.wage_unit || 'month',
+      start_date: activeJob.start_date || '',
+      cases: (needs || []).map((c) => ({ case_type: c.case_type, is_required: c.is_required })),
+      status: activeJob.status === 'open' ? 'open' : 'draft',
+    };
+  }
+  return null;
+}
+
 export default function FamilyPostJobPage() {
   const router = useRouter();
 
   // Natural Language Input
   const [patientDescription, setPatientDescription] = useState(() => {
-    if (typeof window === 'undefined') return '';
-    return getFamilyDraft()?.patient_description || '';
+    return getInitialFamilyJobData()?.patient_description || '';
   });
-  const [detectedCases, setDetectedCases] = useState<CaseTypeCode[]>([]);
+  const [detectedCases, setDetectedCases] = useState<CaseTypeCode[]>(() => {
+    const init = getInitialFamilyJobData();
+    if (init?.cases && init.cases.length > 0) {
+      return init.cases.map((c) => c.case_type);
+    }
+    return [];
+  });
   // Manual additions / removals so debouncer doesn't overwrite manual edits
-  const [manualAdditions, setManualAdditions] = useState<CaseTypeCode[]>([]);
+  const [manualAdditions, setManualAdditions] = useState<CaseTypeCode[]>(() => {
+    const init = getInitialFamilyJobData();
+    if (init?.cases && init.cases.length > 0) {
+      return init.cases.map((c) => c.case_type);
+    }
+    return [];
+  });
   const [manualRemovals, setManualRemovals] = useState<CaseTypeCode[]>([]);
-  const [requiredMap, setRequiredMap] = useState<Record<CaseTypeCode, boolean>>({
-    bedridden: true,
-    tube_feeding: true,
-    dementia: true,
-    stroke: true,
-    post_surgery: true,
-    wound_care: true,
-    hospital_escort: true,
-    general_elderly: true,
-    tracheostomy_suction: true,
-    physical_therapy: false,
-    diabetes_insulin: true,
-    palliative_care: true,
+  const [requiredMap, setRequiredMap] = useState<Record<CaseTypeCode, boolean>>(() => {
+    const baseMap: Record<CaseTypeCode, boolean> = {
+      bedridden: true,
+      tube_feeding: true,
+      dementia: true,
+      stroke: true,
+      post_surgery: true,
+      wound_care: true,
+      hospital_escort: true,
+      general_elderly: true,
+      tracheostomy_suction: true,
+      physical_therapy: false,
+      diabetes_insulin: true,
+      palliative_care: true,
+    };
+    const init = getInitialFamilyJobData();
+    if (init?.cases) {
+      init.cases.forEach((c) => {
+        baseMap[c.case_type] = c.is_required;
+      });
+    }
+    return baseMap;
   });
 
   // Settings
   const [workArrangement, setWorkArrangement] = useState<WorkArrangement>(() => {
-    if (typeof window === 'undefined') return 'live_in';
-    return getFamilyDraft()?.work_arrangement || 'live_in';
+    return getInitialFamilyJobData()?.work_arrangement || 'live_in';
   });
   const [preferredGender, setPreferredGender] = useState<CaregiverGenderPreference>(() => {
-    if (typeof window === 'undefined') return 'female';
-    return getFamilyDraft()?.preferred_caregiver_gender || 'female';
+    return getInitialFamilyJobData()?.preferred_caregiver_gender || 'female';
   });
   const [province, setProvince] = useState(() => {
-    if (typeof window === 'undefined') return '';
-    return getFamilyDraft()?.province || '';
+    return getInitialFamilyJobData()?.province || '';
   });
   const [district, setDistrict] = useState(() => {
-    if (typeof window === 'undefined') return '';
-    return getFamilyDraft()?.district || '';
+    return getInitialFamilyJobData()?.district || '';
   });
   const [addressText, setAddressText] = useState(() => {
-    if (typeof window === 'undefined') return '';
-    return getFamilyDraft()?.address_text || '';
+    return getInitialFamilyJobData()?.address_text || '';
   });
   const [expectedWage, setExpectedWage] = useState<number | ''>(() => {
-    if (typeof window === 'undefined') return 25000;
-    const w = getFamilyDraft()?.expected_wage;
+    const w = getInitialFamilyJobData()?.expected_wage;
     return typeof w === 'number' ? w : 25000;
   });
   const [wageUnit, setWageUnit] = useState<WageUnit>(() => {
-    if (typeof window === 'undefined') return 'month';
-    return getFamilyDraft()?.wage_unit || 'month';
+    return getInitialFamilyJobData()?.wage_unit || 'month';
   });
   const [startDate, setStartDate] = useState(() => {
-    if (typeof window === 'undefined') return '';
-    return getFamilyDraft()?.start_date || '';
+    return getInitialFamilyJobData()?.start_date || '';
   });
   const [autoSaveToast, setAutoSaveToast] = useState(false);
 
@@ -133,7 +185,9 @@ export default function FamilyPostJobPage() {
         ])
       );
 
+      const existingDraft = getFamilyDraft() || {};
       saveFamilyDraft({
+        ...existingDraft,
         patient_description: patientDescription,
         work_arrangement: workArrangement,
         province,
@@ -210,6 +264,7 @@ export default function FamilyPostJobPage() {
       return;
     }
 
+    const draft = getFamilyDraft() as any;
     const payload: PostJobPayload = {
       patient_description: patientDescription,
       work_arrangement: workArrangement,
@@ -225,10 +280,21 @@ export default function FamilyPostJobPage() {
         is_required: requiredMap[c] ?? true,
       })),
       status,
+      display_name: draft?.display_name,
+      phone: draft?.phone,
+      line_id: draft?.line_id,
+      gender: draft?.gender,
+      age: draft?.age,
+      avatar_url: draft?.avatar_url,
     };
 
     const { jobId } = createJobPost(payload);
-    router.push(`/family/applicants?jobId=${jobId}`);
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('mode') === 'edit') {
+      router.push('/family/profile');
+    } else {
+      router.push(`/family/applicants?jobId=${jobId}`);
+    }
   };
 
   const activeCasesList = getActiveCases();
@@ -237,8 +303,9 @@ export default function FamilyPostJobPage() {
     <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-[#1E1B4B]">
       <Topbar />
 
-      <main className="flex-1 px-4 py-8 max-w-4xl mx-auto w-full space-y-6">
-        <div className="bg-white border-2 border-indigo-950 p-6 sm:p-8 riso-shadow-xl space-y-6">
+      <div className="flex-1 bg-[#735095] py-8 px-4">
+        <main className="max-w-4xl mx-auto w-full space-y-6">
+          <div className="bg-white border-2 border-indigo-950 p-6 sm:p-8 riso-shadow-xl space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b-2 border-indigo-950 pb-5 gap-3">
             <div>
@@ -408,29 +475,6 @@ export default function FamilyPostJobPage() {
               </div>
             </div>
 
-            {/* Public Location */}
-            <div>
-              <label className="text-xs font-bold text-indigo-950 mb-1 block">จังหวัด</label>
-              <input
-                type="text"
-                value={province}
-                onChange={(e) => setProvince(e.target.value)}
-                placeholder="เช่น กรุงเทพมหานคร หรือ นนทบุรี"
-                className="w-full min-h-[44px] px-3.5 text-sm bg-white border-2 border-indigo-950 placeholder:text-stone-400 focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-bold text-indigo-950 mb-1 block">อำเภอ / เขต</label>
-              <input
-                type="text"
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
-                placeholder="เช่น จตุจักร หรือ ลาดพร้าว"
-                className="w-full min-h-[44px] px-3.5 text-sm bg-white border-2 border-indigo-950 placeholder:text-stone-400 focus:outline-none"
-              />
-            </div>
-
             {/* Budget & Wage Unit */}
             <div>
               <label className="text-xs font-bold text-indigo-950 mb-1 flex items-center justify-between">
@@ -494,19 +538,46 @@ export default function FamilyPostJobPage() {
           </div>
 
           {/* Submit Actions */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t-2 border-indigo-950 pt-6">
+          <div className="flex items-center justify-between gap-3 border-t-2 border-indigo-950 pt-6">
             <button
               type="button"
-              onClick={() => handleSubmit('draft')}
-              className="w-full sm:w-auto min-h-[48px] px-5 py-2.5 bg-white text-indigo-950 font-bold text-xs sm:text-sm border-2 border-indigo-950 hover:bg-stone-50 riso-shadow-sm riso-btn-active"
+              onClick={() => {
+                const active = Array.from(
+                  new Set([
+                    ...detectedCases.filter((c) => !manualRemovals.includes(c)),
+                    ...manualAdditions,
+                  ])
+                );
+                const existingDraft = getFamilyDraft() || {};
+                saveFamilyDraft({
+                  ...existingDraft,
+                  patient_description: patientDescription,
+                  work_arrangement: workArrangement,
+                  province,
+                  district,
+                  address_text: addressText,
+                  preferred_caregiver_gender: preferredGender,
+                  expected_wage: expectedWage === '' ? null : Number(expectedWage),
+                  wage_unit: wageUnit,
+                  start_date: startDate || null,
+                  cases: active.map((c) => ({
+                    case_type: c,
+                    is_required: requiredMap[c] ?? true,
+                  })),
+                  status: 'draft',
+                });
+                router.push('/family/onboarding');
+              }}
+              className="min-h-[48px] px-5 py-2.5 bg-white text-indigo-950 border-2 border-indigo-950 font-bold text-xs sm:text-sm hover:bg-stone-50 riso-shadow-sm flex items-center justify-center gap-1.5 riso-btn-active cursor-pointer"
             >
-              บันทึกเป็นแบบร่าง (Draft)
+              <ChevronLeftIcon className="w-4 h-4" />
+              <span>ย้อนกลับ</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleSubmit('open')}
-              className="w-full sm:w-auto min-h-[48px] px-8 py-3 bg-[#1E1B4B] text-white font-black text-sm border-2 border-indigo-950 riso-shadow-lg hover:bg-[#2E1065] flex items-center justify-center gap-2 riso-btn-active"
+              className="min-h-[48px] px-8 py-3 bg-[#1E1B4B] text-white font-black text-sm border-2 border-indigo-950 riso-shadow-lg hover:bg-[#2E1065] flex items-center justify-center gap-2 riso-btn-active"
             >
               <span>โพสต์ประกาศและค้นหาผู้สมัครทันที</span>
               <ChevronRightIcon className="w-5 h-5 text-[#D946EF]" />
@@ -514,6 +585,7 @@ export default function FamilyPostJobPage() {
           </div>
         </div>
       </main>
+      </div>
 
       <Footer />
     </div>

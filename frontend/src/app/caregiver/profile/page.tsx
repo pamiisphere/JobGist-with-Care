@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Topbar from '@/components/Topbar';
 import Footer from '@/components/Footer';
 import {
@@ -9,6 +10,11 @@ import {
   getCaregiverProfileBundle,
   updateCaregiverProfileText,
   publishCaregiverProfile,
+  saveCaregiverDraft,
+  logout,
+  getNameInitial,
+  ensureKhunPrefix,
+  stripKhunPrefix,
 } from '@/services/api';
 import {
   SparklesIcon,
@@ -21,7 +27,10 @@ import {
 import { CASE_TYPES_V3, CARE_ROLES_META, COMFORT_LEVEL_META } from '@/types/database';
 
 export default function CaregiverProfilePage() {
-  const [caregiverId] = useState(() => {
+  const router = useRouter();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const [caregiverId, setCaregiverId] = useState(() => {
     const cur = getCurrentUser();
     return cur.role === 'caregiver' ? cur.id : 'cg-1-wimon';
   });
@@ -42,6 +51,27 @@ export default function CaregiverProfilePage() {
     const active = b.profile && b.detail ? b : getCaregiverProfileBundle('cg-1-wimon');
     return active.aiProfile?.profile_text || '';
   });
+
+  // Always refresh latest data on mount or when user updates
+  React.useEffect(() => {
+    const refreshData = () => {
+      const cur = getCurrentUser();
+      const id = cur.role === 'caregiver' ? cur.id : 'cg-1-wimon';
+      setCaregiverId(id);
+      const b = getCaregiverProfileBundle(id);
+      const active = b.profile && b.detail ? b : getCaregiverProfileBundle('cg-1-wimon');
+      setBundle(active);
+      if (active.aiProfile?.profile_text) {
+        setCurrentText(active.aiProfile.profile_text);
+      }
+    };
+
+    refreshData();
+    window.addEventListener('jg_user_changed', refreshData);
+    return () => {
+      window.removeEventListener('jg_user_changed', refreshData);
+    };
+  }, []);
   const [hasEdited, setHasEdited] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState(false);
 
@@ -81,32 +111,34 @@ export default function CaregiverProfilePage() {
     <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-[#1E1B4B]">
       <Topbar />
 
-      <main className="flex-1 px-4 py-8 max-w-4xl mx-auto w-full space-y-6">
-        {/* Banner: AI Origin & Verification Gate */}
-        <div className="bg-white border-2 border-indigo-950 p-4 riso-shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <span className="w-8 h-8 rounded-full bg-[#D946EF] text-white flex items-center justify-center shrink-0 border border-indigo-950">
-              <SparklesIcon className="w-4 h-4" />
+      <div className="flex-1 bg-[#735095] py-8 px-4">
+        <main className="max-w-4xl mx-auto w-full space-y-6">
+          {/* Banner: AI Origin & Verification Gate */}
+        <div className="bg-white border-2 border-indigo-950 px-4 py-2.5 riso-shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-[#D946EF] text-white flex items-center justify-center shrink-0 border border-indigo-950">
+              <SparklesIcon className="w-3.5 h-3.5" />
             </span>
-            <div>
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-indigo-950 block">
-                AI WORKER PROFILE • FASTAPI SYNTHESIZER
+            <div className="flex flex-wrap items-center gap-x-2">
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-indigo-950">
+                AI WORKER PROFILE
               </span>
-              <p className="text-xs text-stone-600">
-                ข้อความนี้เรียบเรียงโดย AI จากคำตอบ 5 ขั้นตอนของคุณ โปรดตรวจสอบความถูกต้องก่อนเผยแพร่
+              <span className="text-[11px] text-stone-500 hidden sm:inline">•</span>
+              <p className="text-[11px] text-stone-600">
+                เรียบเรียงโดย AI จาก 5 ขั้นตอนของคุณ ตรวจสอบก่อนเผยแพร่
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
             {isPublished ? (
-              <span className="px-3 py-1 bg-emerald-100 text-emerald-950 border border-emerald-900 font-mono font-bold text-xs flex items-center gap-1.5">
-                <CheckIcon className="w-4 h-4 text-emerald-700" />
-                เผยแพร่แล้ว (Visible to Families)
+              <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-950 border border-emerald-900 font-mono font-bold text-[11px] flex items-center gap-1">
+                <CheckIcon className="w-3.5 h-3.5 text-emerald-700" />
+                เผยแพร่แล้ว
               </span>
             ) : (
-              <span className="px-3 py-1 bg-amber-100 text-amber-950 border border-amber-900 font-mono font-bold text-xs">
-                ร่างโปรไฟล์ (ยังไม่เผยแพร่)
+              <span className="px-2.5 py-0.5 bg-amber-100 text-amber-950 border border-amber-900 font-mono font-bold text-[11px]">
+                ร่างโปรไฟล์
               </span>
             )}
           </div>
@@ -115,17 +147,35 @@ export default function CaregiverProfilePage() {
         {/* Main Profile Card (Print Cover Style) */}
         <div className="bg-white border-2 border-indigo-950 p-6 sm:p-8 riso-shadow-xl space-y-6">
           {/* Header Row */}
-          <div className="flex flex-col sm:flex-row items-start justify-between border-b-2 border-indigo-950 pb-6 gap-4">
-            <div className="flex items-start gap-4">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-950 text-white font-mono font-black text-2xl sm:text-3xl flex items-center justify-center border-2 border-indigo-950 riso-shadow shrink-0">
-                {profile?.display_name.slice(0, 2) || 'ผด'}
-              </div>
+          <div className="flex flex-col sm:flex-row items-start justify-between border-b-2 border-indigo-950 pb-6 gap-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+              {profile?.avatar_url || detail.avatar_url ? (
+                <img
+                  src={profile?.avatar_url || detail.avatar_url || ''}
+                  alt={profile?.display_name || 'รูปโปรไฟล์'}
+                  className="w-36 h-36 sm:w-48 sm:h-48 object-cover border-2 border-indigo-950 riso-shadow-md shrink-0 bg-white"
+                />
+              ) : (
+                <div className="w-36 h-36 sm:w-48 sm:h-48 bg-indigo-950 text-white font-mono font-black text-4xl sm:text-5xl flex items-center justify-center border-2 border-indigo-950 riso-shadow-md shrink-0">
+                  {getNameInitial(profile?.display_name, 'ผ')}
+                </div>
+              )}
 
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                   <h1 className="text-2xl sm:text-3xl font-black text-indigo-950">
-                    {profile?.display_name || 'ผู้ดูแล'}
+                    {ensureKhunPrefix(profile?.display_name) || 'ผู้ดูแล'}
                   </h1>
+                  {detail.gender && detail.gender !== 'unspecified' && (
+                    <span className="px-2.5 py-0.5 bg-stone-100 text-indigo-950 border border-indigo-950 text-xs font-mono font-bold">
+                      {detail.gender === 'female' ? 'เพศหญิง' : 'เพศชาย'}
+                    </span>
+                  )}
+                  {typeof detail.age === 'number' && detail.age > 0 && (
+                    <span className="px-2.5 py-0.5 bg-stone-100 text-indigo-950 border border-indigo-950 text-xs font-mono font-bold">
+                      อายุ {detail.age} ปี
+                    </span>
+                  )}
                   {certificates.length > 0 && (
                     <span className="px-2 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-900 text-xs font-bold flex items-center gap-1">
                       <ShieldCheckIcon className="w-3.5 h-3.5" />
@@ -319,12 +369,46 @@ export default function CaregiverProfilePage() {
 
           {/* Action Gate Controls */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t-2 border-indigo-950 pt-6">
-            <Link
-              href="/caregiver/onboarding"
-              className="min-h-[48px] px-4 py-2.5 bg-white text-indigo-950 border-2 border-indigo-950 font-bold text-xs sm:text-sm hover:bg-stone-50 riso-shadow-sm text-center flex items-center justify-center gap-1.5 riso-btn-active"
+            <button
+              type="button"
+              onClick={() => {
+                if (bundle) {
+                  const { profile: p, detail: d, contact: c, skills: s, certificates: certs } = bundle;
+                  saveCaregiverDraft({
+                    display_name: stripKhunPrefix(p?.display_name || ''),
+                    phone: (c?.phone || '').replace(/\D/g, '').slice(0, 10),
+                    line_id: c?.line_id || '',
+                    avatar_url: p?.avatar_url || d.avatar_url || null,
+                    gender: d.gender || p?.gender || 'unspecified',
+                    age: typeof d.age === 'number' ? d.age : null,
+                    home_province: d.home_province || '',
+                    home_district: d.home_district || '',
+                    address_text: '',
+                    max_travel_km: d.max_travel_km || 20,
+                    care_roles: d.care_roles || ['caregiver'],
+                    years_experience: d.years_experience || 1,
+                    expected_wage_min: d.expected_wage_min || 20000,
+                    expected_wage_max: d.expected_wage_max || 25000,
+                    wage_unit: d.wage_unit || 'month',
+                    work_arrangements: d.work_arrangements || ['daily'],
+                    skills: (s || []).map((sk) => ({
+                      case_type: sk.case_type,
+                      comfort_level: sk.comfort_level,
+                    })),
+                    certificates: (certs || []).map((cr) => ({
+                      file_name: cr.file_name,
+                      cert_type: cr.cert_type,
+                      preview_url: cr.preview_url || '',
+                    })),
+                    no_certificates: !certs || certs.length === 0,
+                  });
+                }
+                router.push('/caregiver/onboarding?mode=edit');
+              }}
+              className="min-h-[48px] px-5 py-2.5 bg-white text-indigo-950 border-2 border-indigo-950 font-bold text-xs sm:text-sm hover:bg-stone-50 riso-shadow-sm text-center flex items-center justify-center gap-1.5 cursor-pointer riso-btn-active"
             >
-              <span>← ย้อนกลับไปแก้ไขคำตอบ</span>
-            </Link>
+              <span>แก้ไขโปรไฟล์</span>
+            </button>
 
             <div className="flex items-center gap-3">
               {!isPublished ? (
@@ -347,8 +431,54 @@ export default function CaregiverProfilePage() {
               )}
             </div>
           </div>
+
+          {/* Logout Button (Bottom of Profile Card, Red Font) - Only show after profile is published */}
+          {isPublished && (
+            <div className="border-t border-dashed border-stone-300 pt-6 mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(true)}
+                className="inline-flex items-center justify-center min-h-[54px] w-full sm:w-auto px-10 py-3 bg-white text-red-600 hover:text-red-700 border-2 border-red-600 hover:border-red-700 font-black text-base sm:text-lg riso-shadow hover:bg-red-50 riso-btn-active cursor-pointer transition-all"
+              >
+                ออกจากระบบ
+              </button>
+            </div>
+          )}
         </div>
-      </main>
+        </main>
+      </div>
+
+      {/* Confirmation Modal for Logout */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-indigo-950/60 p-4 animate-in fade-in duration-150">
+          <div className="bg-white border-4 border-indigo-950 p-6 sm:p-7 max-w-sm w-full riso-shadow-xl space-y-6 text-center">
+            <h3 className="text-base sm:text-lg font-black text-indigo-950 pt-2">
+              คุณแน่ใจใช่ไหมที่จะออกจากระบบ
+            </h3>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(false)}
+                className="min-h-[44px] px-4 py-2 bg-white text-stone-700 border-2 border-indigo-950 font-bold text-sm hover:bg-stone-50 riso-shadow-sm riso-btn-active cursor-pointer"
+              >
+                ไม่
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  setShowLogoutModal(false);
+                  router.push('/');
+                }}
+                className="min-h-[44px] px-4 py-2 bg-white text-indigo-950 border-2 border-indigo-950 font-bold text-sm hover:bg-stone-50 riso-shadow-sm riso-btn-active cursor-pointer"
+              >
+                ใช่
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

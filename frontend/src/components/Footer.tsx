@@ -28,7 +28,7 @@ export default function Footer() {
           <div className="flex items-center gap-2">
             <span className="font-extrabold text-xl tracking-tight text-indigo-950">JobGist with Care</span>
             <span className="text-xs px-2 py-0.5 bg-[#D946EF] text-white font-mono font-bold border border-indigo-950">
-              RISO-PRINT
+              BETA
             </span>
           </div>
           <p className="text-sm text-stone-700 leading-relaxed">
@@ -105,9 +105,9 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-stone-300 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-stone-600 gap-2">
         <p>© 2026 JobGist with Care. Powered by Supabase Schema v3 & FastAPI LLM Engine.</p>
         <p className="flex items-center gap-2">
-          <span>Risograph Editorial Grid</span>
+          <span>Senior Project · MUIC Computer Engineering</span>
           <span>•</span>
-          <span>100% Plain Thai</span>
+          <span>2026</span>
         </p>
       </div>
     </footer>

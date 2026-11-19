@@ -10,6 +10,8 @@ import {
   getCaregiverProfileBundle,
   updateCaregiverProfileText,
   publishCaregiverProfile,
+  LIVE,
+  getLastLiveError,
   saveCaregiverDraft,
   logout,
   getNameInitial,
@@ -98,7 +100,25 @@ export default function CaregiverProfilePage() {
     return (
       <div className="min-h-screen flex flex-col bg-[#FAF9F6]">
         <Topbar />
-        <div className="flex-1 p-8 text-center font-mono">กำลังโหลดข้อมูลโปรไฟล์...</div>
+        {LIVE ? (
+          <div className="flex-1 p-8 max-w-xl mx-auto text-center space-y-4">
+            <p className="font-bold text-indigo-950">ยังไม่พบข้อมูลโปรไฟล์ผู้ดูแลของบัญชีนี้ในระบบ</p>
+            <p className="text-sm text-stone-600">บัญชี: {getCurrentUser().email || getCurrentUser().id || 'ยังไม่ได้เข้าสู่ระบบ'}</p>
+            {getLastLiveError() && (
+              <p className="text-xs text-left bg-rose-50 border-2 border-rose-700 text-rose-900 p-3 break-words">
+                ข้อผิดพลาดล่าสุด: {getLastLiveError()}
+              </p>
+            )}
+            <button
+              onClick={() => router.push('/caregiver/onboarding')}
+              className="px-4 py-2 bg-indigo-950 text-white font-bold"
+            >
+              กรอกโปรไฟล์อีกครั้ง
+            </button>
+          </div>
+        ) : (
+          <div className="flex-1 p-8 text-center font-mono">กำลังโหลดข้อมูลโปรไฟล์...</div>
+        )}
         <Footer />
       </div>
     );

@@ -1,5 +1,6 @@
 'use client';
 
+import { fileToSmallDataUrl } from '@/lib/image';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Topbar from '@/components/Topbar';
@@ -679,12 +680,7 @@ export default function CaregiverOnboardingPage() {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        const base64 = event.target?.result as string;
-                        setAvatarUrl(base64);
-                      };
-                      reader.readAsDataURL(file);
+                      fileToSmallDataUrl(file).then(setAvatarUrl).catch(() => undefined);
                     }
                   }}
                   className="hidden"
@@ -724,12 +720,7 @@ export default function CaregiverOnboardingPage() {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        const base64 = event.target?.result as string;
-                        setAvatarUrl(base64);
-                      };
-                      reader.readAsDataURL(file);
+                      fileToSmallDataUrl(file).then(setAvatarUrl).catch(() => undefined);
                     }
                   }}
                   className="hidden"

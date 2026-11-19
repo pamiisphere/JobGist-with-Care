@@ -180,12 +180,36 @@ function getStored<T>(key: string, defaultValue: T): T {
   }
 }
 
+// Drop huge inline images (old uncompressed avatars) so the ~5 MB localStorage never fills up.
+function shrinkForStorage(value: unknown): unknown {
+  if (typeof value === 'string') return value.startsWith('data:') && value.length > 150_000 ? null : value;
+  if (Array.isArray(value)) return value.map(shrinkForStorage);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([k, v]) => [k, shrinkForStorage(v)]));
+  }
+  return value;
+}
+
+// Keys only the old offline demo used; safe to drop when space runs out.
+const DISPOSABLE_KEYS = [
+  'jg_registered_accounts_v3', 'jg_reviews_v3', 'jg_feedback_v3', 'jg_caregiver_draft_v3',
+  'jg_family_draft_v3', 'jg_event_ping',
+];
+
 function setStored<T>(key: string, value: T): void {
   if (typeof window === 'undefined') return;
+  const raw = JSON.stringify(shrinkForStorage(value));
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(key, raw);
   } catch (err) {
-    console.error(`Error writing ${key} to localStorage`, err);
+    // quota full: free space from disposable/legacy keys, then retry once
+    DISPOSABLE_KEYS.filter((k) => k !== key).forEach((k) => localStorage.removeItem(k));
+    Object.keys(localStorage).filter((k) => k.startsWith('jg_seed_version')).forEach((k) => localStorage.removeItem(k));
+    try {
+      localStorage.setItem(key, raw);
+    } catch (err2) {
+      console.error(`Error writing ${key} to localStorage`, err2);
+    }
   }
 }
 
@@ -2638,6 +2662,7 @@ let pendingWrites: Promise<unknown> = Promise.resolve();
 function reportLiveError(e: unknown) {
   const msg = (e as Error)?.message || String(e);
   console.error('[live]', e);
+  try { localStorage.setItem('jg_live_last_error', `${new Date().toLocaleTimeString()} — ${msg}`); } catch { /* ignore */ }
   broadcastAppEvent('jg_live_error', { message: msg });
 }
 
@@ -2740,6 +2765,10 @@ export function hydrateLive(): Promise<boolean> {
   if (hydrating) return hydrating;
   hydrating = (async () => {
     try {
+      // leftovers from the offline demo (can be several MB of images)
+      ['jg_registered_accounts_v3', 'jg_reviews_v3', 'jg_feedback_v3', 'jg_event_ping']
+        .forEach((k) => localStorage.removeItem(k));
+      Object.keys(localStorage).filter((k) => k.startsWith('jg_seed_version')).forEach((k) => localStorage.removeItem(k));
       const snap = await Live.fetchSnapshot();
       if (!snap) {
         clearLiveCache();
@@ -2829,3 +2858,8 @@ export async function liveCompleteSignup(role: UserRole): Promise<CurrentUserSes
 }
 
 export const LIVE_DEMO = { emails: Live.DEMO_EMAILS, password: Live.DEMO_PASSWORD };
+
+export function getLastLiveError(): string {
+  if (typeof window === 'undefined') return '';
+  return localStorage.getItem('jg_live_last_error') || '';
+}

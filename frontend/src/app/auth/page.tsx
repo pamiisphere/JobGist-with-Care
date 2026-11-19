@@ -1,5 +1,6 @@
 'use client';
 
+import { fileToSmallDataUrl } from '@/lib/image';
 import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -414,12 +415,7 @@ function AuthContent() {
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                const reader = new FileReader();
-                                reader.onload = (event) => {
-                                  const base64 = event.target?.result as string;
-                                  setAvatarUrl(base64);
-                                };
-                                reader.readAsDataURL(file);
+                                fileToSmallDataUrl(file).then(setAvatarUrl).catch(() => undefined);
                               }
                             }}
                           />

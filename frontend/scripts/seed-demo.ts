@@ -3,6 +3,7 @@
  *
  *   npm run seed:demo            # (re)create demo users + data, then generate AI via the backend
  *   npm run seed:demo -- --no-ai # data only
+ *   npm run seed:demo -- --extra=50  # how many generated caregivers on top of mockData (default 30; families = 60%)
  *   npm run seed:demo -- --clean # delete every *@demo.jobgist.app user (and, by cascade, their data)
  *
  * Reads SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY from ../backend/.env,
@@ -11,7 +12,8 @@
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import * as M from '../src/lib/mockData';
+import * as Mock from '../src/lib/mockData';
+import { makeExtraDemo, mergeDemo } from './demo-extra';
 import { DEMO_PASSWORD, toDbCase, certTypeToDb } from '../src/services/live';
 import { approxLatLng } from '../src/services/geo';
 
@@ -37,6 +39,11 @@ const SERVICE = be.SUPABASE_SERVICE_ROLE_KEY;
 const ANON = fe.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const API = (fe.NEXT_PUBLIC_API_BASE || 'http://localhost:8000').replace(/\/+$/, '');
 if (!URL || !SERVICE) throw new Error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not found in ../backend/.env');
+
+const EXTRA = Number([...args].find((a) => a.startsWith('--extra='))?.split('=')[1] ?? 30);
+const certPreviews = Object.values(Mock.MOCK_CERTIFICATES).flat()
+  .map((c) => c.preview_url).filter((u): u is string => !!u && u.startsWith('http'));
+const M = mergeDemo(Mock, makeExtraDemo(EXTRA, Math.round(EXTRA * 0.6), certPreviews));
 
 const admin = createClient(URL, SERVICE, { auth: { persistSession: false, autoRefreshToken: false } });
 
@@ -249,7 +256,8 @@ async function main() {
   }
   for (const j of M.MOCK_JOB_POSTS) {
     const jid = jobId[j.id];
-    if (!jid || j.status !== 'open') continue;
+    // generated jobs get their AI summaries on demand when the family opens the applicants page
+    if (!jid || j.status !== 'open' || j.id.startsWith('jobx-')) continue;
     try {
       const { c, token } = await signedInClient(emailFor(j.family_id));
       const { data } = await c.rpc('candidate_caregivers', { p_job_post_id: jid, p_max_km: null, p_limit: 20 });

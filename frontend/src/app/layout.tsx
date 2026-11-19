@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ToastProvider } from "@/components/Toast";
+import LiveGate from "@/components/LiveGate";
 
 export const metadata: Metadata = {
   title: "JobGist with Care - แพลตฟอร์มจับคู่งานดูแลผู้สูงอายุและผู้ป่วย",
@@ -26,7 +27,9 @@ export default function RootLayout({
         className="min-h-full flex flex-col font-sans bg-[#FAF9F6] text-[#1E1B4B] antialiased selection:bg-[#D946EF] selection:text-white"
         suppressHydrationWarning
       >
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          <LiveGate>{children}</LiveGate>
+        </ToastProvider>
       </body>
     </html>
   );

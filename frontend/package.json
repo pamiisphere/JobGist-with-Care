@@ -6,9 +6,11 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed:demo": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.119.1",
     "@tailwindcss/postcss": "^4.3.5",
     "next": "16.4.5",
     "react": "19.3.0",
@@ -22,6 +24,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
     "tailwindcss": "^4",
+    "tsx": "^4.20.0",
     "typescript": "^5"
   }
 }

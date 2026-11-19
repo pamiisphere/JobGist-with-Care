@@ -157,7 +157,11 @@ insert into public.case_types (code, label_th, sort_order) values
   ('bathing_toileting', 'อาบน้ำ / ช่วยขับถ่าย',                      16),
   ('night_watch',       'เฝ้ากลางคืน',                              17),
   ('meal_prep',         'ทำอาหารสำหรับผู้ป่วย',                      18),
-  ('light_housework',   'งานบ้านเบาๆ',                              19);
+  ('light_housework',   'งานบ้านเบาๆ',                              19),
+  -- used by the web UI's 12 care categories (frontend/src/services/live.ts maps codes)
+  ('post_surgery',      'ฟื้นฟูหลังผ่าตัด',                          20),
+  ('hospital_escort',   'พาพบแพทย์ / ไปโรงพยาบาล',                  21),
+  ('physical_therapy',  'กายภาพบำบัด / ฝึกเดิน',                     22);
 
 
 -- =====================================================================

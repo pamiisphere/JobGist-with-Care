@@ -53,23 +53,28 @@ import {
   CaregiverGender,
 } from '@/types/database';
 
-import {
-  MOCK_PROFILES,
-  MOCK_CONTACTS,
-  MOCK_CAREGIVER_DETAILS,
-  MOCK_CAREGIVER_LOCATIONS,
-  MOCK_CAREGIVER_SKILLS,
-  MOCK_CERTIFICATES,
-  MOCK_JOB_POSTS,
-  MOCK_JOB_LOCATIONS,
-  MOCK_JOB_CASE_NEEDS,
-  MOCK_MATCHES,
-  MOCK_FAVORITES,
-  MOCK_NOTIFICATIONS,
-  MOCK_REVIEWS,
-  MOCK_AI_WORKER_PROFILES,
-  MOCK_AI_APPLICANT_SUMMARIES,
-} from '@/lib/mockData';
+import * as Mock from '@/lib/mockData';
+import * as Live from './live';
+import { approxLatLng } from './geo';
+
+// LIVE = Supabase configured. Then nothing from mockData is ever shown:
+// the localStorage keys below become a cache filled from Supabase by hydrateLive().
+export const LIVE = Live.LIVE;
+const MOCK_PROFILES: Profile[] = LIVE ? [] : Mock.MOCK_PROFILES;
+const MOCK_CONTACTS: Record<string, ContactDetails> = LIVE ? {} : Mock.MOCK_CONTACTS;
+const MOCK_CAREGIVER_DETAILS: Record<string, CaregiverDetails> = LIVE ? {} : Mock.MOCK_CAREGIVER_DETAILS;
+const MOCK_CAREGIVER_LOCATIONS: Record<string, CaregiverLocation> = LIVE ? {} : Mock.MOCK_CAREGIVER_LOCATIONS;
+const MOCK_CAREGIVER_SKILLS: Record<string, CaregiverCaseSkill[]> = LIVE ? {} : Mock.MOCK_CAREGIVER_SKILLS;
+const MOCK_CERTIFICATES: Record<string, Certificate[]> = LIVE ? {} : Mock.MOCK_CERTIFICATES;
+const MOCK_JOB_POSTS: JobPost[] = LIVE ? [] : Mock.MOCK_JOB_POSTS;
+const MOCK_JOB_LOCATIONS: Record<string, JobPostLocation> = LIVE ? {} : Mock.MOCK_JOB_LOCATIONS;
+const MOCK_JOB_CASE_NEEDS: Record<string, JobPostCaseNeed[]> = LIVE ? {} : Mock.MOCK_JOB_CASE_NEEDS;
+const MOCK_MATCHES: MatchRow[] = LIVE ? [] : Mock.MOCK_MATCHES;
+const MOCK_FAVORITES: FavoriteRow[] = LIVE ? [] : Mock.MOCK_FAVORITES;
+const MOCK_NOTIFICATIONS: NotificationRow[] = LIVE ? [] : Mock.MOCK_NOTIFICATIONS;
+const MOCK_REVIEWS: PlatformReview[] = LIVE ? [] : Mock.MOCK_REVIEWS;
+const MOCK_AI_WORKER_PROFILES: Record<string, AIWorkerProfile> = LIVE ? {} : Mock.MOCK_AI_WORKER_PROFILES;
+const MOCK_AI_APPLICANT_SUMMARIES: Record<string, AIApplicantSummary> = LIVE ? {} : Mock.MOCK_AI_APPLICANT_SUMMARIES;
 
 const STORAGE_KEYS = {
   CURRENT_USER: 'jg_current_user_v3',
@@ -93,6 +98,9 @@ const STORAGE_KEYS = {
   FAMILY_DRAFT: 'jg_family_draft_v3',
   IS_LOGGED_IN: 'jg_is_logged_in_v3',
   REGISTERED_ACCOUNTS: 'jg_registered_accounts_v3',
+  LIVE_DISTANCES: 'jg_live_distances_v1',
+  LIVE_CANDIDATES: 'jg_live_candidates_v1',
+  JOB_FAVORITES: 'jg_job_favorites_v1',
 };
 
 // Universal Cross-Tab and Same-Window Event Broadcaster
@@ -185,7 +193,7 @@ function setStored<T>(key: string, value: T): void {
 const SEED_VERSION_KEY = 'jg_seed_version_v15';
 
 export function initSeedData(force = false): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined' || LIVE) return;
 
   const currentVersion = localStorage.getItem(SEED_VERSION_KEY);
   const currentProfiles = getStored<Profile[]>(STORAGE_KEYS.PROFILES, []);
@@ -598,7 +606,12 @@ export function getPostLoginRedirect(session: CurrentUserSession): {
   return { path: '/register', reason: 'นำท่านไปหน้าเลือกบทบาท' };
 }
 
+const GUEST: CurrentUserSession = { id: '', role: null, display_name: '', phone: '' };
+
 export function getCurrentUser(): CurrentUserSession {
+  if (LIVE) {
+    return getStored<CurrentUserSession>(STORAGE_KEYS.CURRENT_USER, GUEST);
+  }
   if (typeof window === 'undefined') {
     return {
       id: 'fam-1-wanwimon',
@@ -636,6 +649,10 @@ export function setUserLoggedIn(loggedIn: boolean): void {
 }
 
 export function logout(): void {
+  if (LIVE) {
+    void Live.signOut();
+    clearLiveCache();
+  }
   setUserLoggedIn(false);
 }
 
@@ -649,6 +666,7 @@ export function setCurrentUser(session: CurrentUserSession): void {
 }
 
 export function switchPersona(role: UserRole): void {
+  if (LIVE) return;
   if (role === 'caregiver') {
     setCurrentUser({
       id: 'cg-1-wimon',
@@ -670,6 +688,12 @@ export function switchPersona(role: UserRole): void {
 
 export function resetPlatformData(): void {
   if (typeof window === 'undefined') return;
+  if (LIVE) {
+    logout();
+    broadcastAppEvent('jg_data_reset');
+    broadcastAppEvent('jg_user_changed');
+    return;
+  }
   localStorage.clear();
   initSeedData(true);
   logout();
@@ -684,7 +708,7 @@ export function resetPlatformData(): void {
  * rather than any previously typed/drafted test values in localStorage.
  */
 export function restoreDemoAccount(id: 'cg-1-wimon' | 'fam-1-wanwimon'): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined' || LIVE) return;
 
   if (id === 'cg-1-wimon') {
     // Restore caregiver profile & details
@@ -777,6 +801,11 @@ export function restoreDemoAccount(id: 'cg-1-wimon' | 'fam-1-wanwimon'): void {
 export function startFreshRegistration(role?: UserRole): void {
   clearCaregiverDraft();
   clearFamilyDraft();
+  if (LIVE) {
+    // a real account picks its role at sign-up; signed-out users go through /auth
+    if (!isUserLoggedIn()) clearLiveCache();
+    return;
+  }
   logout(); // Ensure user is marked as unauthenticated guest until onboarding finishes
   const freshUserId = `user-${Date.now()}`;
   setStored(STORAGE_KEYS.CURRENT_USER, {
@@ -850,6 +879,26 @@ export async function generateAIWorkerProfile(
   payload: CaregiverOnboardingPayload
 ): Promise<AIWorkerProfile> {
   const apiBase = process.env.NEXT_PUBLIC_API_BASE;
+
+  if (LIVE) {
+    await pendingWrites;
+    try {
+      const profile = await Live.generateWorkerProfile(caregiverId);
+      const all = getStored<Record<string, AIWorkerProfile>>(STORAGE_KEYS.AI_PROFILES, {});
+      all[caregiverId] = profile;
+      setStored(STORAGE_KEYS.AI_PROFILES, all);
+      refreshLive();
+      return profile;
+    } catch (e) {
+      reportLiveError(e);
+      return {
+        id: '', caregiver_id: caregiverId,
+        profile_text: 'ระบบ AI ยังสร้างโปรไฟล์ไม่สำเร็จ กรุณากดสร้างใหม่อีกครั้งในภายหลัง',
+        summary_headline: '', key_strengths: [], is_active: false, prompt_version: '', input_hash: '',
+        created_at: new Date().toISOString(),
+      };
+    }
+  }
 
   if (apiBase) {
     try {
@@ -1005,8 +1054,8 @@ export function submitCaregiverOnboarding(payload: CaregiverOnboardingPayload): 
   allLocations[caregiverId] = {
     caregiver_id: caregiverId,
     address_text: payload.address_text || `${payload.home_district} ${payload.home_province}`,
-    lat: payload.lat || 13.7563,
-    lng: payload.lng || 100.5018,
+    lat: payload.lat || (LIVE ? approxLatLng(payload.home_province, payload.home_district)?.lat ?? null : 13.7563),
+    lng: payload.lng || (LIVE ? approxLatLng(payload.home_province, payload.home_district)?.lng ?? null : 100.5018),
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
@@ -1056,6 +1105,9 @@ export function submitCaregiverOnboarding(payload: CaregiverOnboardingPayload): 
   });
 
   clearCaregiverDraft();
+  if (LIVE) {
+    track(Live.saveCaregiver(caregiverId, payload));
+  }
   return { caregiverId };
 }
 
@@ -1117,6 +1169,9 @@ export function updateCaregiverProfileText(
     allProfiles[caregiverId].profile_text = newText;
     setStored(STORAGE_KEYS.AI_PROFILES, allProfiles);
   }
+  if (LIVE) {
+    track(Live.saveProfileTextEdit(caregiverId, allProfiles[caregiverId]?.id || '', newText, originalText));
+  }
 }
 
 export function publishCaregiverProfile(caregiverId: string): void {
@@ -1129,6 +1184,7 @@ export function publishCaregiverProfile(caregiverId: string): void {
     allDetails[caregiverId].updated_at = new Date().toISOString();
     setStored(STORAGE_KEYS.CAREGIVER_DETAILS, allDetails);
   }
+  if (LIVE) track(Live.setCaregiverVisible(caregiverId, true));
   if (typeof window !== 'undefined') {
     broadcastAppEvent('jg_user_changed');
     broadcastAppEvent('jg_auth_changed');
@@ -1201,6 +1257,7 @@ export function updateFamilyJobPostText(
     jobPosts[idx].updated_at = new Date().toISOString();
     setStored(STORAGE_KEYS.JOB_POSTS, jobPosts);
   }
+  if (LIVE) track(Live.updateJob(jobPostId, { patient_description: newText }));
 }
 
 export function publishFamilyJobPost(jobPostId: string): void {
@@ -1211,6 +1268,7 @@ export function publishFamilyJobPost(jobPostId: string): void {
     jobPosts[idx].updated_at = new Date().toISOString();
     setStored(STORAGE_KEYS.JOB_POSTS, jobPosts);
   }
+  if (LIVE) track(Live.updateJob(jobPostId, { status: 'open' }));
   if (typeof window !== 'undefined') {
     broadcastAppEvent('jg_user_changed');
     broadcastAppEvent('jg_auth_changed');
@@ -1306,8 +1364,10 @@ export function jobFeedForMe(
       .map((s) => s.case_type)
   );
 
-  // Return jobs where status is open
-  const availableJobs = jobPosts.filter((job) => job.status === 'open');
+  // Return jobs where status is open (LIVE: only what job_feed_for_me() returned)
+  const liveDist = getStored<Record<string, number | null>>(STORAGE_KEYS.LIVE_DISTANCES, {});
+  const availableJobs = jobPosts.filter((job) => job.status === 'open' &&
+    (!LIVE || job.id in liveDist || job.id === priorityJobId));
 
   const cards: JobFeedCard[] = [];
 
@@ -1343,6 +1403,8 @@ export function jobFeedForMe(
       }
     }
 
+    const realKm = LIVE ? liveDist[job.id] : undefined;
+    if (typeof realKm === 'number') distanceKm = Math.round(realKm * 10) / 10;
     if (distanceKm > maxKm) continue;
 
     const famUser = profiles.find((u) => u.id === job.family_id);
@@ -1394,7 +1456,8 @@ export function jobFeedForMe(
     const exp = caregiverDetail ? caregiverDetail.years_experience : 3;
     score += Math.round(Math.min(exp, 10) * 0.5);
 
-    const fitScore = Math.min(Math.max(score, 50), 98);
+    let fitScore = Math.min(Math.max(score, 50), 98);
+    if (LIVE) fitScore = liveFitScore(job, caregiverId, typeof realKm === 'number' ? realKm : null);
 
     cards.push({
       job_post_id: job.id,
@@ -1500,7 +1563,11 @@ export function clearFamilyDraft(): void {
 export function createJobPost(payload: PostJobPayload): { jobId: string } {
   const currentUser = getCurrentUser();
   const familyId = currentUser.role === 'family' ? currentUser.id : `fam-user-${Date.now()}`;
-  const jobId = `job-${Date.now()}`;
+  const existingLiveJob = LIVE
+    ? getStored<JobPost[]>(STORAGE_KEYS.JOB_POSTS, []).find(
+        (j) => j.family_id === familyId && (j.status === 'open' || j.status === 'draft'))
+    : undefined;
+  const jobId = LIVE ? existingLiveJob?.id || Live.newId() : `job-${Date.now()}`;
 
   const jobPost: JobPost = {
     id: jobId,
@@ -1521,7 +1588,7 @@ export function createJobPost(payload: PostJobPayload): { jobId: string } {
     updated_at: new Date().toISOString(),
   };
 
-  const jobPosts = getStored<JobPost[]>(STORAGE_KEYS.JOB_POSTS, MOCK_JOB_POSTS);
+  const jobPosts = getStored<JobPost[]>(STORAGE_KEYS.JOB_POSTS, MOCK_JOB_POSTS).filter((j) => j.id !== jobId);
   jobPosts.unshift(jobPost);
   // Also update existing job-1-wanwimon if current user is fam-1-wanwimon so profile page reflects it immediately
   if (familyId === 'fam-1-wanwimon') {
@@ -1552,8 +1619,8 @@ export function createJobPost(payload: PostJobPayload): { jobId: string } {
   allJobLocs[jobId] = {
     job_post_id: jobId,
     address_text: payload.address_text || `${payload.district} ${payload.province}`,
-    lat: payload.lat || 13.8,
-    lng: payload.lng || 100.55,
+    lat: payload.lat || (LIVE ? approxLatLng(payload.province, payload.district)?.lat ?? null : 13.8),
+    lng: payload.lng || (LIVE ? approxLatLng(payload.province, payload.district)?.lng ?? null : 100.55),
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
@@ -1654,6 +1721,16 @@ export function createJobPost(payload: PostJobPayload): { jobId: string } {
   clearFamilyDraft();
   setUserLoggedIn(true);
   broadcastAppEvent('jg_profile_updated');
+  if (LIVE) {
+    track(Live.saveJob(familyId, {
+      ...payload,
+      id: jobId,
+      display_name: newName,
+      phone: newPhone,
+      line_id: newLine,
+      avatar_url: newAvatar,
+    }, Boolean(existingLiveJob)));
+  }
   return { jobId };
 }
 
@@ -1708,8 +1785,13 @@ export function candidateCaregivers(
 
   const results: CandidateCaregiverCard[] = [];
 
+  const liveCands = getStored<Record<string, string[]>>(STORAGE_KEYS.LIVE_CANDIDATES, {});
+  const liveDistCg = getStored<Record<string, number | null>>(STORAGE_KEYS.LIVE_DISTANCES, {});
+  const allowed = LIVE ? new Set(liveCands[targetJob?.id || ''] || []) : null;
+
   for (const p of profiles) {
     if (p.role !== 'caregiver') continue;
+    if (allowed && !allowed.has(p.id) && p.id !== priorityCaregiverId) continue;
 
     const detail = details[p.id];
     // RLS: caregiver must be visible to family
@@ -1726,7 +1808,7 @@ export function candidateCaregivers(
 
     // Check if family already passed this caregiver (unless explicitly priority requested)
     const isPriority = priorityCaregiverId && p.id === priorityCaregiverId;
-    if (existingMatch?.family_decision === 'pass' && !isPriority) {
+    if ((existingMatch?.family_decision === 'pass' || (LIVE && existingMatch?.family_decision === 'like')) && !isPriority) {
       continue;
     }
 
@@ -1747,6 +1829,8 @@ export function candidateCaregivers(
       else if (detail.home_province === targetJob.province) dist = 9.4;
       else dist = 22.0;
     }
+    const realCgKm = LIVE ? liveDistCg[p.id] : undefined;
+    if (typeof realCgKm === 'number') dist = Math.round(realCgKm * 10) / 10;
     if (dist > maxKm) continue;
 
     // Fit Score calculation (Schema v3 & PRD formula out of 99)
@@ -1773,8 +1857,13 @@ export function candidateCaregivers(
     const summaryKey = `${targetJob?.id || 'job-1'}:${p.id}`;
     const preSummary = allSummaries[summaryKey];
 
-    const aiSummaryText =
-      preSummary?.summary_text ||
+    if (LIVE) {
+      score = preSummary ? Math.round(preSummary.fit_score)
+        : targetJob ? liveFitScore(targetJob, p.id, typeof realCgKm === 'number' ? realCgKm : null) : score;
+    }
+    const aiSummaryText = LIVE
+      ? preSummary?.summary_text || 'AI กำลังสรุปความเหมาะสมของผู้ดูแลคนนี้...'
+      : preSummary?.summary_text ||
       `${p.display_name} มีประสบการณ์ ${detail.years_experience} ปี ตรงกับความต้องการเคส ${matchedCases.length}/${requiredCases.length} ข้อ ${arrangementMatch ? 'พร้อมทำงานตามรูปแบบที่ต้องการ' : 'ควรสอบถามเรื่องรูปแบบเวลาทำงานเพิ่มเติม'
       }`;
 
@@ -1876,15 +1965,16 @@ export function swipeJob(
     match.caregiver_decided_at = now;
   }
 
-  // Check mutual like
+  // Check mutual like (LIVE: the DB trigger sets matched_at and writes notifications)
   let isMutual = false;
   if (match.caregiver_decision === 'like' && match.family_decision === 'like') {
     match.matched_at = now;
     isMutual = true;
-    notifyMutualMatch(match);
-  } else if (decision === 'like') {
+    if (!LIVE) notifyMutualMatch(match);
+  } else if (decision === 'like' && !LIVE) {
     notifyFamilyCaregiverLiked(match);
   }
+  if (LIVE) track(Live.swipe(jobPostId, caregiverId, 'caregiver', decision));
 
   setStored(STORAGE_KEYS.MATCHES, allMatches);
   if (typeof window !== 'undefined') {
@@ -1931,8 +2021,9 @@ export function swipeCaregiver(
   if (match.caregiver_decision === 'like' && match.family_decision === 'like') {
     match.matched_at = now;
     isMutual = true;
-    notifyMutualMatch(match);
+    if (!LIVE) notifyMutualMatch(match);
   }
+  if (LIVE) track(Live.swipe(jobPostId, caregiverId, 'family', decision));
 
   setStored(STORAGE_KEYS.MATCHES, allMatches);
   if (typeof window !== 'undefined') {
@@ -2037,7 +2128,8 @@ export function getMatchContact(matchId: string, requestingUserId: string): Matc
 
   // Deterministic realistic phone number fallback if contact details not explicitly set
   let phone = targetContact?.phone;
-  if (!phone || phone.includes('X')) {
+  if (LIVE) phone = phone || '';
+  if (!LIVE && (!phone || phone.includes('X'))) {
     // Generate realistic phone from targetUserId
     if (targetUserId === 'fam-8-kittichai') phone = '0885678901';
     else if (targetUserId === 'fam-2-thanapol') phone = '0845554321';
@@ -2155,6 +2247,7 @@ export function getAllActiveMatchesForUser(userId: string) {
       if (certs.length > 0) score += 5;
       score += Math.round(Math.min(details.years_experience, 10) * 0.5);
       fitScore = Math.min(score, 99);
+      if (LIVE) fitScore = liveFitScore(job, cgId, liveDistanceFor(job.id, cgId));
     }
 
     let displayAvatarUrl = otherProfile?.avatar_url || details?.avatar_url || null;
@@ -2218,6 +2311,11 @@ export function cancelPendingSwipe(matchId: string, userId: string): void {
   const isCaregiver = match.caregiver_id === userId;
   const job = jobPosts.find((j) => j.id === match.job_post_id);
   const isFamily = job?.family_id === userId;
+  if (LIVE && (isCaregiver || isFamily)) {
+    // users cannot delete match rows: withdraw = null if the other side liked, else 'pass'
+    const otherLiked = isCaregiver ? match.family_decision === 'like' : match.caregiver_decision === 'like';
+    track(Live.swipe(match.job_post_id, match.caregiver_id, isCaregiver ? 'caregiver' : 'family', otherLiked ? null : 'pass'));
+  }
 
   if (isCaregiver) {
     if (match.family_decision === 'like') {
@@ -2262,6 +2360,7 @@ export function toggleFavorite(familyId: string, caregiverId: string): boolean {
   if (idx >= 0) {
     allFavorites.splice(idx, 1);
     setStored(STORAGE_KEYS.FAVORITES, allFavorites);
+    if (LIVE) track(Live.setFavorite(familyId, caregiverId, false));
     if (typeof window !== 'undefined') {
       broadcastAppEvent('jg_favorites_changed');
     }
@@ -2274,6 +2373,7 @@ export function toggleFavorite(familyId: string, caregiverId: string): boolean {
       created_at: new Date().toISOString(),
     });
     setStored(STORAGE_KEYS.FAVORITES, allFavorites);
+    if (LIVE) track(Live.setFavorite(familyId, caregiverId, true));
     if (typeof window !== 'undefined') {
       broadcastAppEvent('jg_favorites_changed');
     }
@@ -2308,7 +2408,8 @@ export function getFavoritesForUser(userId: string) {
 
   if (isCaregiver) {
     // Caregiver favorites (favorited job posts, starting with 'job-')
-    const userFavs = allFavorites.filter((f) => f.caregiver_id.startsWith('job-'));
+    const userFavs = allFavorites.filter((f) =>
+      LIVE ? jobs.some((j) => j.id === f.caregiver_id) : f.caregiver_id.startsWith('job-'));
     const caregiverDetail = caregiverDetails[userId];
     const caregiverSkills = allSkills[userId] || [];
     const qualifiedSkills = new Set(
@@ -2358,7 +2459,8 @@ export function getFavoritesForUser(userId: string) {
       const exp = caregiverDetail ? caregiverDetail.years_experience : 3;
       score += Math.round(Math.min(exp, 10) * 0.5);
 
-      const fitScore = Math.min(Math.max(score, 45), 98);
+      let fitScore = Math.min(Math.max(score, 45), 98);
+      if (LIVE && job) fitScore = liveFitScore(job, userId, liveDistanceFor(job.id, userId));
 
       // Parse patient gender and age from description or metadata
       let pGender: string | null = null;
@@ -2410,7 +2512,8 @@ export function getFavoritesForUser(userId: string) {
   const requiredCases = userJob ? (allNeeds[userJob.id] || []).filter((n) => n.is_required).map((n) => n.case_type) : [];
 
   // Return all favorited caregivers (starting with 'cg-')
-  const userFavs = allFavorites.filter((f) => f.caregiver_id.startsWith('cg-'));
+  const userFavs = allFavorites.filter((f) =>
+    LIVE ? Boolean(caregiverDetails[f.caregiver_id]) : f.caregiver_id.startsWith('cg-'));
 
   return userFavs.map((fav) => {
     const cgProfile = profiles.find((p) => p.id === fav.caregiver_id);
@@ -2450,6 +2553,7 @@ export function getFavoritesForUser(userId: string) {
       if (certs.length > 0) score += 5;
       score += Math.round(Math.min(details.years_experience, 10) * 0.5);
       fitScore = Math.min(score, 99);
+      if (LIVE && userJob) fitScore = liveFitScore(userJob, fav.caregiver_id, liveDistanceFor(userJob.id, fav.caregiver_id));
     }
 
     return {
@@ -2494,6 +2598,12 @@ export function submitPlatformReview(payload: {
   };
   reviews.unshift(newReview);
   setStored(STORAGE_KEYS.REVIEWS, reviews);
+  if (LIVE) {
+    track(Live.savePlatformReview(payload.user_id, {
+      ease: payload.ease_of_use_score, ui: payload.clarity_score,
+      ai: payload.recommendation_score, comment: payload.comment,
+    }));
+  }
   return newReview;
 }
 
@@ -2509,6 +2619,7 @@ export function markNotificationRead(notifId: string): void {
     target.read_at = new Date().toISOString();
     setStored(STORAGE_KEYS.NOTIFICATIONS, notifs);
   }
+  if (LIVE) track(Live.markRead(notifId));
 }
 
 export function deleteNotification(notifId: string): void {
@@ -2516,3 +2627,205 @@ export function deleteNotification(notifId: string): void {
   const filtered = notifs.filter((n) => n.id !== notifId);
   setStored(STORAGE_KEYS.NOTIFICATIONS, filtered);
 }
+
+
+// ============================================================================
+// LIVE RUNTIME — Supabase hydration, write-through queue, auth helpers
+// ============================================================================
+
+let pendingWrites: Promise<unknown> = Promise.resolve();
+
+function reportLiveError(e: unknown) {
+  const msg = (e as Error)?.message || String(e);
+  console.error('[live]', e);
+  broadcastAppEvent('jg_live_error', { message: msg });
+}
+
+/** Queue a write; writes run in order, then the cache is refreshed from Supabase. */
+function track(p: Promise<unknown>) {
+  pendingWrites = pendingWrites
+    .then(() => p)
+    .then(() => refreshLive())
+    .catch(reportLiveError);
+}
+
+export function waitForLiveWrites(): Promise<unknown> {
+  return pendingWrites;
+}
+
+const LIVE_CACHE_KEYS = [
+  STORAGE_KEYS.CURRENT_USER, STORAGE_KEYS.PROFILES, STORAGE_KEYS.CONTACTS, STORAGE_KEYS.CAREGIVER_DETAILS,
+  STORAGE_KEYS.CAREGIVER_LOCATIONS, STORAGE_KEYS.CAREGIVER_SKILLS, STORAGE_KEYS.CERTIFICATES,
+  STORAGE_KEYS.JOB_POSTS, STORAGE_KEYS.JOB_LOCATIONS, STORAGE_KEYS.JOB_CASE_NEEDS, STORAGE_KEYS.MATCHES,
+  STORAGE_KEYS.FAVORITES, STORAGE_KEYS.AI_PROFILES, STORAGE_KEYS.AI_SUMMARIES, STORAGE_KEYS.NOTIFICATIONS,
+  STORAGE_KEYS.REVIEWS, STORAGE_KEYS.IS_LOGGED_IN, STORAGE_KEYS.LIVE_DISTANCES, STORAGE_KEYS.LIVE_CANDIDATES,
+  STORAGE_KEYS.REGISTERED_ACCOUNTS,
+];
+
+export function clearLiveCache() {
+  if (typeof window === 'undefined') return;
+  LIVE_CACHE_KEYS.forEach((k) => localStorage.removeItem(k));
+}
+
+function liveDistanceFor(jobId: string, caregiverId: string): number | null {
+  const d = getStored<Record<string, number | null>>(STORAGE_KEYS.LIVE_DISTANCES, {});
+  const me = getCurrentUser();
+  const v = me.role === 'caregiver' ? d[jobId] : d[caregiverId];
+  return typeof v === 'number' ? v : null;
+}
+
+/** Fit score 0–100 from the thesis algorithm (live.scoreMatch = backend score.py). */
+function liveFitScore(job: JobPost, caregiverId: string, distanceKm: number | null): number {
+  const summaries = getStored<Record<string, AIApplicantSummary>>(STORAGE_KEYS.AI_SUMMARIES, {});
+  const ai = summaries[`${job.id}:${caregiverId}`];
+  if (ai) return Math.round(ai.fit_score);
+  const needs = getStored<Record<string, JobPostCaseNeed[]>>(STORAGE_KEYS.JOB_CASE_NEEDS, {})[job.id] || [];
+  const det = getStored<Record<string, CaregiverDetails>>(STORAGE_KEYS.CAREGIVER_DETAILS, {})[caregiverId];
+  const skills = getStored<Record<string, CaregiverCaseSkill[]>>(STORAGE_KEYS.CAREGIVER_SKILLS, {})[caregiverId] || [];
+  const certs = getStored<Record<string, Certificate[]>>(STORAGE_KEYS.CERTIFICATES, {})[caregiverId] || [];
+  const r = Live.scoreMatch({
+    needs: needs.filter((n) => n.is_required).map((n) => n.case_type),
+    jobWageMax: job.expected_wage,
+    jobWageUnit: job.wage_unit,
+    distanceKm,
+    skills,
+    cgWageMin: det?.expected_wage_min || null,
+    cgWageUnit: det?.wage_unit || null,
+    yearsExperience: det?.years_experience || 0,
+    hasVerifiedCert: certs.some((c) => c.verification_status === 'verified'),
+  });
+  return Math.round(r.total);
+}
+
+function applySnapshot(snap: Live.Snapshot) {
+  const { me } = snap;
+  setStored(STORAGE_KEYS.CURRENT_USER, {
+    id: me.id,
+    role: me.role,
+    display_name: me.display_name,
+    phone: snap.contact?.phone || '',
+    line_id: snap.contact?.line_id || null,
+    email: me.email,
+    avatar_url: snap.profiles.find((p) => p.id === me.id)?.avatar_url || null,
+    gender: snap.caregiverDetails[me.id]?.gender || 'unspecified',
+    age: snap.caregiverDetails[me.id]?.age ?? null,
+  } as CurrentUserSession);
+  localStorage.setItem(STORAGE_KEYS.IS_LOGGED_IN, 'true');
+  setStored(STORAGE_KEYS.PROFILES, snap.profiles);
+  setStored(STORAGE_KEYS.CONTACTS, snap.contacts);
+  setStored(STORAGE_KEYS.CAREGIVER_DETAILS, snap.caregiverDetails);
+  setStored(STORAGE_KEYS.CAREGIVER_LOCATIONS, snap.caregiverLocations);
+  setStored(STORAGE_KEYS.CAREGIVER_SKILLS, snap.caregiverSkills);
+  setStored(STORAGE_KEYS.CERTIFICATES, snap.certificates);
+  setStored(STORAGE_KEYS.JOB_POSTS, snap.jobPosts);
+  setStored(STORAGE_KEYS.JOB_LOCATIONS, snap.jobLocations);
+  setStored(STORAGE_KEYS.JOB_CASE_NEEDS, snap.jobNeeds);
+  setStored(STORAGE_KEYS.MATCHES, snap.matches);
+  // caregiver "saved jobs" have no table: keep them locally next to the DB favorites
+  const localJobFavs = getStored<FavoriteRow[]>(STORAGE_KEYS.FAVORITES, [])
+    .filter((f) => snap.jobPosts.some((j) => j.id === f.caregiver_id));
+  setStored(STORAGE_KEYS.FAVORITES, [...snap.favorites, ...localJobFavs]);
+  setStored(STORAGE_KEYS.AI_PROFILES, snap.aiProfiles);
+  setStored(STORAGE_KEYS.AI_SUMMARIES, snap.aiSummaries);
+  setStored(STORAGE_KEYS.NOTIFICATIONS, snap.notifications);
+  setStored(STORAGE_KEYS.LIVE_DISTANCES, snap.distances);
+  setStored(STORAGE_KEYS.LIVE_CANDIDATES, snap.candidates);
+}
+
+let hydrating: Promise<boolean> | null = null;
+
+/** Load everything the signed-in user may see from Supabase into the cache. */
+export function hydrateLive(): Promise<boolean> {
+  if (!LIVE || typeof window === 'undefined') return Promise.resolve(false);
+  if (hydrating) return hydrating;
+  hydrating = (async () => {
+    try {
+      const snap = await Live.fetchSnapshot();
+      if (!snap) {
+        clearLiveCache();
+        return false;
+      }
+      applySnapshot(snap);
+      broadcastAppEvent('jg_user_changed');
+      broadcastAppEvent('jg_data_reset');
+      if (snap.me.role === 'family') void refreshCandidateAI(snap);
+      return true;
+    } catch (e) {
+      reportLiveError(e);
+      return false;
+    } finally {
+      hydrating = null;
+    }
+  })();
+  return hydrating;
+}
+
+let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+export function refreshLive() {
+  if (!LIVE || typeof window === 'undefined') return;
+  if (refreshTimer) clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(() => { void hydrateLive(); }, 300);
+}
+
+/** Family side: ask the backend for AI summaries + fit scores of the top candidates. */
+async function refreshCandidateAI(snap: Live.Snapshot) {
+  for (const [jobId, ids] of Object.entries(snap.candidates)) {
+    const top = ids.slice(0, 20);
+    if (!top.length || top.every((id) => snap.aiSummaries[`${jobId}:${id}`])) continue;
+    try {
+      const results = await Live.applicantSummaries(jobId, top);
+      const all = getStored<Record<string, AIApplicantSummary>>(STORAGE_KEYS.AI_SUMMARIES, {});
+      results.forEach((r) => {
+        all[`${jobId}:${r.caregiver_id}`] = {
+          id: `${jobId}:${r.caregiver_id}`,
+          job_post_id: jobId,
+          caregiver_id: r.caregiver_id,
+          summary_text: r.summary_text || 'AI ไม่สามารถสรุปได้ในขณะนี้ — แสดงคะแนนจากเกณฑ์จับคู่',
+          fit_score: r.fit_score,
+          fit_rationale: {
+            pros: Live.prosFromBreakdown(r.breakdown),
+            to_verify: Live.toVerifyFromMissing([...r.missing_specialized, ...(r.missing_general || [])]),
+          },
+          is_active: true,
+          created_at: new Date().toISOString(),
+        };
+      });
+      setStored(STORAGE_KEYS.AI_SUMMARIES, all);
+      broadcastAppEvent('jg_data_reset');
+    } catch (e) {
+      reportLiveError(e);
+    }
+  }
+}
+
+// ---- auth -------------------------------------------------------------------
+const PENDING_SIGNUP_KEY = 'jg_pending_signup_v1';
+
+export function savePendingSignup(p: Live.PendingSignup) {
+  sessionStorage.setItem(PENDING_SIGNUP_KEY, JSON.stringify(p));
+}
+
+export function hasPendingSignup(): boolean {
+  return typeof window !== 'undefined' && !!sessionStorage.getItem(PENDING_SIGNUP_KEY);
+}
+
+export async function liveSignIn(email: string, password: string): Promise<CurrentUserSession> {
+  clearLiveCache();
+  await Live.signIn(email, password);
+  await hydrateLive();
+  broadcastAppEvent('jg_auth_changed');
+  return getCurrentUser();
+}
+
+export async function liveCompleteSignup(role: UserRole): Promise<CurrentUserSession> {
+  const raw = sessionStorage.getItem(PENDING_SIGNUP_KEY);
+  if (!raw) throw new Error('ไม่พบข้อมูลการสมัคร กรุณาสมัครใหม่อีกครั้ง');
+  clearLiveCache();
+  await Live.signUp(JSON.parse(raw), role);
+  sessionStorage.removeItem(PENDING_SIGNUP_KEY);
+  await hydrateLive();
+  broadcastAppEvent('jg_auth_changed');
+  return getCurrentUser();
+}
+
+export const LIVE_DEMO = { emails: Live.DEMO_EMAILS, password: Live.DEMO_PASSWORD };

@@ -75,6 +75,10 @@ function ApplicantsContent() {
     }
     setMounted(true);
     setCandidates(candidateCaregivers(jobId, 50, caregiverParam));
+    // LIVE: AI summaries / new candidates arrive after the first render
+    const reload = () => setCandidates(candidateCaregivers(jobId, 50, caregiverParam));
+    window.addEventListener('jg_data_reset', reload);
+    return () => window.removeEventListener('jg_data_reset', reload);
   }, [jobId, caregiverParam]);
 
   const { showToast } = useToast();

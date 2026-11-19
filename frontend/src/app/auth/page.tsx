@@ -15,6 +15,10 @@ import {
   RegisteredAccount,
   CurrentUserSession,
   getNameInitial,
+  LIVE,
+  liveSignIn,
+  savePendingSignup,
+  LIVE_DEMO,
 } from '@/services/api';
 import { ChevronRightIcon, HomeIcon } from '@/components/Icons';
 
@@ -43,6 +47,20 @@ function AuthContent() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    if (LIVE) {
+      try {
+        const session = await liveSignIn(email, password);
+        const next = searchParams.get('next');
+        const { path, reason } = getPostLoginRedirect(session);
+        setToastMsg(`เข้าสู่ระบบสำเร็จ! ${reason}`);
+        setTimeout(() => router.push(next && next !== '/auth' ? next : path), 400);
+      } catch (err) {
+        setToastMsg((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
     try {
       const trimmedEmail = email.trim().toLowerCase();
       let account = findAccountByEmail(trimmedEmail);
@@ -89,6 +107,25 @@ function AuthContent() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    if (LIVE) {
+      // the account is created in /register once the user picks a side (role is required by the DB)
+      if (password.length < 6) {
+        setToastMsg('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+        setLoading(false);
+        return;
+      }
+      savePendingSignup({
+        email: email.trim().toLowerCase(),
+        password,
+        display_name: displayName,
+        phone,
+        line_id: lineId || null,
+      });
+      setToastMsg('ขั้นต่อไป: เลือกบทบาทการใช้งานเพื่อสร้างบัญชี');
+      setTimeout(() => router.push('/register'), 400);
+      setLoading(false);
+      return;
+    }
     try {
       const userId = `user-${Date.now()}`;
       const trimmedEmail = email.trim().toLowerCase();
@@ -138,6 +175,18 @@ function AuthContent() {
     userPhone: string,
     redirectPath: string
   ) => {
+    if (LIVE) {
+      // real seeded demo accounts in Supabase (see backend/scripts/seed_demo.py)
+      setLoading(true);
+      liveSignIn(userRole === 'caregiver' ? LIVE_DEMO.emails.caregiver : LIVE_DEMO.emails.family, LIVE_DEMO.password)
+        .then(() => {
+          setToastMsg(`เข้าสู่ระบบเป็น: ${name}`);
+          setTimeout(() => router.push(redirectPath), 300);
+        })
+        .catch((err) => setToastMsg(`บัญชีทดสอบยังไม่พร้อม: ${(err as Error).message}`))
+        .finally(() => setLoading(false));
+      return;
+    }
     // รีเซ็ต/คืนค่าข้อมูลตัวอย่างมาตรฐานของบัญชีทดสอบด่วนทันที
     if (id === 'cg-1-wimon' || id === 'fam-1-wanwimon') {
       restoreDemoAccount(id);

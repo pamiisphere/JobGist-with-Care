@@ -5,12 +5,44 @@ import { useRouter } from 'next/navigation';
 import Topbar from '@/components/Topbar';
 import Footer from '@/components/Footer';
 import { ChevronRightIcon } from '@/components/Icons';
-import { getCurrentUser, updateUserAccountRole, startFreshRegistration } from '@/services/api';
+import {
+  getCurrentUser,
+  updateUserAccountRole,
+  startFreshRegistration,
+  LIVE,
+  hasPendingSignup,
+  liveCompleteSignup,
+} from '@/services/api';
 
 export default function RegisterRoleSelectionPage() {
   const router = useRouter();
 
-  const handleSelectRole = (role: 'caregiver' | 'family', destination: string) => {
+  const [busy, setBusy] = React.useState(false);
+
+  const handleSelectRole = async (role: 'caregiver' | 'family', destination: string) => {
+    if (LIVE) {
+      const cur = getCurrentUser();
+      if (cur.id) {
+        // already signed in: the role is fixed at sign-up
+        router.push(cur.role === 'family' ? '/family/applicants' : cur.role === 'caregiver' ? '/caregiver/jobs' : destination);
+        return;
+      }
+      if (!hasPendingSignup()) {
+        router.push('/auth?mode=signup');
+        return;
+      }
+      if (busy) return;
+      setBusy(true);
+      try {
+        await liveCompleteSignup(role);
+        router.push(destination);
+      } catch (err) {
+        alert((err as Error).message);
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     const cur = getCurrentUser();
     if (cur?.id && cur.id !== 'fam-1-wanwimon' && cur.id !== 'cg-1-wimon') {
       updateUserAccountRole(cur.id, role);

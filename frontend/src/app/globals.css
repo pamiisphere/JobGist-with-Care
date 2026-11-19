@@ -99,3 +99,30 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: #1E1B4B !important;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+/* Range slider styled the same in every browser (Safari ignores accent-color on ranges) */
+input[type='range'].jg-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 10px;
+  background: linear-gradient(to right, #d946ef var(--fill, 50%), #e7e5e4 var(--fill, 50%));
+  border: 2px solid #1e1b4b;
+  border-radius: 0;
+}
+input[type='range'].jg-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  background: #d946ef;
+  border: 2px solid #1e1b4b;
+  box-shadow: 2px 2px 0 #1e1b4b;
+}
+input[type='range'].jg-range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  background: #d946ef;
+  border: 2px solid #1e1b4b;
+  border-radius: 0;
+  box-shadow: 2px 2px 0 #1e1b4b;
+}

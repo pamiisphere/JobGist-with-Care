@@ -629,7 +629,8 @@ export default function CaregiverOnboardingPage() {
             max="100"
             value={maxTravelKm}
             onChange={(e) => setMaxTravelKm(Number(e.target.value))}
-            className="w-full accent-[#D946EF] cursor-pointer"
+            className="jg-range w-full cursor-pointer"
+            style={{ '--fill': `${((maxTravelKm - 1) / 99) * 100}%` } as React.CSSProperties}
           />
           <p className="text-[11px] text-stone-500">
             ระบบจะใช้ระยะนี้ในการกรองฟีดงาน เพื่อไม่ให้แสดงงานที่อยู่ไกลเกินความสะดวกของคุณ

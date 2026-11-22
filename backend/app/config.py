@@ -20,6 +20,9 @@ class Settings(BaseSettings):
 
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # Comma-separated emails allowed to open /admin, e.g. "pam@x.com,taro@y.com"
+    admin_emails: str = ""
+
     model_config = SettingsConfigDict(env_file=".env")
 
 settings = Settings()

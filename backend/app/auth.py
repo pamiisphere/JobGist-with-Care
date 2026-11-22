@@ -9,6 +9,7 @@ bearer = HTTPBearer()
 class CurrentUser:
     id: str
     role: str  # 'caregiver' | 'family'
+    email: str = ""
 
 def get_current_user(cred: HTTPAuthorizationCredentials = Depends(bearer)) -> CurrentUser:
     try:
@@ -21,7 +22,7 @@ def get_current_user(cred: HTTPAuthorizationCredentials = Depends(bearer)) -> Cu
     prof = supabase.table("profiles").select("role").eq("id", res.user.id).maybe_single().execute()
     if not prof or not prof.data:
         raise HTTPException(403, "Profile not found")
-    return CurrentUser(id=res.user.id, role=prof.data["role"])
+    return CurrentUser(id=res.user.id, role=prof.data["role"], email=(res.user.email or "").lower())
 
 def require_role(role: str):
     def checker(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
@@ -29,3 +30,10 @@ def require_role(role: str):
             raise HTTPException(403, f"Only {role} can do this")
         return user
     return checker
+
+def require_admin(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
+    from app.config import settings
+    allowed = {e.strip().lower() for e in settings.admin_emails.split(",") if e.strip()}
+    if user.email not in allowed:
+        raise HTTPException(403, "Admins only")
+    return user

@@ -873,3 +873,31 @@ export interface LabResult {
 }
 export const aiLab = (kind: 'applicant-summary' | 'worker-profile', body: unknown) =>
   callBackend<LabResult>(`/ai/lab/${kind}`, body);
+
+// ---------------------------------------------------------------------------
+// Admin dashboard (backend checks the email against ADMIN_EMAILS)
+// ---------------------------------------------------------------------------
+export interface AiStatRow {
+  calls: number; success: number; success_rate: number | null; tokens_in: number; tokens_out: number;
+  cost_thb: number; cost_per_output_thb: number | null; avg_latency_ms: number | null;
+}
+export interface AiStats {
+  days: number; include_eval: boolean; eval_calls_hidden: number;
+  totals: AiStatRow;
+  by_group: (AiStatRow & { feature: string; model_name: string; prompt_version: string })[];
+  by_day: (AiStatRow & { date: string })[];
+  recent: {
+    id: string; created_at: string; feature: string; model_name: string; prompt_version: string;
+    input_tokens: number | null; output_tokens: number | null; cost_thb: number | null;
+    latency_ms: number | null; success: boolean; error_message: string | null; is_eval_run: boolean;
+  }[];
+}
+export async function adminAiStats(days: number, includeEval: boolean): Promise<AiStats> {
+  if (!API_BASE) throw new Error('NEXT_PUBLIC_API_BASE is not set');
+  const res = await fetch(`${API_BASE}/admin/ai-stats?days=${days}&include_eval=${includeEval}`, {
+    headers: { Authorization: `Bearer ${await accessToken()}` },
+  });
+  if (res.status === 403) throw new Error('FORBIDDEN');
+  if (!res.ok) throw new Error(`/admin/ai-stats → ${res.status} ${await res.text()}`);
+  return res.json();
+}

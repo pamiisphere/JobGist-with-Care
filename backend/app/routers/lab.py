@@ -1,8 +1,8 @@
 """
 AI Lab — lets the team see exactly how a match is scored and what the LLM receives.
 
-No database writes: inputs come from the request, not from real profiles, so it is safe
-for demos and advisor Q&A. The LLM is only called when `call_llm` is true (costs tokens),
+Inputs come from the request, not from real profiles, so it is safe for demos and
+advisor Q&A. The only write is the ai_logs row (is_eval_run = true) when the LLM is called. The LLM is only called when `call_llm` is true (costs tokens),
 and only for signed-in users.
 """
 from typing import Literal
@@ -13,6 +13,7 @@ from app.llm.client import call_llm
 from app.matching.config import SPECIALIZED, WEIGHTS, LEVEL_CREDIT, DISTANCE_ZERO_KM, EXPERIENCE_FULL_YEARS
 from app.matching.score import score_match
 from app.prompts import applicant_summary as AS, worker_profile as WP
+from app.services.ai_log import log_ai_call
 from app.services.match_data import load_labels
 from app.services.worker_profile import clean_output
 
@@ -52,8 +53,10 @@ class LabIn(BaseModel):
     call_llm: bool = False
     provider: Literal["typhoon", "openai"] | None = None
 
-def _llm(messages, provider, max_tokens):
+def _llm(messages, provider, max_tokens, feature, prompt_version):
     r = call_llm(messages, provider=provider, temperature=0.2, max_tokens=max_tokens)
+    # logged as an eval run so lab tests never mix with real-user costs
+    log_ai_call(r, feature, prompt_version, is_eval_run=True, request_meta={"source": "ai_lab"})
     return {"success": r.success, "text": clean_output(r.text) if r.text else None,
             "provider": r.provider, "model": r.model_name, "latency_ms": r.latency_ms,
             "input_tokens": r.input_tokens, "output_tokens": r.output_tokens,
@@ -75,7 +78,7 @@ def lab_applicant_summary(body: LabIn, _: CurrentUser = Depends(get_current_user
     messages = AS.build_messages(snap, load_labels())
     out = {"score": sc, "prompt_version": AS.PROMPT_VERSION, "messages": messages}
     if body.call_llm:
-        out["llm"] = _llm(messages, body.provider, 500)
+        out["llm"] = _llm(messages, body.provider, 500, "applicant_summary", AS.PROMPT_VERSION)
     return out
 
 @router.post("/worker-profile")
@@ -92,5 +95,5 @@ def lab_worker_profile(body: LabIn, _: CurrentUser = Depends(get_current_user)):
     messages = WP.build_messages(snap)
     out = {"prompt_version": WP.PROMPT_VERSION, "messages": messages}
     if body.call_llm:
-        out["llm"] = _llm(messages, body.provider, 800)
+        out["llm"] = _llm(messages, body.provider, 800, "worker_profile", WP.PROMPT_VERSION)
     return out

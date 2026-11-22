@@ -1,5 +1,6 @@
+import hmac, time
 from dataclasses import dataclass
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.db import supabase
 
@@ -31,8 +32,23 @@ def require_role(role: str):
         return user
     return checker
 
-def require_admin(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
+def require_admin(request: Request) -> CurrentUser:
+    """Admin = correct X-Admin-User / X-Admin-Password headers, or a signed-in user in ADMIN_EMAILS."""
     from app.config import settings
+    user_h, pass_h = request.headers.get("x-admin-user"), request.headers.get("x-admin-password")
+    if user_h is not None or pass_h is not None:
+        ok = bool(settings.admin_password) \
+            and hmac.compare_digest((user_h or "").encode(), settings.admin_username.encode()) \
+            and hmac.compare_digest((pass_h or "").encode(), settings.admin_password.encode())
+        if not ok:
+            time.sleep(1)                       # slow down password guessing
+            raise HTTPException(403, "Wrong admin username or password")
+        return CurrentUser(id="admin", role="admin", email="")
+
+    auth = request.headers.get("authorization", "")
+    if not auth.lower().startswith("bearer "):
+        raise HTTPException(401, "Admin login required")
+    user = get_current_user(HTTPAuthorizationCredentials(scheme="Bearer", credentials=auth[7:]))
     allowed = {e.strip().lower() for e in settings.admin_emails.split(",") if e.strip()}
     if user.email not in allowed:
         raise HTTPException(403, "Admins only")

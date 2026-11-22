@@ -10,7 +10,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { LIVE, hydrateLive, getCurrentUser } from '@/services/api';
 import { sb } from '@/services/live';
 
-const PUBLIC_PATHS = ['/', '/auth', '/register'];
+// /admin has its own username + password login, so it doesn't need a site account
+const PUBLIC_PATHS = ['/', '/auth', '/register', '/admin'];
 
 function homeFor(role: string | null) {
   return role === 'caregiver' ? '/caregiver/jobs' : role === 'family' ? '/family/applicants' : '/register';

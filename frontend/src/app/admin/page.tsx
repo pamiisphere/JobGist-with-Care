@@ -24,26 +24,48 @@ export default function AdminPage() {
   const [includeEval, setIncludeEval] = useState(false);
   const [data, setData] = useState<AiStats | null>(null);
   const [err, setErr] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  // kept in sessionStorage: survives refresh, cleared when the tab closes
+  const [login, setLogin] = useState<{ user: string; password: string } | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try { return JSON.parse(sessionStorage.getItem('jg_admin_login') || 'null'); } catch { return null; }
+  });
+  const [form, setForm] = useState({ user: 'admin', password: '' });
 
   useEffect(() => {
+    if (!login) return;
     let alive = true;
-    adminAiStats(days, includeEval)
+    adminAiStats(days, includeEval, login)
       .then((d) => { if (alive) { setData(d); setErr(''); } })
       .catch((e: Error) => {
         if (!alive) return;
         const m = e.message;
         setErr(
           m === 'FORBIDDEN'
-            ? 'บัญชีนี้ไม่มีสิทธิ์ admin (ต้องเพิ่มอีเมลใน ADMIN_EMAILS บน Render)'
-            : m.includes('NEXT_PUBLIC_API_BASE') || m.includes('เข้าสู่ระบบ')
-              ? 'ต้องเข้าสู่ระบบในโหมดออนไลน์ (เชื่อม backend) ก่อน'
+            ? 'username หรือรหัสผ่านไม่ถูกต้อง'
+            : m.includes('NEXT_PUBLIC_API_BASE')
+              ? 'เว็บนี้ยังไม่ได้เชื่อม backend (NEXT_PUBLIC_API_BASE)'
               : m
         );
+        if (m === 'FORBIDDEN') { setLogin(null); try { sessionStorage.removeItem('jg_admin_login'); } catch {} }
       })
       .finally(() => alive && setLoading(false));
     return () => { alive = false; };
-  }, [days, includeEval]);
+  }, [days, includeEval, login]);
+
+  const signIn = (e: React.FormEvent) => {
+    e.preventDefault();
+    const l = { user: form.user.trim(), password: form.password };
+    try { sessionStorage.setItem('jg_admin_login', JSON.stringify(l)); } catch {}
+    setErr('');
+    setLoading(true);
+    setLogin(l);
+  };
+  const signOut = () => {
+    try { sessionStorage.removeItem('jg_admin_login'); } catch {}
+    setLogin(null);
+    setData(null);
+  };
 
   const maxDayCost = Math.max(0.000001, ...(data?.by_day.map((d) => d.cost_thb) || [0]));
   const card = 'bg-white border-2 border-indigo-950 riso-shadow p-4 sm:p-5';
@@ -76,10 +98,31 @@ export default function AdminPage() {
           </div>
         </header>
 
-        {loading && <p className="text-sm font-bold">กำลังโหลด...</p>}
+        {!login && (
+          <form onSubmit={signIn} className={`${card} max-w-sm space-y-3`}>
+            <h2 className="text-lg font-black">เข้าสู่ระบบ admin</h2>
+            <label className="block space-y-1 text-sm font-bold">
+              Username
+              <input className="w-full min-h-[44px] px-3 border-2 border-indigo-950" autoComplete="username"
+                value={form.user} onChange={(e) => setForm({ ...form, user: e.target.value })} />
+            </label>
+            <label className="block space-y-1 text-sm font-bold">
+              รหัสผ่าน
+              <input type="password" className="w-full min-h-[44px] px-3 border-2 border-indigo-950" autoComplete="current-password"
+                value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+            </label>
+            <button disabled={!form.password} className="w-full min-h-[44px] font-bold bg-[#D946EF] text-white border-2 border-indigo-950 riso-shadow-sm disabled:opacity-40">
+              เข้าสู่ระบบ
+            </button>
+          </form>
+        )}
+        {login && (
+          <button onClick={signOut} className="min-h-[40px] px-3 text-sm font-bold bg-white border-2 border-indigo-950">ออกจากระบบ admin</button>
+        )}
+        {loading && <p className="text-sm font-bold">กำลังโหลด... (ถ้า server หลับอยู่อาจรอ 30-50 วินาที)</p>}
         {err && <p className="text-sm text-rose-800 bg-rose-50 border-2 border-rose-700 p-3">{err}</p>}
 
-        {data && !err && (
+        {login && data && !err && (
           <>
             <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[

@@ -22,6 +22,9 @@ class Settings(BaseSettings):
 
     # Comma-separated emails allowed to open /admin, e.g. "pam@x.com,taro@y.com"
     admin_emails: str = ""
+    # Shared admin login for /admin (no site account needed). Empty password = disabled.
+    admin_username: str = "admin"
+    admin_password: str = ""
 
     model_config = SettingsConfigDict(env_file=".env")
 

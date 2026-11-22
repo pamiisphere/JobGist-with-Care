@@ -892,10 +892,12 @@ export interface AiStats {
     latency_ms: number | null; success: boolean; error_message: string | null; is_eval_run: boolean;
   }[];
 }
-export async function adminAiStats(days: number, includeEval: boolean): Promise<AiStats> {
+export async function adminAiStats(
+  days: number, includeEval: boolean, login: { user: string; password: string }
+): Promise<AiStats> {
   if (!API_BASE) throw new Error('NEXT_PUBLIC_API_BASE is not set');
   const res = await fetch(`${API_BASE}/admin/ai-stats?days=${days}&include_eval=${includeEval}`, {
-    headers: { Authorization: `Bearer ${await accessToken()}` },
+    headers: { 'X-Admin-User': login.user, 'X-Admin-Password': login.password },
   });
   if (res.status === 403) throw new Error('FORBIDDEN');
   if (!res.ok) throw new Error(`/admin/ai-stats → ${res.status} ${await res.text()}`);

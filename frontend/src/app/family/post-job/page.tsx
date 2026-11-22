@@ -348,7 +348,7 @@ export default function FamilyPostJobPage() {
           <div className="space-y-2">
             <label className="text-xs font-bold text-indigo-950 flex items-center justify-between">
               <span>อาการและสิ่งที่ต้องการให้ช่วยดูแล (ภาษาพูด) <span className="text-rose-600">*</span></span>
-              <span className="text-[14px] font-mono text-stone-500">
+              <span className="text-sm font-mono text-stone-500">
                 ตรวจจับคีย์เวิร์ดอัตโนมัติ (250ms debounce)
               </span>
             </label>
@@ -369,7 +369,7 @@ export default function FamilyPostJobPage() {
                 <SparklesIcon className="w-4 h-4 text-[#D946EF]" />
                 เคสที่ตรวจพบ ({activeCasesList.length} เคส)
               </span>
-              <span className="text-[13px] font-mono text-stone-500">
+              <span className="text-xs font-mono text-stone-500">
                 แตะเพื่อเพิ่ม/ลบ • สลับ &ldquo;จำเป็น/ไม่จำเป็น&rdquo; ได้
               </span>
             </div>
@@ -399,7 +399,7 @@ export default function FamilyPostJobPage() {
                       <button
                         type="button"
                         onClick={(e) => toggleRequired(code, e)}
-                        className={`px-1.5 py-0.5 text-[13px] font-mono font-bold border ${
+                        className={`px-1.5 py-0.5 text-xs font-mono font-bold border ${
                           isReq
                             ? 'bg-[#D946EF] text-white border-white'
                             : 'bg-stone-200 text-stone-700 border-stone-400'
@@ -491,7 +491,7 @@ export default function FamilyPostJobPage() {
             <div>
               <label className="text-xs font-bold text-indigo-950 mb-1 flex items-center justify-between">
                 <span>งบประมาณที่ตั้งไว้ (บาท)</span>
-                <span className="font-mono text-[14px] text-stone-500">
+                <span className="font-mono text-sm text-stone-500">
                   {wageUnit === 'month' ? 'ต่อเดือน' : wageUnit === 'day' ? 'ต่อวัน' : 'ต่อชม.'}
                 </span>
               </label>
@@ -544,7 +544,7 @@ export default function FamilyPostJobPage() {
               placeholder="เช่น บ้านเลขที่ 12/34 ซอยลาดพร้าว 71 ถนนลาดพร้าว (เก็บเป็นความลับ)"
               className="w-full min-h-[44px] px-3.5 text-sm bg-white border-2 border-indigo-950 focus:outline-none"
             />
-            <p className="text-[14px] text-stone-500 font-mono">
+            <p className="text-sm text-stone-500 font-mono">
               🔒 RLS Policy: ข้อมูลที่อยู่นี้จะไม่มีผู้ดูแลคนใดมองเห็น ระบบใช้พิกัดเพื่อคำนวณระยะทาง (distance_km) เท่านั้น
             </p>
           </div>

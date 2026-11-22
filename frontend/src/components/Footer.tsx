@@ -100,7 +100,7 @@ export default function Footer() {
             <span>↺ ล้างข้อมูลทดลอง (Reset Seed)</span>
           </button>
           {resetSuccess && (
-            <p className="text-[14px] font-mono text-emerald-700 font-bold mt-1.5 text-center">
+            <p className="text-sm font-mono text-emerald-700 font-bold mt-1.5 text-center">
               ✓ รีเซ็ตข้อมูลกลับสู่ค่าเริ่มต้นเรียบร้อยแล้ว
             </p>
           )}

@@ -38,6 +38,15 @@
 
 html {
   scroll-behavior: smooth;
+  /* Scale the whole UI (text AND boxes, since Tailwind sizes are in rem) for easier reading.
+     Browser default is 16px. */
+  font-size: 106.25%;             /* 17px on phones */
+}
+@media (min-width: 768px) {
+  html { font-size: 112.5%; }     /* 18px on tablets */
+}
+@media (min-width: 1280px) {
+  html { font-size: 118.75%; }    /* 19px on laptops / desktops */
 }
 
 html, body {

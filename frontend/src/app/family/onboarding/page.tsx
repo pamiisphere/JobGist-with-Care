@@ -235,7 +235,7 @@ function FamilyOnboardingForm() {
                     เบอร์โทรศัพท์ <span className="text-rose-600">*</span>
                   </span>
                   <span
-                    className={`text-[14px] font-mono ${
+                    className={`text-sm font-mono ${
                       phone.length === 10 ? 'text-emerald-700 font-bold' : 'text-stone-500'
                     }`}
                   >
@@ -258,11 +258,11 @@ function FamilyOnboardingForm() {
                   className="w-full min-h-[44px] px-3.5 text-sm bg-white border-2 border-indigo-950 font-mono placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#D946EF]"
                 />
                 {phone.length > 0 && phone.length < 10 ? (
-                  <p className="text-[14px] text-amber-700 font-medium mt-1">
+                  <p className="text-sm text-amber-700 font-medium mt-1">
                     กรุณากรอกตัวเลขให้ครบ 10 หลัก (ปัจจุบัน {phone.length} หลัก)
                   </p>
                 ) : (
-                  <span className="text-[13px] text-stone-500 font-mono block mt-1">
+                  <span className="text-xs text-stone-500 font-mono block mt-1">
                     🔒 ปลอดภัย: เปิดเผยเฉพาะคู่ที่ Match แล้ว (กรอกเฉพาะตัวเลข 10 หลัก)
                   </span>
                 )}
@@ -348,7 +348,7 @@ function FamilyOnboardingForm() {
                 <label className="text-xs font-bold text-indigo-950 mb-0.5 block">
                   รูปโปรไฟล์ครอบครัว (ไม่บังคับ)
                 </label>
-                <p className="text-[14px] text-stone-500">
+                <p className="text-sm text-stone-500">
                   แนบรูปถ่ายครอบครัว หรือรูปผู้ว่าจ้าง เพื่อสร้างความอบอุ่นและเป็นกันเองกับผู้ดูแล
                 </p>
               </div>
@@ -377,7 +377,7 @@ function FamilyOnboardingForm() {
                       }}
                       className="hidden"
                     />
-                    <p className="text-[14px] text-stone-500 mt-2">
+                    <p className="text-sm text-stone-500 mt-2">
                       รองรับ JPEG, PNG, WebP (ไม่บังคับ สามารถข้ามได้)
                     </p>
                   </div>
@@ -433,7 +433,7 @@ function FamilyOnboardingForm() {
               <span className="font-bold flex items-center gap-1.5 font-mono">
                 🔒 ข้อกำหนดความปลอดภัยพิกัดบ้าน :
               </span>
-              <p className="text-[14px] leading-relaxed">
+              <p className="text-sm leading-relaxed">
                 พิกัดละติจูด/ลองจิจูดของคุณจะถูกจัดเก็บใน <code>job_locations</code> และนำไปใช้คำนวณระยะทางแบบลับเท่านั้น บุคคลอื่นจะไม่สามารถเห็นที่อยู่จริงได้จนกว่าจะเกิดการจับคู่ตรงกัน (Mutual Match)
               </p>
             </div>

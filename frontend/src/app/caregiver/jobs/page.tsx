@@ -192,12 +192,12 @@ function CaregiverJobsFeedContent() {
                     <div className="space-y-4">
                       {/* Highlight Badge if Family Liked First */}
                       {nextJob.family_liked && (
-                        <div className="bg-pink-100 border border-[#D946EF] px-2.5 py-1 flex items-center justify-between text-[14px] font-bold text-pink-950 -mt-2">
+                        <div className="bg-pink-100 border border-[#D946EF] px-2.5 py-1 flex items-center justify-between text-sm font-bold text-pink-950 -mt-2">
                           <span className="flex items-center gap-1 font-mono">
                             <SparklesIcon className="w-3.5 h-3.5 text-[#D946EF]" />
                             ครอบครัวนี้เคยกดสนใจคุณแล้ว! ปัดขวาเพื่อ Match ทันที
                           </span>
-                          <span className="font-mono text-[12px] bg-[#D946EF] text-white px-1.5 py-0.5">
+                          <span className="font-mono text-xs bg-[#D946EF] text-white px-1.5 py-0.5">
                             MUTUAL READY
                           </span>
                         </div>
@@ -210,10 +210,10 @@ function CaregiverJobsFeedContent() {
                             <img
                               src={nextJob.family_avatar_url}
                               alt={nextJob.family_name || 'คุณวรรณวิมล'}
-                              className="w-28 h-28 sm:w-32 sm:h-32 object-cover border-2 border-indigo-950 shrink-0 bg-white riso-shadow-sm"
+                              className="w-20 h-20 sm:w-32 sm:h-32 object-cover border-2 border-indigo-950 shrink-0 bg-white riso-shadow-sm"
                             />
                           ) : (
-                            <div className="w-28 h-28 sm:w-32 sm:h-32 bg-indigo-950 text-white font-mono font-black text-4xl sm:text-5xl flex items-center justify-center border-2 border-indigo-950 shrink-0 riso-shadow-sm">
+                            <div className="w-20 h-20 sm:w-32 sm:h-32 bg-indigo-950 text-white font-mono font-black text-3xl sm:text-5xl flex items-center justify-center border-2 border-indigo-950 shrink-0 riso-shadow-sm">
                               {getNameInitial(nextJob.family_name || 'คุณวรรณวิมล', 'ว')}
                             </div>
                           )}
@@ -224,12 +224,12 @@ function CaregiverJobsFeedContent() {
                                 {nextJob.family_name || 'คุณวรรณวิมล'}
                               </h3>
                               {nextJob.patient_gender && (
-                                <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[13px] sm:text-xs font-mono font-bold">
+                                <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-xs sm:text-xs font-mono font-bold">
                                   {nextJob.patient_gender}
                                 </span>
                               )}
                               {typeof nextJob.patient_age === 'number' && nextJob.patient_age > 0 && (
-                                <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[13px] sm:text-xs font-mono font-bold">
+                                <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-xs sm:text-xs font-mono font-bold">
                                   อายุ {nextJob.patient_age} ปี
                                 </span>
                               )}
@@ -237,20 +237,20 @@ function CaregiverJobsFeedContent() {
 
                             <div className="flex flex-wrap items-center gap-1.5">
                               {nextJob.preferred_caregiver_gender && (
-                                <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[13px] sm:text-xs font-mono font-bold">
+                                <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-xs sm:text-xs font-mono font-bold">
                                   ต้องการผู้ดูแล: {nextJob.preferred_caregiver_gender === 'female' ? 'เพศหญิง' : 'ไม่จำกัดเพศ'}
                                 </span>
                               )}
-                              <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[13px] sm:text-xs font-mono font-bold">
+                              <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-xs sm:text-xs font-mono font-bold">
                                 {nextJob.work_arrangement === 'live_in' ? 'อยู่ประจำ (Live-in)' : 'ไป-กลับ (Daily)'}
                               </span>
-                              <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-900 text-[13px] sm:text-xs font-bold flex items-center gap-1">
+                              <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-900 text-xs sm:text-xs font-bold flex items-center gap-1">
                                 <ShieldCheckIcon className="w-3.5 h-3.5" />
                                 ยืนยันตัวตนแล้ว
                               </span>
                             </div>
 
-                            <div className="text-[14px] sm:text-xs font-medium text-stone-600 leading-relaxed">
+                            <div className="text-sm sm:text-xs font-medium text-stone-600 leading-relaxed">
                               <span className="font-bold text-stone-700 block mb-0.5">ต้องการผู้ดูแลเคส:</span>
                               <div className="flex flex-wrap items-center gap-1.5">
                                 {nextJob.required_cases.map((c, idx) => (
@@ -280,7 +280,7 @@ function CaregiverJobsFeedContent() {
                         <div className="flex flex-wrap sm:flex-nowrap sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0 w-full sm:w-auto">
                           <div className="flex sm:flex-col items-center sm:items-end gap-2">
                             <div className="bg-[#FAF9F6] border-2 border-indigo-950 px-3 py-1 text-center sm:text-right">
-                              <span className="text-[12px] font-mono font-bold text-stone-600 block uppercase leading-tight">AI Fit Score</span>
+                              <span className="text-xs font-mono font-bold text-stone-600 block uppercase leading-tight">AI Fit Score</span>
                               <span className="text-lg sm:text-xl font-mono font-black text-[#D946EF] block leading-none">
                                 {nextJob.fit_score ?? Math.round((nextJob.needs_i_can_do / (nextJob.needs_required || 1)) * 100)}%
                               </span>
@@ -290,7 +290,7 @@ function CaregiverJobsFeedContent() {
                               <span className="text-xs sm:text-sm font-mono font-black text-indigo-950 block leading-tight">
                                 {nextJob.expected_wage ? `฿${nextJob.expected_wage.toLocaleString()}` : 'ตามตกลง'}
                               </span>
-                              <span className="text-[13px] font-mono text-stone-500">
+                              <span className="text-xs font-mono text-stone-500">
                                 /{nextJob.wage_unit === 'month' ? 'เดือน' : nextJob.wage_unit === 'day' ? 'วัน' : 'ชม.'} (
                                 {nextJob.work_arrangement === 'live_in' ? 'อยู่ประจำ' : 'ไป-กลับ'})
                               </span>
@@ -420,12 +420,12 @@ function CaregiverJobsFeedContent() {
                 <div className="space-y-4">
                   {/* Highlight Badge if Family Liked First */}
                   {currentJob.family_liked && (
-                    <div className="bg-pink-100 border border-[#D946EF] px-2.5 py-1 flex items-center justify-between text-[14px] font-bold text-pink-950 -mt-2">
+                    <div className="bg-pink-100 border border-[#D946EF] px-2.5 py-1 flex items-center justify-between text-sm font-bold text-pink-950 -mt-2">
                       <span className="flex items-center gap-1 font-mono">
                         <SparklesIcon className="w-3.5 h-3.5 text-[#D946EF]" />
                         ครอบครัวนี้เคยกดสนใจคุณแล้ว! ปัดขวาเพื่อ Match ทันที
                       </span>
-                      <span className="font-mono text-[12px] bg-[#D946EF] text-white px-1.5 py-0.5">
+                      <span className="font-mono text-xs bg-[#D946EF] text-white px-1.5 py-0.5">
                         MUTUAL READY
                       </span>
                     </div>
@@ -439,10 +439,10 @@ function CaregiverJobsFeedContent() {
                           src={currentJob.family_avatar_url}
                           alt={currentJob.family_name || 'คุณวรรณวิมล'}
                           draggable={false}
-                          className="w-28 h-28 sm:w-32 sm:h-32 object-cover border-2 border-indigo-950 shrink-0 bg-white riso-shadow-sm pointer-events-none select-none"
+                          className="w-20 h-20 sm:w-32 sm:h-32 object-cover border-2 border-indigo-950 shrink-0 bg-white riso-shadow-sm pointer-events-none select-none"
                         />
                       ) : (
-                        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-indigo-950 text-white font-mono font-black text-4xl sm:text-5xl flex items-center justify-center border-2 border-indigo-950 shrink-0 riso-shadow-sm">
+                        <div className="w-20 h-20 sm:w-32 sm:h-32 bg-indigo-950 text-white font-mono font-black text-3xl sm:text-5xl flex items-center justify-center border-2 border-indigo-950 shrink-0 riso-shadow-sm">
                           {getNameInitial(currentJob.family_name || 'คุณวรรณวิมล', 'ว')}
                         </div>
                       )}
@@ -453,12 +453,12 @@ function CaregiverJobsFeedContent() {
                             {currentJob.family_name || 'คุณวรรณวิมล'}
                           </h2>
                           {currentJob.patient_gender && (
-                            <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[13px] sm:text-xs font-mono font-bold">
+                            <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-xs sm:text-xs font-mono font-bold">
                               {currentJob.patient_gender}
                             </span>
                           )}
                           {typeof currentJob.patient_age === 'number' && currentJob.patient_age > 0 && (
-                            <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[13px] sm:text-xs font-mono font-bold">
+                            <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-xs sm:text-xs font-mono font-bold">
                               อายุ {currentJob.patient_age} ปี
                             </span>
                           )}
@@ -466,20 +466,20 @@ function CaregiverJobsFeedContent() {
 
                         <div className="flex flex-wrap items-center gap-1.5">
                           {currentJob.preferred_caregiver_gender && (
-                            <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[13px] sm:text-xs font-mono font-bold">
+                            <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-xs sm:text-xs font-mono font-bold">
                               ต้องการผู้ดูแล: {currentJob.preferred_caregiver_gender === 'female' ? 'เพศหญิง' : 'ไม่จำกัดเพศ'}
                             </span>
                           )}
-                          <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[13px] sm:text-xs font-mono font-bold">
+                          <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-xs sm:text-xs font-mono font-bold">
                             {currentJob.work_arrangement === 'live_in' ? 'อยู่ประจำ (Live-in)' : 'ไป-กลับ (Daily)'}
                           </span>
-                          <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-900 text-[13px] sm:text-xs font-bold flex items-center gap-1">
+                          <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-900 text-xs sm:text-xs font-bold flex items-center gap-1">
                             <ShieldCheckIcon className="w-3.5 h-3.5" />
                             ยืนยันตัวตนแล้ว
                           </span>
                         </div>
 
-                        <div className="text-[14px] sm:text-xs font-medium text-stone-600 leading-relaxed">
+                        <div className="text-sm sm:text-xs font-medium text-stone-600 leading-relaxed">
                           <span className="font-bold text-stone-700 block mb-0.5">ต้องการผู้ดูแลเคส:</span>
                           <div className="flex flex-wrap items-center gap-1.5">
                             {currentJob.required_cases.map((c, idx) => (
@@ -509,7 +509,7 @@ function CaregiverJobsFeedContent() {
                     <div className="flex flex-wrap sm:flex-nowrap sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0 w-full sm:w-auto">
                       <div className="flex sm:flex-col items-center sm:items-end gap-2">
                         <div className="bg-[#FAF9F6] border-2 border-indigo-950 px-3 py-1 text-center sm:text-right">
-                          <span className="text-[12px] font-mono font-bold text-stone-600 block uppercase leading-tight">AI Fit Score</span>
+                          <span className="text-xs font-mono font-bold text-stone-600 block uppercase leading-tight">AI Fit Score</span>
                           <span className="text-lg sm:text-xl font-mono font-black text-[#D946EF] block leading-none">
                             {currentJob.fit_score ?? Math.round((currentJob.needs_i_can_do / (currentJob.needs_required || 1)) * 100)}%
                           </span>
@@ -519,7 +519,7 @@ function CaregiverJobsFeedContent() {
                           <span className="text-xs sm:text-sm font-mono font-black text-indigo-950 block leading-tight">
                             {currentJob.expected_wage ? `฿${currentJob.expected_wage.toLocaleString()}` : 'ตามตกลง'}
                           </span>
-                          <span className="text-[13px] font-mono text-stone-500">
+                          <span className="text-xs font-mono text-stone-500">
                             /{currentJob.wage_unit === 'month' ? 'เดือน' : currentJob.wage_unit === 'day' ? 'วัน' : 'ชม.'} (
                             {currentJob.work_arrangement === 'live_in' ? 'อยู่ประจำ' : 'ไป-กลับ'})
                           </span>
@@ -598,7 +598,7 @@ function CaregiverJobsFeedContent() {
 
                 {/* Bottom Actions & Circle Buttons (Corner Left & Right) */}
                 <div className="pt-3">
-                  <div className="flex items-center justify-center text-[14px] font-mono text-stone-500 border-t border-stone-200 py-2">
+                  <div className="flex items-center justify-center text-sm font-mono text-stone-500 border-t border-stone-200 py-2">
                     <span>👈 ปัดซ้ายข้าม (Pass) | ปัดขวาถูกใจ (Like) 👉</span>
                   </div>
 
@@ -618,7 +618,7 @@ function CaregiverJobsFeedContent() {
                       <CloseIcon className="w-6 h-6 shrink-0" />
                     </button>
 
-                    <span className="text-[14px] font-mono text-stone-400">
+                    <span className="text-sm font-mono text-stone-400">
                       คลิกปุ่มหรือลากการ์ดเพื่อตัดสินใจ
                     </span>
 

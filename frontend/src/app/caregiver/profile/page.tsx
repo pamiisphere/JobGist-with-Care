@@ -140,11 +140,11 @@ export default function CaregiverProfilePage() {
               <SparklesIcon className="w-3.5 h-3.5" />
             </span>
             <div className="flex flex-wrap items-center gap-x-2">
-              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-indigo-950">
+              <span className="text-[14px] font-mono font-bold uppercase tracking-wider text-indigo-950">
                 AI WORKER PROFILE
               </span>
-              <span className="text-[11px] text-stone-500 hidden sm:inline">•</span>
-              <p className="text-[11px] text-stone-600">
+              <span className="text-[14px] text-stone-500 hidden sm:inline">•</span>
+              <p className="text-[14px] text-stone-600">
                 เรียบเรียงโดย AI จาก 5 ขั้นตอนของคุณ ตรวจสอบก่อนเผยแพร่
               </p>
             </div>
@@ -152,12 +152,12 @@ export default function CaregiverProfilePage() {
 
           <div className="flex items-center gap-2 shrink-0">
             {isPublished ? (
-              <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-950 border border-emerald-900 font-mono font-bold text-[11px] flex items-center gap-1">
+              <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-950 border border-emerald-900 font-mono font-bold text-[14px] flex items-center gap-1">
                 <CheckIcon className="w-3.5 h-3.5 text-emerald-700" />
                 เผยแพร่แล้ว
               </span>
             ) : (
-              <span className="px-2.5 py-0.5 bg-amber-100 text-amber-950 border border-amber-900 font-mono font-bold text-[11px]">
+              <span className="px-2.5 py-0.5 bg-amber-100 text-amber-950 border border-amber-900 font-mono font-bold text-[14px]">
                 ร่างโปรไฟล์
               </span>
             )}
@@ -224,7 +224,7 @@ export default function CaregiverProfilePage() {
 
             {/* Wage & Work Arrangement Box */}
             <div className="w-full sm:w-auto bg-[#FAF9F6] border-2 border-indigo-950 p-3.5 riso-shadow-sm text-right shrink-0">
-              <span className="text-[11px] font-mono text-stone-500 block uppercase">อัตราค่าบริการ</span>
+              <span className="text-[14px] font-mono text-stone-500 block uppercase">อัตราค่าบริการ</span>
               <span className="text-lg sm:text-xl font-mono font-black text-[#D946EF] block">
                 ฿{detail.expected_wage_min.toLocaleString()} - {detail.expected_wage_max.toLocaleString()}
               </span>
@@ -243,7 +243,7 @@ export default function CaregiverProfilePage() {
                   เกี่ยวกับฉัน (AI NARRATIVE)
                 </span>
                 {hasEdited && (
-                  <span className="px-1.5 py-0.2 text-[10px] bg-amber-100 text-amber-900 border border-amber-900 font-mono">
+                  <span className="px-1.5 py-0.2 text-[13px] bg-amber-100 text-amber-900 border border-amber-900 font-mono">
                     แก้ไขแล้ว (Edited)
                   </span>
                 )}
@@ -318,7 +318,7 @@ export default function CaregiverProfilePage() {
           {/* 12-Case Skills Matrix Breakdown */}
           <div className="space-y-2.5">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-indigo-950 block">
-              ทักษะและความคุ้นเคย 12 เคส (Schema v3)
+              ทักษะและความคุ้นเคย
             </span>
             <div className="flex flex-wrap gap-2">
               {skills.map((s) => {
@@ -332,12 +332,17 @@ export default function CaregiverProfilePage() {
                     <span className="font-bold text-indigo-950">
                       {caseMeta?.title_th || s.case_type}
                     </span>
-                    <span className={`px-1.5 py-0.2 text-[10px] font-bold border ${meta?.color}`}>
+                    <span className={`px-1.5 py-0.2 text-[13px] font-bold border ${meta?.color}`}>
                       {meta?.label_th}
                     </span>
                   </div>
                 );
               })}
+              {((detail.extra_answers?.custom_tags as string[] | undefined) || []).map((t) => (
+                <div key={`custom-${t}`} className="px-2.5 py-1.5 bg-amber-50 border border-dashed border-indigo-950 text-xs font-bold text-indigo-950">
+                  {t}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -363,8 +368,8 @@ export default function CaregiverProfilePage() {
                     )}
                     <div className="min-w-0">
                       <p className="font-bold text-xs truncate text-indigo-950">{cert.file_name}</p>
-                      <p className="text-[11px] text-stone-500 font-mono truncate">{cert.cert_type}</p>
-                      <span className="inline-block mt-1 px-1.5 py-0.2 text-[10px] font-mono font-bold bg-emerald-100 text-emerald-900 border border-emerald-900">
+                      <p className="text-[14px] text-stone-500 font-mono truncate">{cert.cert_type}</p>
+                      <span className="inline-block mt-1 px-1.5 py-0.2 text-[13px] font-mono font-bold bg-emerald-100 text-emerald-900 border border-emerald-900">
                         ✓ {cert.verification_status.toUpperCase()}
                       </span>
                     </div>
@@ -421,6 +426,7 @@ export default function CaregiverProfilePage() {
                       preview_url: cr.preview_url || '',
                     })),
                     no_certificates: !certs || certs.length === 0,
+                    custom_tags: (d.extra_answers?.custom_tags as string[] | undefined) || [],
                   });
                 }
                 router.push('/caregiver/onboarding?mode=edit');

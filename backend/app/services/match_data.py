@@ -8,17 +8,23 @@ def km_between(a: dict, b: dict) -> float | None:
     h = math.sin((la2 - la1) / 2) ** 2 + math.cos(la1) * math.cos(la2) * math.sin((lo2 - lo1) / 2) ** 2
     return round(6371 * 2 * math.asin(min(1.0, math.sqrt(h))), 1)
 
+def custom_tags(extra) -> list[str]:
+    """Only the free-text tags from extra_answers — never avatars or other blobs (they'd go to the LLM)."""
+    tags = (extra or {}).get("custom_tags") or []
+    return sorted({str(t).strip()[:30] for t in tags if str(t).strip()})[:8]
+
 def load_labels() -> dict[str, str]:
     return {r["code"]: r["label_th"] for r in supabase.table("case_types").select("code,label_th").execute().data}
 
 def load_job(job_id: str) -> dict | None:
     j = (supabase.table("job_posts")
          .select("id,family_id,title,patient_description,patient_age,patient_gender,work_arrangement,"
-                 "province,district,wage_min,wage_max,wage_unit,preferred_caregiver_gender")
+                 "province,district,wage_min,wage_max,wage_unit,preferred_caregiver_gender,extra_answers")
          .eq("id", job_id).maybe_single().execute())
     if not j or not j.data:
         return None
     job = j.data
+    job["custom_tags"] = custom_tags(job.pop("extra_answers", None))
     needs = (supabase.table("job_post_case_needs").select("case_type")
              .eq("job_post_id", job_id).eq("is_required", True).execute().data)
     job["needs"] = sorted(n["case_type"] for n in needs)
@@ -31,8 +37,10 @@ def load_caregivers(ids: list[str]) -> dict[str, dict]:
         return {}
     det = (supabase.table("caregiver_details")
            .select("caregiver_id,gender,birth_year,care_roles,years_experience,work_arrangements,"
-                   "home_province,home_district,expected_wage_min,expected_wage_max,wage_unit")
+                   "home_province,home_district,expected_wage_min,expected_wage_max,wage_unit,extra_answers")
            .in_("caregiver_id", ids).eq("is_visible", True).execute().data)
+    for d in det:
+        d["custom_tags"] = custom_tags(d.pop("extra_answers", None))
     out = {d["caregiver_id"]: {**d, "care_roles": sorted(d.get("care_roles") or []),
                                "skills": {}, "has_verified_cert": False, "_loc": {}} for d in det}
     if not out:

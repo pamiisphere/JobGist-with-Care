@@ -196,12 +196,12 @@ function ApplicantsContent() {
                     <div className="space-y-4">
                       {/* Top Row: Liked by Caregiver Banner */}
                       {nextCandidate.caregiver_liked && (
-                        <div className="bg-pink-100 border border-[#D946EF] px-2.5 py-1 flex items-center justify-between text-[11px] font-bold text-pink-950 -mt-2">
+                        <div className="bg-pink-100 border border-[#D946EF] px-2.5 py-1 flex items-center justify-between text-[14px] font-bold text-pink-950 -mt-2">
                           <span className="flex items-center gap-1 font-mono">
                             <SparklesIcon className="w-3.5 h-3.5 text-[#D946EF]" />
                             ผู้ดูแลท่านนี้เคยกดสนใจงานคุณแล้ว! ปัดขวาเพื่อ Match ทันที
                           </span>
-                          <span className="font-mono text-[9px] bg-[#D946EF] text-white px-1.5 py-0.5">
+                          <span className="font-mono text-[12px] bg-[#D946EF] text-white px-1.5 py-0.5">
                             MUTUAL READY
                           </span>
                         </div>
@@ -227,12 +227,12 @@ function ApplicantsContent() {
                                 {nextCandidate.display_name}
                               </h3>
                               {nextCandidate.gender && (
-                                <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[10px] sm:text-xs font-mono font-bold">
+                                <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[13px] sm:text-xs font-mono font-bold">
                                   {nextCandidate.gender === 'female' ? 'เพศหญิง' : 'เพศชาย'}
                                 </span>
                               )}
                               {typeof nextCandidate.age === 'number' && nextCandidate.age > 0 && (
-                                <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[10px] sm:text-xs font-mono font-bold">
+                                <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[13px] sm:text-xs font-mono font-bold">
                                   อายุ {nextCandidate.age} ปี
                                 </span>
                               )}
@@ -250,7 +250,7 @@ function ApplicantsContent() {
 
                         {/* Fit Score Badge */}
                         <div className="bg-[#FAF9F6] border-2 border-indigo-950 px-3 py-1 text-center shrink-0">
-                          <span className="text-[9px] font-mono text-stone-500 block uppercase leading-tight">AI Fit Score</span>
+                          <span className="text-[12px] font-mono text-stone-500 block uppercase leading-tight">AI Fit Score</span>
                           <span className="text-lg sm:text-xl font-mono font-black text-[#D946EF] block leading-none">
                             {nextCandidate.fit_score}%
                           </span>
@@ -316,12 +316,12 @@ function ApplicantsContent() {
                 <div className="space-y-4">
                   {/* Highlight Badge if Caregiver Liked First */}
                   {currentCandidate.caregiver_liked && (
-                    <div className="bg-pink-100 border border-[#D946EF] px-2.5 py-1 flex items-center justify-between text-[11px] font-bold text-pink-950 -mt-2">
+                    <div className="bg-pink-100 border border-[#D946EF] px-2.5 py-1 flex items-center justify-between text-[14px] font-bold text-pink-950 -mt-2">
                       <span className="flex items-center gap-1 font-mono">
                         <SparklesIcon className="w-3.5 h-3.5 text-[#D946EF]" />
                         ผู้ดูแลท่านนี้เคยกดสนใจงานคุณแล้ว! ปัดขวาเพื่อ Match ทันที
                       </span>
-                      <span className="font-mono text-[9px] bg-[#D946EF] text-white px-1.5 py-0.5">
+                      <span className="font-mono text-[12px] bg-[#D946EF] text-white px-1.5 py-0.5">
                         MUTUAL READY
                       </span>
                     </div>
@@ -349,17 +349,17 @@ function ApplicantsContent() {
                             {currentCandidate.display_name}
                           </h2>
                           {currentCandidate.gender && (
-                            <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[10px] sm:text-xs font-mono font-bold">
+                            <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[13px] sm:text-xs font-mono font-bold">
                               {currentCandidate.gender === 'female' ? 'เพศหญิง' : 'เพศชาย'}
                             </span>
                           )}
                           {typeof currentCandidate.age === 'number' && currentCandidate.age > 0 && (
-                            <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[10px] sm:text-xs font-mono font-bold">
+                            <span className="px-1.5 py-0.5 bg-stone-100 border border-indigo-950 text-[13px] sm:text-xs font-mono font-bold">
                               อายุ {currentCandidate.age} ปี
                             </span>
                           )}
                           {currentCandidate.certificates.length > 0 && (
-                            <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-900 text-[10px] sm:text-xs font-bold flex items-center gap-1">
+                            <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-900 text-[13px] sm:text-xs font-bold flex items-center gap-1">
                               <ShieldCheckIcon className="w-3.5 h-3.5" />
                               มีใบรับรอง ({currentCandidate.certificates.length})
                             </span>
@@ -385,20 +385,20 @@ function ApplicantsContent() {
                     </div>
 
                     {/* Wage, Fit Score & Favorite Button */}
-                    <div className="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
+                    <div className="flex flex-wrap sm:flex-nowrap sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0 w-full sm:w-auto">
                       <div className="flex sm:flex-col items-center sm:items-end gap-2">
                         <div className="bg-[#FAF9F6] border-2 border-indigo-950 px-3 py-1 text-center sm:text-right">
-                          <span className="text-[9px] font-mono font-bold text-stone-600 block uppercase leading-tight">AI Fit Score</span>
+                          <span className="text-[12px] font-mono font-bold text-stone-600 block uppercase leading-tight">AI Fit Score</span>
                           <span className="text-lg sm:text-xl font-mono font-black text-[#D946EF] block leading-none">
                             {currentCandidate.fit_score}%
                           </span>
                         </div>
 
-                        <div className="text-right">
+                        <div className="text-right whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-mono font-black text-indigo-950 block leading-tight">
                             ฿{currentCandidate.expected_wage_min.toLocaleString()} - {currentCandidate.expected_wage_max.toLocaleString()}
                           </span>
-                          <span className="text-[10px] font-mono text-stone-500">
+                          <span className="text-[13px] font-mono text-stone-500">
                             /{currentCandidate.wage_unit === 'month' ? 'เดือน' : currentCandidate.wage_unit === 'day' ? 'วัน' : 'ชม.'} (
                             {currentCandidate.work_arrangements.map((a) => (a === 'live_in' ? 'อยู่ประจำ' : 'ไป-กลับ')).join('/')})
                           </span>
@@ -480,7 +480,7 @@ function ApplicantsContent() {
 
                 {/* Bottom Actions & Circle Buttons (Corner Left & Right) */}
                 <div className="pt-3">
-                  <div className="flex items-center justify-center text-[11px] font-mono text-stone-500 border-t border-stone-200 py-2">
+                  <div className="flex items-center justify-center text-[14px] font-mono text-stone-500 border-t border-stone-200 py-2">
                     <span>👈 ปัดซ้ายข้าม (Pass) | ปัดขวาถูกใจ (Like) 👉</span>
                   </div>
 
@@ -500,7 +500,7 @@ function ApplicantsContent() {
                       <CloseIcon className="w-6 h-6 shrink-0" />
                     </button>
 
-                    <span className="text-[11px] font-mono text-stone-400">
+                    <span className="text-[14px] font-mono text-stone-400">
                       คลิกปุ่มหรือลากการ์ดเพื่อตัดสินใจ
                     </span>
 

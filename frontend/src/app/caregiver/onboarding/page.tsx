@@ -12,6 +12,8 @@ import {
   WorkArrangement,
   WageUnit,
   CASE_TYPES_V3,
+  CASE_CATEGORY_LABEL_TH,
+  CaseType,
   CARE_ROLES_META,
   COMFORT_LEVEL_META,
 } from '@/types/database';
@@ -27,6 +29,7 @@ import {
   stripKhunPrefix,
 } from '@/services/api';
 import { CaregiverGender } from '@/types/database';
+import CustomTagInput from '@/components/CustomTagInput';
 import {
   SparklesIcon,
   ChevronRightIcon,
@@ -82,6 +85,7 @@ function getInitialCaregiverData(): Partial<CaregiverOnboardingPayload> | null {
         preview_url: cr.preview_url || '',
       })),
       no_certificates: !certs || certs.length === 0,
+      custom_tags: (d.extra_answers?.custom_tags as string[] | undefined) || [],
     };
   }
   return null;
@@ -166,6 +170,17 @@ export default function CaregiverOnboardingPage() {
       physical_therapy: 'trained',
       diabetes_insulin: 'trained',
       palliative_care: 'willing_to_learn',
+      // tags added Nov 2026 start as "not comfortable" so nobody is over-claimed
+      parkinson: 'not_comfortable',
+      oxygen: 'not_comfortable',
+      urinary_catheter: 'not_comfortable',
+      medication: 'not_comfortable',
+      mobility_assist: 'not_comfortable',
+      fall_risk: 'not_comfortable',
+      bathing_toileting: 'not_comfortable',
+      night_watch: 'not_comfortable',
+      meal_prep: 'not_comfortable',
+      light_housework: 'not_comfortable',
     };
     const init = getInitialCaregiverData();
     if (init?.skills?.length) {
@@ -185,6 +200,8 @@ export default function CaregiverOnboardingPage() {
   const [noCertificates, setNoCertificates] = useState(() => {
     return getInitialCaregiverData()?.no_certificates || false;
   });
+
+  const [customTags, setCustomTags] = useState<string[]>(() => getInitialCaregiverData()?.custom_tags || []);
 
   // Auto-save draft on changes
   const triggerAutoSave = () => {
@@ -211,6 +228,7 @@ export default function CaregiverOnboardingPage() {
       wage_unit: wageUnit,
       work_arrangements: workArrangements,
       skills: skillsArray,
+      custom_tags: customTags,
       certificates,
       no_certificates: noCertificates,
     });
@@ -380,6 +398,7 @@ export default function CaregiverOnboardingPage() {
       wage_unit: wageUnit,
       work_arrangements: workArrangements,
       skills: skillsArray,
+      custom_tags: customTags,
       certificates,
       no_certificates: noCertificates,
     };
@@ -412,7 +431,7 @@ export default function CaregiverOnboardingPage() {
           </div>
 
           {autoSaveToast && (
-            <span className="text-[11px] font-mono text-emerald-700 font-bold animate-pulse">
+            <span className="text-[14px] font-mono text-emerald-700 font-bold animate-pulse">
               ✓ บันทึกร่างแล้ว
             </span>
           )}
@@ -523,7 +542,7 @@ export default function CaregiverOnboardingPage() {
                         <span>
                           เบอร์โทรศัพท์ <span className="text-rose-600">*</span>
                         </span>
-                        <span className={`text-[11px] font-mono ${phone.length === 10 ? 'text-emerald-700 font-bold' : 'text-stone-500'}`}>
+                        <span className={`text-[14px] font-mono ${phone.length === 10 ? 'text-emerald-700 font-bold' : 'text-stone-500'}`}>
                           {phone.length}/10 หลัก
                         </span>
                       </label>
@@ -543,11 +562,11 @@ export default function CaregiverOnboardingPage() {
                         className="w-full min-h-[44px] px-3.5 text-sm bg-white border-2 border-indigo-950 font-mono placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#D946EF]"
                       />
                       {phone.length > 0 && phone.length < 10 ? (
-                        <p className="text-[11px] text-amber-700 font-medium mt-1">
+                        <p className="text-[14px] text-amber-700 font-medium mt-1">
                           กรุณากรอกตัวเลขให้ครบ 10 หลัก (ปัจจุบัน {phone.length} หลัก)
                         </p>
                       ) : (
-                        <span className="text-[10px] text-stone-500 font-mono block mt-1">
+                        <span className="text-[13px] text-stone-500 font-mono block mt-1">
                           🔒 ปลอดภัย: เปิดเผยเฉพาะคู่ที่ Match แล้ว (กรอกเฉพาะตัวเลข 10 หลัก)
                         </span>
                       )}
@@ -632,7 +651,7 @@ export default function CaregiverOnboardingPage() {
             className="jg-range w-full cursor-pointer"
             style={{ '--fill': `${((maxTravelKm - 1) / 99) * 100}%` } as React.CSSProperties}
           />
-          <p className="text-[11px] text-stone-500">
+          <p className="text-[14px] text-stone-500">
             ระบบจะใช้ระยะนี้ในการกรองฟีดงาน เพื่อไม่ให้แสดงงานที่อยู่ไกลเกินความสะดวกของคุณ
           </p>
         </div>
@@ -657,7 +676,7 @@ export default function CaregiverOnboardingPage() {
             <label className="text-xs font-bold text-indigo-950 mb-0.5 block">
               รูปโปรไฟล์ผู้ดูแล (ไม่บังคับ)
             </label>
-            <p className="text-[11px] text-stone-500">
+            <p className="text-[14px] text-stone-500">
               แนบรูปถ่ายหน้าตรง สุภาพ หรือรูปขณะปฏิบัติงาน เพื่อสร้างความน่าเชื่อถือกับครอบครัว
             </p>
           </div>
@@ -686,7 +705,7 @@ export default function CaregiverOnboardingPage() {
                   }}
                   className="hidden"
                 />
-                <p className="text-[11px] text-stone-500 mt-2">
+                <p className="text-[14px] text-stone-500 mt-2">
                   รองรับ JPEG, PNG, WebP (ไม่บังคับ สามารถข้ามได้)
                 </p>
               </div>
@@ -745,7 +764,7 @@ export default function CaregiverOnboardingPage() {
         <span className="font-bold flex items-center gap-1.5 font-mono">
           🔒 ข้อกำหนดความปลอดภัยพิกัดบ้าน :
         </span>
-        <p className="text-[11px] leading-relaxed">
+        <p className="text-[14px] leading-relaxed">
           พิกัดละติจูด/ลองจิจูดของคุณจะถูกจัดเก็บใน <code>job_locations</code> และนำไปใช้คำนวณระยะทางแบบลับเท่านั้น บุคคลอื่นจะไม่สามารถเห็นที่อยู่จริงได้จนกว่าจะเกิดการจับคู่ตรงกัน (Mutual Match)
         </p>
       </div>
@@ -790,7 +809,7 @@ export default function CaregiverOnboardingPage() {
                     <div>
                       <span className="font-bold text-xs sm:text-sm block">{meta.label_th}</span>
                       <span
-                        className={`text-[11px] block leading-tight mt-0.5 ${isSelected ? 'text-pink-100' : 'text-stone-500'
+                        className={`text-[14px] block leading-tight mt-0.5 ${isSelected ? 'text-pink-100' : 'text-stone-500'
                           }`}
                       >
                         {meta.desc_th}
@@ -868,7 +887,7 @@ export default function CaregiverOnboardingPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <span className="text-[11px] font-mono text-stone-500 block mb-1">ขั้นต่ำ (บาท)</span>
+                <span className="text-[14px] font-mono text-stone-500 block mb-1">ขั้นต่ำ (บาท)</span>
                 <input
                   type="number"
                   value={expectedWageMin}
@@ -877,7 +896,7 @@ export default function CaregiverOnboardingPage() {
                 />
               </div>
               <div>
-                <span className="text-[11px] font-mono text-stone-500 block mb-1">สูงสุด (บาท)</span>
+                <span className="text-[14px] font-mono text-stone-500 block mb-1">สูงสุด (บาท)</span>
                 <input
                   type="number"
                   value={expectedWageMax}
@@ -939,13 +958,16 @@ export default function CaregiverOnboardingPage() {
           <div className="space-y-3 pt-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-mono font-bold text-indigo-950 uppercase">
-                ตารางทักษะ 12 เคส (Schema v3)
+                ทักษะการดูแล ({Object.keys(CASE_TYPES_V3).length} รายการ)
               </label>
-              <span className="text-[11px] font-mono text-stone-500">แตะเพื่อเปลี่ยนสถานะ</span>
+              <span className="text-[14px] font-mono text-stone-500">แตะเพื่อเปลี่ยนสถานะ</span>
             </div>
 
+            {(Object.keys(CASE_CATEGORY_LABEL_TH) as CaseType['category'][]).map((cat) => (
+            <div key={cat} className="space-y-2">
+            <p className="text-sm font-bold text-stone-600 pt-2">{CASE_CATEGORY_LABEL_TH[cat]}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {(Object.keys(CASE_TYPES_V3) as CaseTypeCode[]).map((code) => {
+              {(Object.keys(CASE_TYPES_V3) as CaseTypeCode[]).filter((code) => CASE_TYPES_V3[code].category === cat).map((code) => {
                 const item = CASE_TYPES_V3[code];
                 const level = caseSkills[code] || 'willing_to_learn';
                 const meta = COMFORT_LEVEL_META[level];
@@ -960,19 +982,30 @@ export default function CaregiverOnboardingPage() {
                       <span className="font-bold text-xs sm:text-sm text-indigo-950 block">
                         {item.title_th}
                       </span>
-                      <span className="text-[10px] text-stone-500 line-clamp-1">
+                      <span className="text-[13px] text-stone-500 line-clamp-1">
                         {item.description_th}
                       </span>
                     </div>
 
                     <div
-                      className={`px-2.5 py-1 text-[11px] font-bold border shrink-0 ${meta.color}`}
+                      className={`px-2.5 py-1 text-[14px] font-bold border shrink-0 ${meta.color}`}
                     >
                       {meta.label_th}
                     </div>
                   </div>
                 );
               })}
+            </div>
+            </div>
+            ))}
+
+            <div className="pt-3 border-t-2 border-dashed border-stone-300">
+              <CustomTagInput
+                value={customTags}
+                onChange={(t) => { setCustomTags(t); }}
+                label="มีทักษะอื่นที่ไม่อยู่ในรายการ? พิมพ์เพิ่มเอง"
+                placeholder="เช่น ดูแลผู้ป่วยฟอกไต, พูดภาษาจีนได้"
+              />
             </div>
           </div>
         </div>
@@ -1013,7 +1046,7 @@ export default function CaregiverOnboardingPage() {
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-                <p className="text-[11px] text-stone-500 mt-1.5">
+                <p className="text-[14px] text-stone-500 mt-1.5">
                   รองรับ JPEG, PNG, WebP (สูงสุด 3 ไฟล์)
                 </p>
               </div>
@@ -1177,7 +1210,7 @@ export default function CaregiverOnboardingPage() {
                     .map((c) => (
                       <span
                         key={c}
-                        className="px-2 py-0.5 text-[11px] font-bold bg-white border border-indigo-950"
+                        className="px-2 py-0.5 text-[14px] font-bold bg-white border border-indigo-950"
                       >
                         ✓ {CASE_TYPES_V3[c].short_label_th} ({COMFORT_LEVEL_META[caseSkills[c]].label_th})
                       </span>

@@ -10,7 +10,10 @@ import {
   WageUnit,
   CaregiverGenderPreference,
   CASE_TYPES_V3,
+  CASE_CATEGORY_LABEL_TH,
+  CaseType,
 } from '@/types/database';
+import CustomTagInput from '@/components/CustomTagInput';
 import {
   saveFamilyDraft,
   getFamilyDraft,
@@ -74,6 +77,7 @@ function getInitialFamilyJobData(): Partial<PostJobPayload> | null {
       start_date: activeJob.start_date || '',
       cases: (needs || []).map((c) => ({ case_type: c.case_type, is_required: c.is_required })),
       status: activeJob.status === 'open' ? 'open' : 'draft',
+      custom_tags: (activeJob.extra_answers?.custom_tags as string[] | undefined) || [],
     };
   }
   return null;
@@ -102,21 +106,12 @@ export default function FamilyPostJobPage() {
     return [];
   });
   const [manualRemovals, setManualRemovals] = useState<CaseTypeCode[]>([]);
+  const [customTags, setCustomTags] = useState<string[]>(() => getInitialFamilyJobData()?.custom_tags || []);
   const [requiredMap, setRequiredMap] = useState<Record<CaseTypeCode, boolean>>(() => {
-    const baseMap: Record<CaseTypeCode, boolean> = {
-      bedridden: true,
-      tube_feeding: true,
-      dementia: true,
-      stroke: true,
-      post_surgery: true,
-      wound_care: true,
-      hospital_escort: true,
-      general_elderly: true,
-      tracheostomy_suction: true,
-      physical_therapy: false,
-      diabetes_insulin: true,
-      palliative_care: true,
-    };
+    const OPTIONAL_BY_DEFAULT: CaseTypeCode[] = ['physical_therapy', 'meal_prep', 'light_housework'];
+    const baseMap = Object.fromEntries(
+      (Object.keys(CASE_TYPES_V3) as CaseTypeCode[]).map((c) => [c, !OPTIONAL_BY_DEFAULT.includes(c)])
+    ) as Record<CaseTypeCode, boolean>;
     const init = getInitialFamilyJobData();
     if (init?.cases) {
       init.cases.forEach((c) => {
@@ -201,6 +196,7 @@ export default function FamilyPostJobPage() {
           case_type: c,
           is_required: requiredMap[c] ?? true,
         })),
+        custom_tags: customTags,
         status: 'draft',
       });
       setAutoSaveToast(true);
@@ -223,6 +219,7 @@ export default function FamilyPostJobPage() {
     requiredMap,
     manualRemovals,
     manualAdditions,
+    customTags,
   ]);
 
   const handleToggleCaseChip = (code: CaseTypeCode) => {
@@ -280,6 +277,7 @@ export default function FamilyPostJobPage() {
         is_required: requiredMap[c] ?? true,
       })),
       status,
+      custom_tags: customTags,
       display_name: draft?.display_name,
       phone: draft?.phone,
       line_id: draft?.line_id,
@@ -350,7 +348,7 @@ export default function FamilyPostJobPage() {
           <div className="space-y-2">
             <label className="text-xs font-bold text-indigo-950 flex items-center justify-between">
               <span>อาการและสิ่งที่ต้องการให้ช่วยดูแล (ภาษาพูด) <span className="text-rose-600">*</span></span>
-              <span className="text-[11px] font-mono text-stone-500">
+              <span className="text-[14px] font-mono text-stone-500">
                 ตรวจจับคีย์เวิร์ดอัตโนมัติ (250ms debounce)
               </span>
             </label>
@@ -366,19 +364,22 @@ export default function FamilyPostJobPage() {
 
           {/* Live Detected Case Needs Chips */}
           <div className="bg-[#FAF9F6] border-2 border-indigo-950 p-4 space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
               <span className="text-xs font-mono font-bold text-indigo-950 uppercase flex items-center gap-1.5">
                 <SparklesIcon className="w-4 h-4 text-[#D946EF]" />
                 เคสที่ตรวจพบ ({activeCasesList.length} เคส)
               </span>
-              <span className="text-[10px] font-mono text-stone-500">
+              <span className="text-[13px] font-mono text-stone-500">
                 แตะเพื่อเพิ่ม/ลบ • สลับ &ldquo;จำเป็น/ไม่จำเป็น&rdquo; ได้
               </span>
             </div>
 
-            {/* Active Chips */}
+            {/* Active Chips, grouped by category */}
+            {(Object.keys(CASE_CATEGORY_LABEL_TH) as CaseType['category'][]).map((cat) => (
+            <div key={cat} className="space-y-2">
+            <p className="text-sm font-bold text-stone-600 pt-1">{CASE_CATEGORY_LABEL_TH[cat]}</p>
             <div className="flex flex-wrap gap-2">
-              {(Object.keys(CASE_TYPES_V3) as CaseTypeCode[]).map((code) => {
+              {(Object.keys(CASE_TYPES_V3) as CaseTypeCode[]).filter((code) => CASE_TYPES_V3[code].category === cat).map((code) => {
                 const item = CASE_TYPES_V3[code];
                 const isActive = activeCasesList.includes(code);
                 const isReq = requiredMap[code] ?? true;
@@ -398,7 +399,7 @@ export default function FamilyPostJobPage() {
                       <button
                         type="button"
                         onClick={(e) => toggleRequired(code, e)}
-                        className={`px-1.5 py-0.5 text-[10px] font-mono font-bold border ${
+                        className={`px-1.5 py-0.5 text-[13px] font-mono font-bold border ${
                           isReq
                             ? 'bg-[#D946EF] text-white border-white'
                             : 'bg-stone-200 text-stone-700 border-stone-400'
@@ -412,6 +413,17 @@ export default function FamilyPostJobPage() {
                   </div>
                 );
               })}
+            </div>
+            </div>
+            ))}
+
+            <div className="pt-3 border-t-2 border-dashed border-stone-300">
+              <CustomTagInput
+                value={customTags}
+                onChange={setCustomTags}
+                label="ไม่มีในรายการ? พิมพ์เพิ่มเอง"
+                placeholder="เช่น ฟอกไต, พูดภาษาจีนได้"
+              />
             </div>
           </div>
 
@@ -479,7 +491,7 @@ export default function FamilyPostJobPage() {
             <div>
               <label className="text-xs font-bold text-indigo-950 mb-1 flex items-center justify-between">
                 <span>งบประมาณที่ตั้งไว้ (บาท)</span>
-                <span className="font-mono text-[11px] text-stone-500">
+                <span className="font-mono text-[14px] text-stone-500">
                   {wageUnit === 'month' ? 'ต่อเดือน' : wageUnit === 'day' ? 'ต่อวัน' : 'ต่อชม.'}
                 </span>
               </label>
@@ -532,7 +544,7 @@ export default function FamilyPostJobPage() {
               placeholder="เช่น บ้านเลขที่ 12/34 ซอยลาดพร้าว 71 ถนนลาดพร้าว (เก็บเป็นความลับ)"
               className="w-full min-h-[44px] px-3.5 text-sm bg-white border-2 border-indigo-950 focus:outline-none"
             />
-            <p className="text-[11px] text-stone-500 font-mono">
+            <p className="text-[14px] text-stone-500 font-mono">
               🔒 RLS Policy: ข้อมูลที่อยู่นี้จะไม่มีผู้ดูแลคนใดมองเห็น ระบบใช้พิกัดเพื่อคำนวณระยะทาง (distance_km) เท่านั้น
             </p>
           </div>
@@ -564,6 +576,7 @@ export default function FamilyPostJobPage() {
                     case_type: c,
                     is_required: requiredMap[c] ?? true,
                   })),
+                  custom_tags: customTags,
                   status: 'draft',
                 });
                 router.push('/family/onboarding');

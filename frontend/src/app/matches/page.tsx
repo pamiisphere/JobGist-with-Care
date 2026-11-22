@@ -229,7 +229,7 @@ function MatchesContent() {
               <BellIcon className="w-4 h-4 text-[#D946EF]" />
               การแจ้งเตือนล่าสุด ({notifications.filter((n) => !n.read_at).length} ข้อความใหม่)
             </span>
-            <span className="text-[11px] font-mono text-stone-500">
+            <span className="text-[14px] font-mono text-stone-500">
               LINE Notification Sync: Active
             </span>
           </div>
@@ -252,7 +252,7 @@ function MatchesContent() {
                       <h4 className="font-bold text-xs sm:text-sm text-indigo-950">{notif.title}</h4>
                     </div>
                     <p className="text-xs text-stone-700 leading-relaxed">{notif.message}</p>
-                    <span className="text-[10px] font-mono text-stone-400 block pt-0.5">
+                    <span className="text-[13px] font-mono text-stone-400 block pt-0.5">
                       {new Date(notif.created_at).toLocaleDateString('th-TH', {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -262,7 +262,7 @@ function MatchesContent() {
 
                   <div className="flex items-center gap-2 shrink-0 self-center">
                     {!notif.read_at && (
-                      <span className="text-[11px] font-mono text-[#D946EF] font-bold">
+                      <span className="text-[14px] font-mono text-[#D946EF] font-bold">
                         ใหม่
                       </span>
                     )}
@@ -281,7 +281,7 @@ function MatchesContent() {
           ) : (
             <div className="py-6 text-center border-2 border-dashed border-stone-300 bg-[#FAF9F6] space-y-1">
               <p className="text-xs sm:text-sm font-bold text-stone-500">ไม่มีการแจ้งเตือน</p>
-              <p className="text-[11px] font-mono text-stone-400">เมื่อมีความเคลื่อนไหวหรือการจับคู่ใหม่ ระบบจะแจ้งเตือนให้คุณทราบที่นี่</p>
+              <p className="text-[14px] font-mono text-stone-400">เมื่อมีความเคลื่อนไหวหรือการจับคู่ใหม่ ระบบจะแจ้งเตือนให้คุณทราบที่นี่</p>
             </div>
           )}
         </div>
@@ -356,7 +356,7 @@ function MatchesContent() {
           {isMutualCompareMode && (
             <div className="bg-[#FAF5FF] border-2 border-[#D946EF] px-4 py-2.5 text-xs text-[#735095] font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-1">
               <span>👆 คลิกที่กล่องคู่แมตช์เพื่อเลือกคนที่ต้องการเปรียบเทียบ (เลือกได้ 2 - 4 ท่าน กล่องที่เลือกจะเป็นสีม่วงอ่อน)</span>
-              <span className="font-mono text-[11px] bg-white px-2 py-0.5 border border-[#D946EF] text-indigo-950 self-start sm:self-auto">
+              <span className="font-mono text-[14px] bg-white px-2 py-0.5 border border-[#D946EF] text-indigo-950 self-start sm:self-auto">
                 เลือกแล้ว {selectedMutualForCompare.length} / 4 ท่าน
               </span>
             </div>
@@ -436,11 +436,11 @@ function MatchesContent() {
                         </div>
 
                         <div className="flex flex-col items-end gap-1">
-                          <span className="px-2 py-0.5 bg-pink-100 text-[#D946EF] border border-[#D946EF] font-mono text-[10px] font-bold">
+                          <span className="px-2 py-0.5 bg-pink-100 text-[#D946EF] border border-[#D946EF] font-mono text-[13px] font-bold">
                             MATCHED ✓
                           </span>
                           {fit_score !== undefined && (
-                            <span className="text-[10px] font-mono font-bold text-stone-500 bg-stone-100 px-1.5 py-0.5 border border-stone-300">
+                            <span className="text-[13px] font-mono font-bold text-stone-500 bg-stone-100 px-1.5 py-0.5 border border-stone-300">
                               AI Fit: {fit_score}%
                             </span>
                           )}
@@ -484,7 +484,7 @@ function MatchesContent() {
                               </div>
                             )}
                           </div>
-                          <span className="text-[10px] text-stone-500 font-mono block">
+                          <span className="text-[13px] text-stone-500 font-mono block">
                             * ตกลงสัญญาและวันเริ่มงานโดยตรง ไม่ผ่านนายหน้า
                           </span>
                         </div>
@@ -563,14 +563,14 @@ function MatchesContent() {
                           {otherProfile?.display_name || 'ผู้ใช้งาน'}
                         </span>
                       </div>
-                      <p className="text-[11px] text-stone-500 font-mono">
+                      <p className="text-[14px] text-stone-500 font-mono">
                         {isCaregiverRole
                           ? `เขต${job?.district || 'กทม.'}`
                           : `ประสบการณ์ ${details?.years_experience || 3} ปี • เขต${details?.home_district || 'กทม.'}`}
                       </p>
                     </div>
 
-                    <span className="text-[10px] font-mono font-bold text-[#D946EF] bg-purple-50 px-2 py-0.5 border border-[#D946EF] shrink-0">
+                    <span className="text-[13px] font-mono font-bold text-[#D946EF] bg-purple-50 px-2 py-0.5 border border-[#D946EF] shrink-0">
                       สนใจคุณแล้ว
                     </span>
                   </div>
@@ -637,11 +637,11 @@ function MatchesContent() {
                         onClick={() => {
                           cancelPendingSwipe(match.id, currentUser.id);
                         }}
-                        className="px-2.5 py-1 text-[11px] font-bold text-indigo-950 bg-white hover:bg-stone-100 border border-indigo-950 riso-shadow-sm riso-btn-active cursor-pointer transition-colors"
+                        className="px-2.5 py-1 text-[14px] font-bold text-indigo-950 bg-white hover:bg-stone-100 border border-indigo-950 riso-shadow-sm riso-btn-active cursor-pointer transition-colors"
                       >
                         ยกเลิก
                       </button>
-                      <span className="font-mono text-[11px] font-bold text-stone-700 bg-stone-100 px-2 py-0.5 border border-indigo-950">
+                      <span className="font-mono text-[14px] font-bold text-stone-700 bg-stone-100 px-2 py-0.5 border border-indigo-950">
                         รอการตอบรับ
                       </span>
                     </div>
@@ -728,7 +728,7 @@ function MatchesContent() {
           {isCompareMode && (
             <div className="bg-[#FAF5FF] border-2 border-[#D946EF] px-4 py-2.5 text-xs text-[#735095] font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-1">
               <span>👆 คลิกที่การ์ดเพื่อเลือก{currentUser.role === 'caregiver' ? 'งาน' : 'ผู้ดูแล'}ที่ต้องการเปรียบเทียบ (เลือกได้ 2 - 4 รายการ)</span>
-              <span className="font-mono text-[11px] bg-white px-2 py-0.5 border border-[#D946EF] text-indigo-950 self-start sm:self-auto">
+              <span className="font-mono text-[14px] bg-white px-2 py-0.5 border border-[#D946EF] text-indigo-950 self-start sm:self-auto">
                 เลือกแล้ว {selectedForCompare.length} / 4 รายการ
               </span>
             </div>
@@ -888,7 +888,7 @@ function MatchesContent() {
                     </div>
 
                     <div className="pt-2 border-t border-stone-200 flex items-center justify-between">
-                      <span className="text-[11px] font-mono text-stone-400">
+                      <span className="text-[14px] font-mono text-stone-400">
                         บันทึกเมื่อ {new Date(favorite.created_at).toLocaleDateString('th-TH')}
                       </span>
                       {!isCompareMode ? (
@@ -1082,7 +1082,7 @@ function MatchesContent() {
                               {currentUser.role === 'caregiver' ? (
                                 <div className="flex flex-wrap justify-center gap-1 max-w-[200px] mx-auto">
                                   {required_cases?.map((c: string) => (
-                                    <span key={c} className="px-1.5 py-0.5 bg-stone-100 border border-stone-300 text-[10px]">
+                                    <span key={c} className="px-1.5 py-0.5 bg-stone-100 border border-stone-300 text-[13px]">
                                       {CASE_TYPES_V3[c as keyof typeof CASE_TYPES_V3]?.short_label_th || c}
                                     </span>
                                   )) || '-'}
@@ -1131,7 +1131,7 @@ function MatchesContent() {
                                     <span className="font-mono font-bold text-indigo-950 block">
                                       ฿{job.expected_wage.toLocaleString()}
                                     </span>
-                                    <span className="font-mono text-[10px] text-stone-500">
+                                    <span className="font-mono text-[13px] text-stone-500">
                                       /{job.wage_unit === 'month' ? 'เดือน' : job.wage_unit === 'day' ? 'วัน' : 'ชม.'}
                                     </span>
                                   </div>
@@ -1144,7 +1144,7 @@ function MatchesContent() {
                                     <span className="font-mono font-bold text-indigo-950 block">
                                       ฿{details.expected_wage_min.toLocaleString()} - {details.expected_wage_max.toLocaleString()}
                                     </span>
-                                    <span className="font-mono text-[10px] text-stone-500">
+                                    <span className="font-mono text-[13px] text-stone-500">
                                       /{details.wage_unit === 'month' ? 'เดือน' : details.wage_unit === 'day' ? 'วัน' : 'ชม.'}
                                     </span>
                                   </div>
@@ -1207,7 +1207,7 @@ function MatchesContent() {
                             return (
                               <td key={favorite.id} className="p-3 text-center">
                                 {certs && certs.length > 0 ? (
-                                  <span className="inline-flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 border border-emerald-300 px-2 py-0.5 text-[11px]">
+                                  <span className="inline-flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 border border-emerald-300 px-2 py-0.5 text-[14px]">
                                     <ShieldCheckIcon className="w-3.5 h-3.5 text-emerald-600" />
                                     มีใบรับรอง ({certs.length} ฉบับ)
                                   </span>
@@ -1368,7 +1368,7 @@ function MatchesContent() {
                               <div className="flex flex-wrap justify-center gap-1 max-w-[200px] mx-auto">
                                 {skills && skills.length > 0 ? (
                                   skills.map((s) => (
-                                    <span key={s.id} className="px-1.5 py-0.5 bg-stone-100 border border-stone-300 text-[10px]">
+                                    <span key={s.id} className="px-1.5 py-0.5 bg-stone-100 border border-stone-300 text-[13px]">
                                       {CASE_TYPES_V3[s.case_type]?.short_label_th || s.case_type}
                                     </span>
                                   ))
@@ -1414,7 +1414,7 @@ function MatchesContent() {
                                   <span className="font-mono font-bold text-indigo-950 block">
                                     ฿{job.expected_wage.toLocaleString()}
                                   </span>
-                                  <span className="font-mono text-[10px] text-stone-500">
+                                  <span className="font-mono text-[13px] text-stone-500">
                                     /{job.wage_unit === 'month' ? 'เดือน' : job.wage_unit === 'day' ? 'วัน' : 'ชม.'}
                                   </span>
                                 </div>
@@ -1427,7 +1427,7 @@ function MatchesContent() {
                                   <span className="font-mono font-bold text-indigo-950 block">
                                     ฿{details.expected_wage_min.toLocaleString()} - {details.expected_wage_max.toLocaleString()}
                                   </span>
-                                  <span className="font-mono text-[10px] text-stone-500">
+                                  <span className="font-mono text-[13px] text-stone-500">
                                     /{details.wage_unit === 'month' ? 'เดือน' : details.wage_unit === 'day' ? 'วัน' : 'ชม.'}
                                   </span>
                                 </div>
@@ -1484,13 +1484,13 @@ function MatchesContent() {
                         .map(({ match, certs }) => (
                           <td key={match.id} className="p-3 text-center">
                             {currentUser.role === 'caregiver' ? (
-                              <span className="inline-flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 border border-emerald-300 px-2 py-0.5 text-[11px]">
+                              <span className="inline-flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 border border-emerald-300 px-2 py-0.5 text-[14px]">
                                 <CheckIcon className="w-3.5 h-3.5 text-emerald-600" />
                                 ปลดล็อกเบอร์โทรแล้ว
                               </span>
                             ) : (
                               certs && certs.length > 0 ? (
-                                <span className="inline-flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 border border-emerald-300 px-2 py-0.5 text-[11px]">
+                                <span className="inline-flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 border border-emerald-300 px-2 py-0.5 text-[14px]">
                                   <ShieldCheckIcon className="w-3.5 h-3.5 text-emerald-600" />
                                   มีใบรับรอง ({certs.length} ฉบับ)
                                 </span>
@@ -1514,7 +1514,7 @@ function MatchesContent() {
                                 skills.map((s) => (
                                   <span
                                     key={s.id}
-                                    className="px-1.5 py-0.5 bg-[#FAF9F6] border border-indigo-950 text-[10px] font-bold text-indigo-950"
+                                    className="px-1.5 py-0.5 bg-[#FAF9F6] border border-indigo-950 text-[13px] font-bold text-indigo-950"
                                   >
                                     {CASE_TYPES_V3[s.case_type]?.short_label_th || s.case_type}
                                   </span>

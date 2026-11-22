@@ -248,7 +248,7 @@ function AuthContent() {
                     <span className="w-2 h-2 rounded-full bg-emerald-500" />
                     บัญชีทดสอบด่วน (1-Click)
                   </span>
-                  <span className="text-[10px] font-mono text-stone-500">สำหรับทดสอบระบบ</span>
+                  <span className="text-[13px] font-mono text-stone-500">สำหรับทดสอบระบบ</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <button
@@ -265,7 +265,7 @@ function AuthContent() {
                     className="min-h-[44px] p-2 bg-white border border-indigo-950 hover:bg-stone-50 text-left font-bold riso-shadow-sm flex flex-col justify-center riso-btn-active"
                   >
                     <span className="text-indigo-950">👩‍⚕️ คุณวิมล (ผู้ดูแล)</span>
-                    <span className="text-[10px] text-stone-500 font-normal">ดูฟีดงาน / Swipe UI</span>
+                    <span className="text-[13px] text-stone-500 font-normal">ดูฟีดงาน / Swipe UI</span>
                   </button>
                   <button
                     type="button"
@@ -281,7 +281,7 @@ function AuthContent() {
                     className="min-h-[44px] p-2 bg-white border border-indigo-950 hover:bg-stone-50 text-left font-bold riso-shadow-sm flex flex-col justify-center riso-btn-active"
                   >
                     <span className="text-indigo-950">🏡 คุณวรรณวิมล (ครอบครัว)</span>
-                    <span className="text-[10px] text-stone-500 font-normal">ดูผู้สมัคร / เปรียบเทียบ</span>
+                    <span className="text-[13px] text-stone-500 font-normal">ดูผู้สมัคร / เปรียบเทียบ</span>
                   </button>
                 </div>
               </div>
@@ -474,7 +474,7 @@ function AuthContent() {
                     <span>
                       เบอร์โทรศัพท์ติดต่อ (Phone) <span className="text-rose-600">*</span>
                     </span>
-                    <span className="text-[11px] font-mono text-stone-500">
+                    <span className="text-[14px] font-mono text-stone-500">
                       {phone.length}/10 หลัก
                     </span>
                   </label>
@@ -492,7 +492,7 @@ function AuthContent() {
                     placeholder="เช่น 0812345678"
                     className="w-full min-h-[44px] px-3.5 text-sm bg-white border-2 border-indigo-950 focus:outline-none focus:ring-2 focus:ring-[#D946EF] font-mono placeholder:text-stone-400"
                   />
-                  <span className="text-[11px] text-stone-500 mt-1 block">
+                  <span className="text-[14px] text-stone-500 mt-1 block">
                     * ซ่อนเป็นความลับ จะแสดงให้อีกฝ่ายเห็นเฉพาะหลัง Match เท่านั้น (กรอกเฉพาะตัวเลข 10 หลัก)
                   </span>
                 </div>

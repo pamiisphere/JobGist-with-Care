@@ -70,6 +70,16 @@ const FE_TO_DB: Record<CaseTypeCode, string> = {
   physical_therapy: 'physical_therapy',
   diabetes_insulin: 'diabetes_care',
   palliative_care: 'palliative',
+  parkinson: 'parkinson',
+  oxygen: 'oxygen',
+  urinary_catheter: 'urinary_catheter',
+  medication: 'medication',
+  mobility_assist: 'mobility_assist',
+  fall_risk: 'fall_risk',
+  bathing_toileting: 'bathing_toileting',
+  night_watch: 'night_watch',
+  meal_prep: 'meal_prep',
+  light_housework: 'light_housework',
 };
 const DB_TO_FE: Record<string, CaseTypeCode> = Object.fromEntries(
   Object.entries(FE_TO_DB).map(([fe, db]) => [db, fe as CaseTypeCode])
@@ -168,6 +178,9 @@ const birthYearFromAge = (a?: number | null) => {
   const y = new Date().getFullYear() - a;
   return y >= 1940 && y <= 2010 ? y : null;
 };
+/** Trim, de-duplicate and cap free-text tags before saving (they go into an LLM prompt). */
+export const cleanTags = (tags?: string[] | null): string[] =>
+  [...new Set((tags || []).map((t) => t.replace(/\s+/g, ' ').trim().slice(0, 30)).filter(Boolean))].slice(0, 8);
 const smallAvatar = (u?: string | null) => (u && u.length < 200_000 ? u : null);
 
 function fail(where: string, error: unknown): never {
@@ -604,6 +617,7 @@ export interface CaregiverWrite {
   work_arrangements: string[];
   skills: { case_type: CaseTypeCode; comfort_level: ComfortLevel }[];
   certificates: { file_name: string; cert_type: string; preview_url: string }[];
+  custom_tags?: string[];
 }
 
 const CERT_LABEL: Record<string, string> = {
@@ -655,7 +669,7 @@ export async function saveCaregiver(uid: string, p: CaregiverWrite) {
     expected_wage_min: min || null,
     expected_wage_max: max || null,
     wage_unit: p.wage_unit || 'month',
-    extra_answers: { ...(existing?.extra_answers || {}), avatar_url: smallAvatar(p.avatar_url) },
+    extra_answers: { ...(existing?.extra_answers || {}), avatar_url: smallAvatar(p.avatar_url), custom_tags: cleanTags(p.custom_tags) },
     is_visible: existing?.is_visible ?? false,
   });
   if (det.error) fail('caregiver_details', det.error);
@@ -735,6 +749,7 @@ export interface JobWrite {
   phone?: string;
   line_id?: string;
   avatar_url?: string | null;
+  custom_tags?: string[];
 }
 
 const jobTitle = (d: string) => {
@@ -758,7 +773,7 @@ export async function saveJob(uid: string, p: JobWrite, isUpdate = false) {
     wage_max: p.expected_wage ?? null,
     wage_unit: p.wage_unit || 'month',
     preferred_caregiver_gender: p.preferred_caregiver_gender || 'any',
-    extra_answers: { family_avatar_url: smallAvatar(p.avatar_url) },
+    extra_answers: { family_avatar_url: smallAvatar(p.avatar_url), custom_tags: cleanTags(p.custom_tags) },
     status: p.status,
   };
   const jr = isUpdate
@@ -840,3 +855,21 @@ export async function savePlatformReview(uid: string, r: { ease: number; ui: num
     if (up.error) fail('platform review', up.error);
   }
 }
+
+// ---------------------------------------------------------------------------
+// AI Lab (debug page): see the scoring constants and the exact LLM prompt.
+// ---------------------------------------------------------------------------
+export const SCORE_CONFIG = { SPECIALIZED, WEIGHTS, LEVEL_CREDIT, DISTANCE_ZERO_KM, EXPERIENCE_FULL_YEARS };
+
+export interface LabLLM {
+  success: boolean; text: string | null; provider: string; model: string; latency_ms: number;
+  input_tokens: number | null; output_tokens: number | null; cost_thb: number | null; error: string | null;
+}
+export interface LabResult {
+  prompt_version: string;
+  messages: { role: string; content: string }[];
+  score?: { total: number; breakdown: Record<string, number> };
+  llm?: LabLLM;
+}
+export const aiLab = (kind: 'applicant-summary' | 'worker-profile', body: unknown) =>
+  callBackend<LabResult>(`/ai/lab/${kind}`, body);

@@ -1,7 +1,6 @@
 from datetime import date
-import json
 
-PROMPT_VERSION = "wp-v3"   # bump whenever the prompt text changes
+PROMPT_VERSION = "wp-v4"   # bump whenever the prompt text changes
 
 ROLE_TH = {"caregiver": "ผู้ดูแลผู้สูงอายุ (CG)", "nurse_aide": "พนักงานผู้ช่วยเหลือคนไข้ (NA)",
            "practical_nurse": "ผู้ช่วยพยาบาล (PN)", "informal": "ดูแลแบบไม่เป็นทางการ เช่น ดูแลคนในครอบครัว"}
@@ -16,6 +15,7 @@ SYSTEM_PROMPT = """คุณเป็นผู้ช่วยเขียนโ�
 2. จำนวนปีประสบการณ์เป็นประสบการณ์รวม ห้ามเขียนผูกกับเคสใดเคสหนึ่ง
 3. ทักษะเคสทุกข้อในข้อมูลต้องอยู่ในหัวข้อ "ประสบการณ์และทักษะ" ครบทุกข้อ พร้อมระดับตามที่ให้มา
 4. คุณวุฒิ ให้คัดลอกบรรทัดใบรับรองจากข้อมูลตามเดิม
+4.1 ถ้ามี "ทักษะอื่นที่ผู้ดูแลพิมพ์เอง" ให้ใส่ท้ายหัวข้อ "ประสบการณ์และทักษะ" เป็นข้อละรายการ ตามด้วย ": ผู้ดูแลระบุเอง"
 5. ห้ามใส่ชื่อ เบอร์โทร หรือที่อยู่
 6. ตอบตามรูปแบบในตัวอย่างเท่านั้น ห้ามมีข้อความอื่น
 
@@ -74,8 +74,8 @@ def build_messages(s: dict) -> list[dict]:
     area = " ".join(x for x in [s.get("home_district"), s.get("home_province")] if x)
     if area:
         lines.append(f"พื้นที่: {area}" + (f" เดินทางได้ไม่เกิน {s['max_travel_km']} กม." if s.get("max_travel_km") else ""))
-    if s.get("extra_answers"):
-        lines.append("ข้อมูลเพิ่มเติม: " + json.dumps(s["extra_answers"], ensure_ascii=False))
+    if s.get("custom_tags"):
+        lines.append("ทักษะอื่นที่ผู้ดูแลพิมพ์เอง: " + ", ".join(s["custom_tags"]))
 
     return [{"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": "ข้อมูลผู้ดูแล:\n" + "\n".join(lines) + "\n\nผลลัพธ์:"}]

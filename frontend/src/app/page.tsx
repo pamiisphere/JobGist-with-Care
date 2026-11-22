@@ -105,7 +105,7 @@ export default function LandingPage() {
 
                   <div className="flex flex-col items-center justify-center w-20 h-20 bg-[#D946EF] border-2 border-indigo-950 text-white font-mono shrink-0 riso-shadow-sm">
                     <span className="text-2xl font-black leading-none">92%</span>
-                    <span className="text-[10px] font-bold tracking-tighter uppercase mt-0.5">FIT SCORE</span>
+                    <span className="text-[13px] font-bold tracking-tighter uppercase mt-0.5">FIT SCORE</span>
                   </div>
                 </div>
 

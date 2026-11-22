@@ -874,6 +874,7 @@ export interface CaregiverOnboardingPayload {
   skills: { case_type: CaseTypeCode; comfort_level: ComfortLevel }[];
   certificates: { file_name: string; cert_type: string; preview_url: string }[];
   no_certificates?: boolean;
+  custom_tags?: string[];
 }
 
 export function saveCaregiverDraft(data: Partial<CaregiverOnboardingPayload>): void {
@@ -1063,7 +1064,7 @@ export function submitCaregiverOnboarding(payload: CaregiverOnboardingPayload): 
     gender: payload.gender || 'unspecified',
     age: typeof payload.age === 'number' ? payload.age : null,
     avatar_url: payload.avatar_url || null,
-    extra_answers: {},
+    extra_answers: { custom_tags: payload.custom_tags || [] },
     is_visible: false, // Remains false until confirmed on profile page
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -1564,6 +1565,7 @@ export interface PostJobPayload {
   gender?: CaregiverGender;
   age?: number | null;
   avatar_url?: string | null;
+  custom_tags?: string[];
 }
 
 export function saveFamilyDraft(data: Partial<PostJobPayload>): void {
@@ -1604,7 +1606,7 @@ export function createJobPost(payload: PostJobPayload): { jobId: string } {
     expected_wage: payload.expected_wage,
     wage_unit: payload.wage_unit,
     start_date: payload.start_date,
-    extra_answers: {},
+    extra_answers: { custom_tags: payload.custom_tags || [] },
     status: payload.status,
     expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     closed_at: null,

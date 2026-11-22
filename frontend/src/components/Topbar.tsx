@@ -79,7 +79,7 @@ function TopbarInner() {
   return (
     <header className="sticky top-0 z-50 bg-[#FAF9F6] border-b-2 border-indigo-950 px-4 md:px-6 py-2.5 flex items-center justify-between">
       {/* Top-Left: JobGist brand logo */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 shrink-0">
         <Link href="/" className="inline-flex items-center transition-transform hover:scale-[1.02]">
           <Image
             src="/logo-with-care.png"
@@ -132,8 +132,8 @@ function TopbarInner() {
         {!isUnderReviewFlow && (
           <>
             {isLoggedIn ? (
-              /* User is logged in: Show active profile, find family, and match center buttons */
-              <div className="flex items-center gap-2">
+              /* User is logged in: Show active profile, find family, and match center buttons (desktop; mobile uses the drawer) */
+              <div className="hidden md:flex items-center gap-2">
                 {/* Profile Button */}
                 {isProfilePage ? (
                   <div
@@ -194,7 +194,7 @@ function TopbarInner() {
               </div>
             ) : (
               /* User is guest / unauthenticated */
-              <div className="flex items-center gap-2">
+              <div className="hidden md:flex items-center gap-2">
                 {/* เข้าสู่ระบบ: Do not show if on /auth?mode=signin */}
                 {!hideSignInButton && (
                   <Link

@@ -1,6 +1,6 @@
 from app.prompts.worker_profile import ROLE_TH, COMFORT_TH, ARR_TH
 
-PROMPT_VERSION = "as-v2"
+PROMPT_VERSION = "as-v3"
 UNIT_TH = {"month": "บาท/เดือน", "day": "บาท/วัน", "hour": "บาท/ชม."}
 
 SYSTEM_PROMPT = """คุณช่วยครอบครัวที่กำลังหาผู้ดูแลผู้ป่วย สรุปว่าผู้ดูแลคนนี้เหมาะกับงานนี้แค่ไหน
@@ -12,6 +12,7 @@ SYSTEM_PROMPT = """คุณช่วยครอบครัวที่กำ�
 4. ห้ามให้คะแนนเอง
 5. ห้ามใส่ชื่อ เบอร์โทร หรือที่อยู่
 6. ตอบตามรูปแบบในตัวอย่างเท่านั้น
+7. "แท็กที่ครอบครัวพิมพ์เอง" และ "ทักษะที่ผู้ดูแลพิมพ์เอง" ไม่ได้ถูกนำไปคิดคะแนน ถ้าตรงกันชัดเจนให้เขียนในจุดเด่นว่า "(ผู้ดูแลระบุเอง)" ถ้าครอบครัวต้องการแต่ผู้ดูแลไม่ได้ระบุ ให้ใส่ใน "ควรคุยเพิ่ม"
 
 ตัวอย่าง
 งาน: ไป-กลับรายวัน งบ 600 บาท/วัน
@@ -56,6 +57,8 @@ def build_messages(snap: dict, labels: dict) -> list[dict]:
          + f" ใบรับรองที่ตรวจสอบแล้ว: {'มี' if c['has_verified_cert'] else 'ไม่มี'}",
          f"ค่าจ้างที่ต้องการ: {_wage(c.get('expected_wage_min'), c.get('expected_wage_max'), c.get('wage_unit'))}{wage_note}",
          f"ระยะทาง: {snap['distance_km']} กม." if snap["distance_km"] is not None else "ระยะทาง: ไม่ทราบ",
+         *( [f"แท็กที่ครอบครัวพิมพ์เอง: {', '.join(j['custom_tags'])}"] if j.get("custom_tags") else [] ),
+         *( [f"ทักษะที่ผู้ดูแลพิมพ์เอง: {', '.join(c['custom_tags'])}"] if c.get("custom_tags") else [] ),
          f"คะแนนรวม: {sc['total']}/100"]
     return [{"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": "\n".join(L) + "\n\nผลลัพธ์:"}]

@@ -43,14 +43,25 @@ export type CaseTypeCode =
   | 'tracheostomy_suction'
   | 'physical_therapy'
   | 'diabetes_insulin'
-  | 'palliative_care';
+  | 'palliative_care'
+  // added Nov 2026 — already in DB case_types, now selectable in the UI
+  | 'parkinson'
+  | 'oxygen'
+  | 'urinary_catheter'
+  | 'medication'
+  | 'mobility_assist'
+  | 'fall_risk'
+  | 'bathing_toileting'
+  | 'night_watch'
+  | 'meal_prep'
+  | 'light_housework';
 
 export interface CaseType {
   code: CaseTypeCode;
   title_th: string;
   short_label_th: string;
   description_th: string;
-  category: 'general' | 'medical' | 'rehab';
+  category: 'general' | 'medical' | 'rehab' | 'household';
   keywords: string[];
 }
 
@@ -76,7 +87,7 @@ export const CASE_TYPES_V3: Record<CaseTypeCode, CaseType> = {
     title_th: 'สมองเสื่อม / อัลไซเมอร์',
     short_label_th: 'สมองเสื่อม',
     description_th: 'ความจำถดถอย สับสน หลงลืม อารมณ์แปรปรวน หรือมีพฤติกรรมเดินออกจากบ้าน',
-    category: 'general',
+    category: 'medical',
     keywords: ['สมองเสื่อม', 'อัลไซเมอร์', 'หลงลืม', 'จำไม่ได้', 'สับสน', 'ก้าวร้าว', 'เดินหาย'],
   },
   stroke: {
@@ -151,7 +162,99 @@ export const CASE_TYPES_V3: Record<CaseTypeCode, CaseType> = {
     category: 'medical',
     keywords: ['ประคับประคอง', 'palliative', 'ระยะสุดท้าย', 'ลดความปวด', 'ดูแลจิตใจ', 'สุขสบาย'],
   },
+  parkinson: {
+    code: 'parkinson',
+    title_th: 'โรคพาร์กินสัน',
+    short_label_th: 'พาร์กินสัน',
+    description_th: 'มือสั่น เคลื่อนไหวช้า ทรงตัวลำบาก ต้องช่วยพยุงและดูแลการทานยาให้ตรงเวลา',
+    category: 'medical',
+    keywords: ['พาร์กินสัน', 'parkinson', 'มือสั่น', 'ตัวสั่น', 'เคลื่อนไหวช้า'],
+  },
+  oxygen: {
+    code: 'oxygen',
+    title_th: 'ผู้ป่วยใช้ออกซิเจน',
+    short_label_th: 'ใช้ออกซิเจน',
+    description_th: 'ดูแลถังหรือเครื่องผลิตออกซิเจน สายแคนนูลา และสังเกตอาการหอบเหนื่อย',
+    category: 'medical',
+    keywords: ['ออกซิเจน', 'ถังออกซิเจน', 'เครื่องผลิตออกซิเจน', 'หอบเหนื่อย', 'cannula'],
+  },
+  urinary_catheter: {
+    code: 'urinary_catheter',
+    title_th: 'ดูแลสายสวนปัสสาวะ',
+    short_label_th: 'สายสวนปัสสาวะ',
+    description_th: 'เทถุงปัสสาวะ ทำความสะอาดสายสวน และสังเกตการติดเชื้อ',
+    category: 'medical',
+    keywords: ['สายสวน', 'สวนปัสสาวะ', 'ถุงปัสสาวะ', 'foley', 'catheter'],
+  },
+  medication: {
+    code: 'medication',
+    title_th: 'จัดยา / ดูแลการทานยา',
+    short_label_th: 'จัดยา',
+    description_th: 'จัดยาใส่ตลับตามมื้อ เตือนและดูแลให้ทานยาครบตามที่แพทย์สั่ง',
+    category: 'general',
+    keywords: ['จัดยา', 'ทานยา', 'กินยา', 'ป้อนยา', 'ยาหลายตัว'],
+  },
+  mobility_assist: {
+    code: 'mobility_assist',
+    title_th: 'ช่วยพยุงเดิน / เคลื่อนย้าย',
+    short_label_th: 'พยุง/เคลื่อนย้าย',
+    description_th: 'พยุงลุกนั่ง ย้ายจากเตียงไปรถเข็น และช่วยเดินในบ้าน',
+    category: 'general',
+    keywords: ['พยุง', 'เคลื่อนย้าย', 'ย้ายตัว', 'รถเข็น', 'วอล์คเกอร์', 'เดินไม่ไหว'],
+  },
+  fall_risk: {
+    code: 'fall_risk',
+    title_th: 'เสี่ยงหกล้ม',
+    short_label_th: 'เสี่ยงหกล้ม',
+    description_th: 'ต้องอยู่ใกล้ตลอดเวลาเวลาลุกเดินหรือเข้าห้องน้ำ เพื่อป้องกันการล้ม',
+    category: 'general',
+    keywords: ['หกล้ม', 'ล้มบ่อย', 'ทรงตัวไม่ดี', 'เวียนหัว', 'ลื่นล้ม'],
+  },
+  bathing_toileting: {
+    code: 'bathing_toileting',
+    title_th: 'อาบน้ำ / ช่วยขับถ่าย',
+    short_label_th: 'อาบน้ำ/ขับถ่าย',
+    description_th: 'อาบน้ำ เช็ดตัว เปลี่ยนผ้าอ้อม และช่วยเข้าห้องน้ำ',
+    category: 'general',
+    keywords: ['อาบน้ำ', 'เช็ดตัว', 'ผ้าอ้อม', 'แพมเพิส', 'ขับถ่าย', 'เข้าห้องน้ำ'],
+  },
+  night_watch: {
+    code: 'night_watch',
+    title_th: 'เฝ้ากลางคืน',
+    short_label_th: 'เฝ้ากลางคืน',
+    description_th: 'ตื่นดูแลผู้ป่วยช่วงกลางคืน พลิกตัว พาเข้าห้องน้ำ',
+    category: 'general',
+    keywords: ['กลางคืน', 'เฝ้าไข้', 'เฝ้าดึก', 'นอนค้าง', 'ตื่นกลางคืน'],
+  },
+  meal_prep: {
+    code: 'meal_prep',
+    title_th: 'ทำอาหารสำหรับผู้ป่วย',
+    short_label_th: 'ทำอาหาร',
+    description_th: 'ทำอาหารอ่อน อาหารเฉพาะโรค หรืออาหารปั่น',
+    category: 'household',
+    keywords: ['ทำอาหาร', 'อาหารอ่อน', 'โจ๊ก', 'อาหารปั่น', 'ทำกับข้าว'],
+  },
+  light_housework: {
+    code: 'light_housework',
+    title_th: 'งานบ้านเบาๆ',
+    short_label_th: 'งานบ้านเบาๆ',
+    description_th: 'ซักผ้าของผู้ป่วย ทำความสะอาดห้องผู้ป่วย',
+    category: 'household',
+    keywords: ['งานบ้าน', 'ซักผ้า', 'ทำความสะอาด', 'กวาดบ้าน'],
+  },
 };
+
+/** Section headers for the tag pickers, in display order. */
+export const CASE_CATEGORY_LABEL_TH: Record<CaseType['category'], string> = {
+  medical: 'อาการ / การพยาบาลเฉพาะ',
+  general: 'ดูแลกิจวัตรประจำวัน',
+  rehab: 'ฟื้นฟูร่างกาย',
+  household: 'งานบ้านที่เกี่ยวข้อง',
+};
+
+/** Max custom (free-text) tags per profile/job and max length of each. */
+export const CUSTOM_TAG_LIMIT = 8;
+export const CUSTOM_TAG_MAX_LEN = 30;
 
 export const CARE_ROLES_META: Record<CareRole, { label_th: string; desc_th: string; abbr: string }> = {
   caregiver: {

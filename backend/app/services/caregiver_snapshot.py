@@ -1,5 +1,6 @@
 import hashlib, json
 from app.db import supabase
+from app.services.match_data import custom_tags
 
 def build_caregiver_snapshot(caregiver_id: str) -> dict | None:
     """Exact data sent to the LLM. No name, contact, address or wage."""
@@ -10,6 +11,8 @@ def build_caregiver_snapshot(caregiver_id: str) -> dict | None:
     if not d or not d.data:
         return None
     data = d.data
+    # extra_answers also holds avatar_url (base64 image) and UI overrides — keep only custom tags
+    data["custom_tags"] = custom_tags(data.pop("extra_answers", None))
     for k in ("care_roles", "work_arrangements"):          # stable order → stable hash
         data[k] = sorted(data.get(k) or [])
 

@@ -56,3 +56,6 @@ drop policy if exists "task_events: read own" on public.task_events;
 create policy "task_events: read own"
 on public.task_events for select to authenticated
 using (user_id = auth.uid());
+
+-- backend (service_role) reads task_events for /admin/eval-stats; schema.sql revokes defaults
+grant all on public.task_events to service_role;

@@ -1131,7 +1131,7 @@ export function submitCaregiverOnboarding(payload: CaregiverOnboardingPayload): 
 
   clearCaregiverDraft();
   if (LIVE) {
-    track(Live.saveCaregiver(caregiverId, payload));
+    track(Live.saveCaregiver(caregiverId, payload).then(() => Live.markTaskDone(caregiverId, 'caregiver', 'onboarding_form')));
   }
   return { caregiverId };
 }
@@ -1755,7 +1755,9 @@ export function createJobPost(payload: PostJobPayload): { jobId: string } {
       phone: newPhone,
       line_id: newLine,
       avatar_url: newAvatar,
-    }, Boolean(existingLiveJob)));
+    }, Boolean(existingLiveJob)).then(() => {
+      if (!existingLiveJob) return Live.markTaskDone(familyId, 'family', 'post_job');
+    }));
   }
   return { jobId };
 }
@@ -2605,20 +2607,30 @@ export function getFavoritesForUser(userId: string) {
 // PLATFORM REVIEWS & NOTIFICATIONS
 // ----------------------------------------------------------------------------
 
+/**
+ * In-app feedback (Objective 1). Five single-topic questions, 1–5.
+ * Q3 and Q4 are family-only and are null for caregivers.
+ */
 export function submitPlatformReview(payload: {
   user_id: string;
+  role: UserRole;
   ease_of_use_score: number;
-  clarity_score: number;
-  recommendation_score: number;
+  profile_clarity_score: number;
+  summary_accuracy_score: number | null;
+  tag_usefulness_score: number | null;
+  overall_satisfaction_score: number;
   comment: string | null;
 }): PlatformReview {
   const reviews = getStored<PlatformReview[]>(STORAGE_KEYS.REVIEWS, MOCK_REVIEWS);
   const newReview: PlatformReview = {
     id: `rev-${Date.now()}`,
     user_id: payload.user_id,
+    role: payload.role,
     ease_of_use_score: payload.ease_of_use_score,
-    clarity_score: payload.clarity_score,
-    recommendation_score: payload.recommendation_score,
+    profile_clarity_score: payload.profile_clarity_score,
+    summary_accuracy_score: payload.summary_accuracy_score,
+    tag_usefulness_score: payload.tag_usefulness_score,
+    overall_satisfaction_score: payload.overall_satisfaction_score,
     comment: payload.comment,
     created_at: new Date().toISOString(),
   };
@@ -2626,11 +2638,21 @@ export function submitPlatformReview(payload: {
   setStored(STORAGE_KEYS.REVIEWS, reviews);
   if (LIVE) {
     track(Live.savePlatformReview(payload.user_id, {
-      ease: payload.ease_of_use_score, ui: payload.clarity_score,
-      ai: payload.recommendation_score, comment: payload.comment,
+      role: payload.role,
+      ease: payload.ease_of_use_score,
+      profile_clarity: payload.profile_clarity_score,
+      summary_accuracy: payload.summary_accuracy_score,
+      tag_usefulness: payload.tag_usefulness_score,
+      overall: payload.overall_satisfaction_score,
+      comment: payload.comment,
     }));
   }
   return newReview;
+}
+
+/** Task timing for Objective 1 (no-op when not live). */
+export function markTaskStart(step: Live.TaskStep) {
+  if (LIVE) Live.markTaskStart(step);
 }
 
 export function getNotifications(userId: string): NotificationRow[] {
@@ -2852,8 +2874,9 @@ export async function liveCompleteSignup(role: UserRole): Promise<CurrentUserSes
   const raw = sessionStorage.getItem(PENDING_SIGNUP_KEY);
   if (!raw) throw new Error('ไม่พบข้อมูลการสมัคร กรุณาสมัครใหม่อีกครั้ง');
   clearLiveCache();
-  await Live.signUp(JSON.parse(raw), role);
+  const me = await Live.signUp(JSON.parse(raw), role);
   sessionStorage.removeItem(PENDING_SIGNUP_KEY);
+  void Live.markTaskDone(me.id, role, 'signup');
   await hydrateLive();
   broadcastAppEvent('jg_auth_changed');
   return getCurrentUser();

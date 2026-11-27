@@ -1,7 +1,7 @@
 'use client';
 
 import { fileToSmallDataUrl } from '@/lib/image';
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -20,6 +20,7 @@ import {
   liveSignIn,
   savePendingSignup,
   LIVE_DEMO,
+  markTaskStart,
 } from '@/services/api';
 import { ChevronRightIcon, HomeIcon } from '@/components/Icons';
 
@@ -28,6 +29,11 @@ function AuthContent() {
   const searchParams = useSearchParams();
   const queryMode = searchParams.get('mode');
   const mode: 'signin' | 'signup' = queryMode === 'signup' ? 'signup' : 'signin';
+
+  // Objective 1: start the "signup" timer when the sign-up form opens
+  useEffect(() => {
+    if (mode === 'signup') markTaskStart('signup');
+  }, [mode]);
 
   // Form states
   const [displayName, setDisplayName] = useState('');

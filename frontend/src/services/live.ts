@@ -846,14 +846,61 @@ export async function markRead(notifId: string) {
   await sb().from('notifications').update({ read_at: nowIso() }).eq('id', notifId);
 }
 
-export async function savePlatformReview(uid: string, r: { ease: number; ui: number; ai: number; comment: string | null }) {
+/** Platform feedback (Objective 1). Questions not shown to a role are saved as null. */
+export interface PlatformReviewWrite {
+  role: UserRole;
+  ease: number;                 // Q1 ease of use
+  profile_clarity: number;      // Q2 AI profile text is clear
+  summary_accuracy: number | null; // Q3 family only
+  tag_usefulness: number | null;   // Q4 family only
+  overall: number;              // Q5 overall satisfaction
+  comment: string | null;       // where was it confusing?
+}
+export async function savePlatformReview(uid: string, r: PlatformReviewWrite) {
   const clamp = (n: number) => Math.min(5, Math.max(1, Math.round(n || 3)));
-  const row = { ease_of_use: clamp(r.ease), ui_design: clamp(r.ui), ai_summary_quality: clamp(r.ai), comment: r.comment };
+  const opt = (n: number | null) => (n == null ? null : clamp(n));
+  const row = {
+    role: r.role,
+    ease_of_use: clamp(r.ease),
+    profile_clarity: clamp(r.profile_clarity),
+    summary_accuracy: opt(r.summary_accuracy),
+    tag_usefulness: opt(r.tag_usefulness),
+    overall_satisfaction: clamp(r.overall),
+    comment: r.comment,
+  };
   const ins = await sb().from('platform_reviews').insert({ user_id: uid, ...row });
   if (ins.error) {
     const up = await sb().from('platform_reviews').update(row).eq('user_id', uid);
     if (up.error) fail('platform review', up.error);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Task completion + time on task (Objective 1).
+// Start time is kept in sessionStorage (works before login); on finish one row
+// is written to task_events. Only the first finish per user/step is kept.
+// Never throws: tracking must not break the real flow.
+// ---------------------------------------------------------------------------
+export type TaskStep = 'signup' | 'onboarding_form' | 'post_job';
+const taskKey = (step: TaskStep) => `jg_task_start_${step}`;
+
+export function markTaskStart(step: TaskStep) {
+  if (typeof window === 'undefined') return;
+  try {
+    if (!sessionStorage.getItem(taskKey(step))) sessionStorage.setItem(taskKey(step), nowIso());
+  } catch { /* storage blocked: skip */ }
+}
+
+export async function markTaskDone(uid: string, role: UserRole, step: TaskStep) {
+  let started: string | null = null;
+  try { started = typeof window === 'undefined' ? null : sessionStorage.getItem(taskKey(step)); } catch { /* skip */ }
+  try {
+    await sb().from('task_events').upsert(
+      { user_id: uid, role, step, started_at: started, completed_at: nowIso() },
+      { onConflict: 'user_id,step', ignoreDuplicates: true },
+    );
+    if (typeof window !== 'undefined') sessionStorage.removeItem(taskKey(step));
+  } catch { /* tracking only */ }
 }
 
 // ---------------------------------------------------------------------------
@@ -880,6 +927,7 @@ export const aiLab = (kind: 'applicant-summary' | 'worker-profile', body: unknow
 export interface AiStatRow {
   calls: number; success: number; success_rate: number | null; tokens_in: number; tokens_out: number;
   cost_thb: number; cost_per_output_thb: number | null; avg_latency_ms: number | null;
+  median_latency_ms?: number | null; p95_latency_ms?: number | null;
 }
 export interface AiStats {
   days: number; include_eval: boolean; eval_calls_hidden: number;
@@ -901,5 +949,35 @@ export async function adminAiStats(
   });
   if (res.status === 403) throw new Error('FORBIDDEN');
   if (!res.ok) throw new Error(`/admin/ai-stats → ${res.status} ${await res.text()}`);
+  return res.json();
+}
+
+/** Objective 1 numbers: feedback answers + task completion. */
+export interface QuestionStat { n: number; mean: number | null; pct_4_or_more: number | null }
+export interface EvalStats {
+  days: number;
+  reviews: {
+    total: number;
+    by_role: Partial<Record<'caregiver' | 'family', number>>;
+    questions: Record<'ease_of_use' | 'profile_clarity' | 'summary_accuracy' | 'tag_usefulness' | 'overall_satisfaction',
+      { all: QuestionStat; caregiver: QuestionStat; family: QuestionStat }>;
+    by_model: { model: string; n: number; overall_mean: number | null; profile_clarity_mean: number | null; summary_accuracy_mean: number | null }[];
+    comments: { created_at: string; role: string | null; overall: number | null; comment: string }[];
+  };
+  tasks: {
+    step: 'signup' | 'onboarding_form' | 'post_job' | 'mutual_match';
+    role: string; eligible: number; completed: number; completion_rate: number | null;
+    median_minutes: number | null; p90_minutes: number | null;
+  }[];
+}
+export async function adminEvalStats(
+  days: number, login: { user: string; password: string }
+): Promise<EvalStats> {
+  if (!API_BASE) throw new Error('NEXT_PUBLIC_API_BASE is not set');
+  const res = await fetch(`${API_BASE}/admin/eval-stats?days=${days}`, {
+    headers: { 'X-Admin-User': login.user, 'X-Admin-Password': login.password },
+  });
+  if (res.status === 403) throw new Error('FORBIDDEN');
+  if (!res.ok) throw new Error(`/admin/eval-stats → ${res.status} ${await res.text()}`);
   return res.json();
 }

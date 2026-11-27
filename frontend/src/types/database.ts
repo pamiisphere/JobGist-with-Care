@@ -479,9 +479,12 @@ export interface FeedbackCorrection {
 export interface PlatformReview {
   id: string;
   user_id: string;
-  ease_of_use_score: number; // 1-5
-  clarity_score: number; // 1-5
-  recommendation_score: number; // 1-5
+  role?: UserRole | null;
+  ease_of_use_score: number; // 1-5 ใช้งานง่าย
+  profile_clarity_score: number | null; // 1-5 ข้อความโปรไฟล์ AI ชัดเจน
+  summary_accuracy_score: number | null; // 1-5 สรุปความเหมาะสมตรงข้อมูลจริง (family)
+  tag_usefulness_score: number | null; // 1-5 tag ที่แนะนำมีประโยชน์ (family)
+  overall_satisfaction_score: number | null; // 1-5 พอใจโดยรวม
   comment: string | null;
   created_at: string;
 }

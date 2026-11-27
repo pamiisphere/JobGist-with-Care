@@ -1,7 +1,7 @@
 'use client';
 
 import { fileToSmallDataUrl } from '@/lib/image';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Topbar from '@/components/Topbar';
 import Footer from '@/components/Footer';
@@ -27,6 +27,7 @@ import {
   CaregiverOnboardingPayload,
   getNameInitial,
   stripKhunPrefix,
+  markTaskStart,
 } from '@/services/api';
 import { CaregiverGender } from '@/types/database';
 import CustomTagInput from '@/components/CustomTagInput';
@@ -93,6 +94,7 @@ function getInitialCaregiverData(): Partial<CaregiverOnboardingPayload> | null {
 
 export default function CaregiverOnboardingPage() {
   const router = useRouter();
+  useEffect(() => { markTaskStart('onboarding_form'); }, []);
 
   // Step state: 1 to 5
   const [step, setStep] = useState(1);

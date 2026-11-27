@@ -84,10 +84,8 @@ function MatchesContent() {
   const [selectedMutualForCompare, setSelectedMutualForCompare] = useState<string[]>([]);
   const [showMutualCompareModal, setShowMutualCompareModal] = useState(false);
 
-  // 3-Question Platform Evaluation Form State
-  const [easeScore, setEaseScore] = useState(5);
-  const [clarityScore, setClarityScore] = useState(5);
-  const [recommendScore, setRecommendScore] = useState(5);
+  // Platform evaluation form (Objective 1). 0 = not answered yet (no default bias).
+  const [reviewScores, setReviewScores] = useState<Record<string, number>>({});
   const [reviewComment, setReviewComment] = useState('');
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
@@ -168,17 +166,39 @@ function MatchesContent() {
     setNotifications((prev) => prev.filter((n) => n.id !== notifId));
   };
 
+  // Q3–Q4 are about the applicant card, which only families see.
+  const reviewQuestions: { key: string; label: string }[] = [
+    { key: 'ease', label: 'ใช้งานง่าย ไม่ต้องพิมพ์เยอะ' },
+    { key: 'profile_clarity', label: 'ข้อความโปรไฟล์ที่ AI เขียนชัดเจน เข้าใจง่าย' },
+    ...(currentUser.role === 'family'
+      ? [
+          { key: 'summary_accuracy', label: 'สรุปความเหมาะสมบนการ์ดผู้สมัคร ตรงกับข้อมูลจริง' },
+          { key: 'tag_usefulness', label: 'tag ที่ระบบแนะนำมีประโยชน์' },
+        ]
+      : []),
+    { key: 'overall', label: 'พอใจกับการใช้งานโดยรวม' },
+  ];
+
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
+    const qs = reviewQuestions;
+    if (qs.some((q) => !reviewScores[q.key])) {
+      showToast('ยังตอบไม่ครบ', 'กรุณาเลือกคะแนน 1–5 ให้ครบทุกข้อ');
+      return;
+    }
+    const isFam = currentUser.role === 'family';
     submitPlatformReview({
       user_id: currentUser.id,
-      ease_of_use_score: easeScore,
-      clarity_score: clarityScore,
-      recommendation_score: recommendScore,
-      comment: reviewComment || null,
+      role: currentUser.role ?? 'family',
+      ease_of_use_score: reviewScores.ease,
+      profile_clarity_score: reviewScores.profile_clarity,
+      summary_accuracy_score: isFam ? reviewScores.summary_accuracy : null,
+      tag_usefulness_score: isFam ? reviewScores.tag_usefulness : null,
+      overall_satisfaction_score: reviewScores.overall,
+      comment: reviewComment.trim() || null,
     });
     setReviewSubmitted(true);
-    showToast('ขอบคุณสำหรับข้อเสนอแนะ', 'บันทึกแบบประเมินลงตาราง platform_reviews เรียบร้อยแล้ว');
+    showToast('ขอบคุณสำหรับคำตอบ', 'บันทึกแบบประเมินเรียบร้อยแล้ว');
   };
 
   const mutualMatches = matches.filter((m) => m.isMutual);
@@ -1022,7 +1042,7 @@ function MatchesContent() {
                       <td className="p-3 font-bold text-indigo-950 bg-purple-100/70">
                         <div className="flex items-center gap-1.5">
                           <SparklesIcon className="w-3.5 h-3.5 text-[#D946EF]" />
-                          <span>AI Fit Score</span>
+                          <span>คะแนนตรงตามเงื่อนไข</span>
                         </div>
                       </td>
                       {favorites
@@ -1309,7 +1329,7 @@ function MatchesContent() {
                       <td className="p-3 font-bold text-indigo-950 bg-purple-100/70">
                         <div className="flex items-center gap-1.5">
                           <SparklesIcon className="w-3.5 h-3.5 text-[#D946EF]" />
-                          <span>AI Fit Score</span>
+                          <span>คะแนนตรงตามเงื่อนไข</span>
                         </div>
                       </td>
                       {mutualMatches
@@ -1547,126 +1567,79 @@ function MatchesContent() {
           </div>
         )}
 
-        {/* Section 5: 3-Question Platform Evaluation Form (Schema v3: platform_reviews) */}
+        {/* Section 5: Platform evaluation form (Objective 1 · platform_reviews) */}
         <div className="bg-white border-2 border-indigo-950 p-6 sm:p-8 riso-shadow-xl space-y-5">
-          <div className="border-b-2 border-indigo-950 pb-4">
+          <div className="border-b-2 border-indigo-950 pb-4 space-y-1">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#D946EF] block">
-              EVALUATION & RESEARCH FEEDBACK (PLATFORM_REVIEWS)
+              แบบประเมินการใช้งาน · ใช้เวลาไม่ถึง 1 นาที
             </span>
             <h3 className="text-xl font-black text-indigo-950">
-              แบบประเมินความพึงพอใจการใช้งาน 3 ข้อ
+              ช่วยบอกเราหน่อย ใช้งาน JobGist แล้วเป็นอย่างไรบ้าง
             </h3>
             <p className="text-xs text-stone-600">
-              ความคิดเห็นของคุณช่วยให้เราปรับปรุงคุณภาพการจับคู่ภาษาไทยและโมเดล AI ให้ดียิ่งขึ้น
+              ให้คะแนน 1–5 ทุกข้อ (1 = ไม่เห็นด้วยเลย, 5 = เห็นด้วยมาก) คำตอบใช้เพื่อปรับปรุงระบบเท่านั้น
             </p>
           </div>
 
           {reviewSubmitted ? (
-            <div className="p-4 bg-emerald-100 border-2 border-emerald-900 text-emerald-950 font-bold text-xs text-center riso-shadow-sm space-y-1">
-              <span className="text-base block">✓ ขอบคุณสำหรับข้อเสนอแนะ!</span>
-              <p className="font-normal text-stone-600">
-                ข้อมูลของคุณถูกบันทึกลงตาราง <code>platform_reviews</code> เรียบร้อยแล้ว
-              </p>
+            <div className="p-4 bg-emerald-100 border-2 border-emerald-900 text-emerald-950 font-bold text-sm text-center riso-shadow-sm">
+              ✓ ขอบคุณสำหรับคำตอบค่ะ
             </div>
           ) : (
-            <form onSubmit={handleSubmitReview} className="space-y-4">
-              {/* Question 1: Ease of Use */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-indigo-950 block">
-                  1. ความง่ายและความสะดวกในการตอบคำถาม / ค้นหา (1-5)
-                </label>
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3, 4, 5].map((val) => (
-                    <button
-                      key={val}
-                      type="button"
-                      onClick={() => setEaseScore(val)}
-                      className={`w-11 h-11 border-2 border-indigo-950 font-mono font-bold text-sm riso-btn-active ${
-                        easeScore === val
-                          ? 'bg-[#1E1B4B] text-white riso-shadow-sm'
-                          : 'bg-white text-indigo-950 hover:bg-stone-50'
-                      }`}
-                    >
-                      {val}
-                    </button>
-                  ))}
-                  <span className="text-xs font-mono text-stone-500 ml-2">
-                    {easeScore === 5 ? 'ง่ายมาก ไม่ต้องพิมพ์เยอะ' : `${easeScore}/5`}
-                  </span>
-                </div>
-              </div>
+            <form onSubmit={handleSubmitReview} className="space-y-5">
+              {reviewQuestions.map((q, i) => (
+                <fieldset key={q.key} className="space-y-1.5">
+                  <legend className="text-sm font-bold text-indigo-950">
+                    {i + 1}. {q.label}
+                  </legend>
+                  <div className="flex items-center gap-2" role="radiogroup" aria-label={q.label}>
+                    {[1, 2, 3, 4, 5].map((val) => {
+                      const selected = reviewScores[q.key] === val;
+                      return (
+                        <button
+                          key={val}
+                          type="button"
+                          role="radio"
+                          aria-checked={selected}
+                          onClick={() => setReviewScores((p) => ({ ...p, [q.key]: val }))}
+                          className={`w-11 h-11 border-2 border-indigo-950 font-mono font-bold text-sm riso-btn-active ${
+                            selected
+                              ? 'bg-[#1E1B4B] text-white riso-shadow-sm'
+                              : 'bg-white text-indigo-950 hover:bg-stone-50'
+                          }`}
+                        >
+                          {val}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-between w-[15.5rem] text-[11px] text-stone-500">
+                    <span>ไม่เห็นด้วยเลย</span>
+                    <span>เห็นด้วยมาก</span>
+                  </div>
+                </fieldset>
+              ))}
 
-              {/* Question 2: Clarity of Profile & Fit Analysis */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-indigo-950 block">
-                  2. ความชัดเจนของข้อความโปรไฟล์และคะแนน Fit Score ที่ AI สร้างให้ (1-5)
-                </label>
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3, 4, 5].map((val) => (
-                    <button
-                      key={val}
-                      type="button"
-                      onClick={() => setClarityScore(val)}
-                      className={`w-11 h-11 border-2 border-indigo-950 font-mono font-bold text-sm riso-btn-active ${
-                        clarityScore === val
-                          ? 'bg-[#1E1B4B] text-white riso-shadow-sm'
-                          : 'bg-white text-indigo-950 hover:bg-stone-50'
-                      }`}
-                    >
-                      {val}
-                    </button>
-                  ))}
-                  <span className="text-xs font-mono text-stone-500 ml-2">
-                    {clarityScore === 5 ? 'ชัดเจน เข้าใจง่าย มีเหตุผล' : `${clarityScore}/5`}
-                  </span>
-                </div>
-              </div>
-
-              {/* Question 3: Recommendation */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-indigo-950 block">
-                  3. ความพึงพอใจและโอกาสที่จะแนะนำผู้อื่นให้ใช้งานต่อ (1-5)
-                </label>
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3, 4, 5].map((val) => (
-                    <button
-                      key={val}
-                      type="button"
-                      onClick={() => setRecommendScore(val)}
-                      className={`w-11 h-11 border-2 border-indigo-950 font-mono font-bold text-sm riso-btn-active ${
-                        recommendScore === val
-                          ? 'bg-[#1E1B4B] text-white riso-shadow-sm'
-                          : 'bg-white text-indigo-950 hover:bg-stone-50'
-                      }`}
-                    >
-                      {val}
-                    </button>
-                  ))}
-                  <span className="text-xs font-mono text-stone-500 ml-2">
-                    {recommendScore === 5 ? 'แนะนำแน่นอน ประหยัดค่านายหน้า' : `${recommendScore}/5`}
-                  </span>
-                </div>
-              </div>
-
-              {/* Optional Comment */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-indigo-950 block">
-                  ข้อเสนอแนะเพิ่มเติม (ถ้ามี)
+                <label htmlFor="review-comment" className="text-sm font-bold text-indigo-950 block">
+                  ตรงไหนที่ใช้งานแล้วงง หรือติดขัด? <span className="font-normal text-stone-500">(ไม่บังคับ)</span>
                 </label>
                 <textarea
+                  id="review-comment"
                   rows={3}
                   value={reviewComment}
                   onChange={(e) => setReviewComment(e.target.value)}
-                  placeholder="เช่น อยากให้มีระบบนัดตรวจสุขภาพ หรือเพิ่มการกรองตามงบประมาณ..."
-                  className="w-full p-3 text-xs bg-white border-2 border-indigo-950 focus:outline-none"
+                  placeholder="เช่น ไม่แน่ใจว่าต้องกดตรงไหนต่อ หรือข้อความบางส่วนอ่านไม่เข้าใจ"
+                  className="w-full p-3 text-sm bg-white border-2 border-indigo-950 focus:outline-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="min-h-[44px] px-6 py-2.5 bg-indigo-950 text-white font-black text-xs border-2 border-indigo-950 riso-shadow hover:bg-[#2E1065] riso-btn-active"
+                disabled={reviewQuestions.some((q) => !reviewScores[q.key])}
+                className="min-h-[44px] px-6 py-2.5 bg-indigo-950 text-white font-black text-sm border-2 border-indigo-950 riso-shadow hover:bg-[#2E1065] riso-btn-active disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                ส่งแบบประเมินความพึงพอใจ
+                ส่งแบบประเมิน
               </button>
             </form>
           )}

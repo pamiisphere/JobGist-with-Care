@@ -22,6 +22,7 @@ import {
   getFamilyProfileBundle,
   getCurrentUser,
   PostJobPayload,
+  markTaskStart,
 } from '@/services/api';
 import {
   SparklesIcon,
@@ -85,6 +86,7 @@ function getInitialFamilyJobData(): Partial<PostJobPayload> | null {
 
 export default function FamilyPostJobPage() {
   const router = useRouter();
+  useEffect(() => { markTaskStart('post_job'); }, []);
 
   // Natural Language Input
   const [patientDescription, setPatientDescription] = useState(() => {
